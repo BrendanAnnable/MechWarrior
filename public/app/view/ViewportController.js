@@ -11,7 +11,9 @@ Ext.define('MW.view.ViewportController', {
 		triangleBuffer: null,
 		triangleColorBuffer: null,
 		mvMatrix: null,
-		pMatrix: null
+		pMatrix: null,
+		angle: 0,
+		lastTime: 0
 	},
 	init: function () {
 		this.setPMatrix(new Float32Array(16));
@@ -24,8 +26,6 @@ Ext.define('MW.view.ViewportController', {
 		canvas.height = height;
 		gl.viewportWidth = width;
 		gl.viewportHeight = height;
-
-		this.drawScene();
 	},
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
@@ -37,14 +37,30 @@ Ext.define('MW.view.ViewportController', {
 		this.setGl(gl);
 
 		this.initShaders(gl, function (shaderProgram) {
+			this.setShaderProgram(shaderProgram);
 			this.initBuffers(gl);
 
 			gl.clearColor(0, 0, 0, 1);
 			gl.enable(gl.DEPTH_TEST);
 
-			this.drawScene(gl, shaderProgram);
-			this.setShaderProgram(shaderProgram);
+			this.tick();
 		});
+	},
+	tick: function () {
+		this.animate();
+		this.drawScene();
+		requestAnimationFrame(Ext.bind(this.tick, this));
+	},
+	animate: function () {
+		var now = Date.now();
+		var lastTime = this.getLastTime();
+		if (lastTime != 0) {
+			var angle = this.getAngle();
+			var elapsed = now - lastTime;
+			angle += (Math.PI / 2 * elapsed) / 1000;
+			this.setAngle(angle);
+		}
+		this.setLastTime(now);
 	},
 	drawScene: function (gl, shaderProgram) {
 		if (gl === undefined) {
@@ -67,6 +83,7 @@ Ext.define('MW.view.ViewportController', {
 		mat4.identity(mvMatrix);
 
 		mat4.translate(mvMatrix, mvMatrix, [0, 0, -8]);
+		mat4.rotateY(mvMatrix, mvMatrix, this.getAngle());
 		var triangleBuffer = this.getTriangleBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer);
 		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
