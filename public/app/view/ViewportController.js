@@ -6,6 +6,7 @@ Ext.define('MW.view.ViewportController', {
 	alias: 'controller.ViewportController',
 	config: {
 		gl: null,
+		shaderProgram: null,
 		canvas: null,
 		triangleBuffer: null,
 		mvMatrix: null,
@@ -22,6 +23,8 @@ Ext.define('MW.view.ViewportController', {
 		canvas.height = height;
 		gl.viewportWidth = width;
 		gl.viewportHeight = height;
+
+		this.drawScene();
 	},
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
@@ -32,17 +35,26 @@ Ext.define('MW.view.ViewportController', {
 		gl.viewportHeight = canvas.height;
 		this.setGl(gl);
 
-		var me = this;
 		this.initShaders(gl, function (shaderProgram) {
-			me.initBuffers(gl);
+			this.initBuffers(gl);
 
 			gl.clearColor(0, 0, 0, 1);
 			gl.enable(gl.DEPTH_TEST);
 
-			me.drawScene(gl, shaderProgram);
+			this.drawScene(gl, shaderProgram);
+			this.setShaderProgram(shaderProgram);
 		});
 	},
 	drawScene: function (gl, shaderProgram) {
+		if (gl === undefined) {
+			gl = this.getGl();
+		}
+		if (shaderProgram === undefined) {
+			shaderProgram = this.getShaderProgram();
+		}
+		if (shaderProgram === null) {
+			return;
+		}
 		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -100,16 +112,15 @@ Ext.define('MW.view.ViewportController', {
 
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-			callback(shaderProgram);
+			callback.call(this, shaderProgram);
 		});
 	},
 	loadShaders: function (gl, callback) {
 		var shaderPath = Ext.Loader.getPath('MW') + '/shader/';
 
-		var me = this;
-		me.loadVertexShader(gl, shaderPath + 'vertex.c', function (vertexShader) {
-			me.loadFragmentShader(gl, shaderPath + 'fragment.c', function (fragmentShader) {
-				callback(vertexShader, fragmentShader);
+		this.loadVertexShader(gl, shaderPath + 'vertex.c', function (vertexShader) {
+			this.loadFragmentShader(gl, shaderPath + 'fragment.c', function (fragmentShader) {
+				callback.call(this, vertexShader, fragmentShader);
 			});
 		});
 	},
@@ -117,6 +128,7 @@ Ext.define('MW.view.ViewportController', {
 		var shader = null;
 		Ext.Ajax.request({
 			url: url,
+			scope: this,
 			success: function (response) {
 				shader = gl.createShader(gl.VERTEX_SHADER);
 				gl.shaderSource(shader, response.responseText);
@@ -124,7 +136,7 @@ Ext.define('MW.view.ViewportController', {
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 					console.err(gl.getShaderInfoLog(shader));
 				}
-				callback(shader);
+				callback.call(this, shader);
 			}
 		});
 	},
@@ -132,7 +144,7 @@ Ext.define('MW.view.ViewportController', {
 		var shader = null;
 		Ext.Ajax.request({
 			url: url,
-			async: false,
+			scope: this,
 			success: function (response) {
 				shader = gl.createShader(gl.FRAGMENT_SHADER);
 				gl.shaderSource(shader, response.responseText);
@@ -140,7 +152,7 @@ Ext.define('MW.view.ViewportController', {
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
 					console.err(gl.getShaderInfoLog(shader));
 				}
-				callback(shader);
+				callback.call(this, shader);
 			}
 		});
 	}
