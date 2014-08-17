@@ -9,6 +9,7 @@ Ext.define('MW.view.ViewportController', {
 		shaderProgram: null,
 		canvas: null,
 		triangleBuffer: null,
+		triangleColorBuffer: null,
 		mvMatrix: null,
 		pMatrix: null
 	},
@@ -69,6 +70,10 @@ Ext.define('MW.view.ViewportController', {
 		var triangleBuffer = this.getTriangleBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer);
 		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+		var triangleColorBuffer = this.getTriangleColorBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer);
+		gl.vertexAttribPointer(shaderProgram.vertexColorAttribute, triangleColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 		this.setMatrixUniforms(gl, shaderProgram);
 
 		gl.drawArrays(gl.TRIANGLES, 0, triangleBuffer.numItems);
@@ -93,6 +98,20 @@ Ext.define('MW.view.ViewportController', {
 		triangleBuffer.numItems = 3;
 
 		this.setTriangleBuffer(triangleBuffer);
+
+		var triangleColorBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, triangleColorBuffer);
+		var colors = [
+			1, 0, 0, 1,
+			0, 1, 0, 1,
+			0, 0, 1, 1
+		];
+
+		gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(colors), gl.STATIC_DRAW);
+		triangleColorBuffer.itemSize = 4;
+		triangleColorBuffer.numItems = 3;
+
+		this.setTriangleColorBuffer(triangleColorBuffer);
 	},
 	initShaders: function (gl, callback) {
 		this.loadShaders(gl, function (vertexShader, fragmentShader) {
@@ -102,13 +121,16 @@ Ext.define('MW.view.ViewportController', {
 			gl.linkProgram(shaderProgram);
 
 			if (!gl.getProgramParameter(shaderProgram, gl.LINK_STATUS)) {
-				console.err("Could not initialise shaders");
+				console.error("Could not initialise shaders");
 			}
 
 			gl.useProgram(shaderProgram);
 
 			shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
 			gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
+
+			shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+			gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
@@ -134,7 +156,7 @@ Ext.define('MW.view.ViewportController', {
 				gl.shaderSource(shader, response.responseText);
 				gl.compileShader(shader);
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-					console.err(gl.getShaderInfoLog(shader));
+					console.error(gl.getShaderInfoLog(shader));
 				}
 				callback.call(this, shader);
 			}
@@ -150,7 +172,7 @@ Ext.define('MW.view.ViewportController', {
 				gl.shaderSource(shader, response.responseText);
 				gl.compileShader(shader);
 				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-					console.err(gl.getShaderInfoLog(shader));
+					console.error(gl.getShaderInfoLog(shader));
 				}
 				callback.call(this, shader);
 			}
