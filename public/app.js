@@ -1,4 +1,9 @@
 Ext.syncRequire('Ext.app.Application');
+
+Ext.Loader.setConfig({
+	disableCaching: false
+});
+
 Ext.application({
 	name: 'MW',
 	paths: {

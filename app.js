@@ -7,7 +7,7 @@ var MechWarrior = require('./lib/MechWarrior');
 var app = express();
 var server = http.Server(app);
 
-app.set('port', 9090);
+app.set('port', 7070);
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(compression());
 app.use(express.static(__dirname + '/public'));

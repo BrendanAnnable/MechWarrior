@@ -6,12 +6,17 @@ Ext.define('MW.view.Viewport', {
 	requires: [
 		'MW.view.ViewportController'
 	],
-	controller: 'Viewport',
+	controller: 'ViewportController',
 	layout: 'border',
 	items: [{
 		xtype: 'container',
 		layout: 'fit',
 		region: 'center',
-		autoEl: 'canvas'
+		autoEl: 'canvas',
+		reference: 'canvas',
+		listeners: {
+			resize: 'onResize',
+			afterrender: 'onAfterRender'
+		}
 	}]
 });
