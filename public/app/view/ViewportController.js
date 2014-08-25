@@ -121,9 +121,9 @@ Ext.define('MW.view.ViewportController', {
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-//		var normalBuffer = face.normalBuffer;
-//		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-//		gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		var normalBuffer = face.normalBuffer;
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+		gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
 		var faceBuffer = face.faceBuffer;
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
@@ -156,8 +156,8 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "aVertexPosition");
 			gl.enableVertexAttribArray(shaderProgram.vertexPositionAttribute);
 
-//			shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
-//			gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
+			shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
+			gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
 //			shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
 //			gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
