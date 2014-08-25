@@ -97,10 +97,12 @@ Ext.define('MW.view.ViewportController', {
 		mat4.translate(mvMatrix, mvMatrix, [0, 0, -30]);
 
 		this.mvPush();
+//		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
 //		mat4.translate(mvMatrix, mvMatrix, [0, 1.5, 0]);
 		mat4.rotateY(mvMatrix, mvMatrix, this.getAngle());
-		mat4.rotateZ(mvMatrix, mvMatrix, this.getAngle());
-		mat4.rotateX(mvMatrix, mvMatrix, this.getAngle());
+		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
+//		mat4.rotateZ(mvMatrix, mvMatrix, this.getAngle());
+//		mat4.rotateX(mvMatrix, mvMatrix, this.getAngle());
 //		var triangleBuffer = this.getTriangleBuffer();
 //		gl.bindBuffer(gl.ARRAY_BUFFER, triangleBuffer);
 //		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, triangleBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -128,7 +130,7 @@ Ext.define('MW.view.ViewportController', {
 
 		this.setMatrixUniforms(gl, shaderProgram);
 
-		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
 
 		this.mvPop();
 	},
