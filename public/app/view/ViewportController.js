@@ -13,7 +13,8 @@ Ext.define('MW.view.ViewportController', {
 		pMatrix: null,
 		models: null,
 		lastTime: 0,
-		angle: 0
+		zenithAngle: 0,
+		azimuthAngle: 0
 	},
 	init: function () {
 		this.setPMatrix(new Float32Array(16));
@@ -67,10 +68,14 @@ Ext.define('MW.view.ViewportController', {
 		var now = Date.now();
 		var lastTime = this.getLastTime();
 		if (lastTime != 0) {
-			var angle = this.getAngle();
+			var zenithAngle = this.getZenithAngle();
 			var elapsed = now - lastTime;
-			angle += (2 * Math.PI  * elapsed) / 4000;
-			this.setAngle(angle);
+			zenithAngle += (2 * Math.PI  * elapsed) / 4000;
+			this.setZenithAngle(zenithAngle);
+
+			var azimuthAngle = this.getAzimuthAngle();
+			azimuthAngle += (2 * Math.PI  * elapsed) / 1500;
+			this.setAzimuthAngle(azimuthAngle);
 		}
 		this.setLastTime(now);
 	},
@@ -99,7 +104,7 @@ Ext.define('MW.view.ViewportController', {
 		this.mvPush();
 //		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
 //		mat4.translate(mvMatrix, mvMatrix, [0, 1.5, 0]);
-		mat4.rotateY(mvMatrix, mvMatrix, this.getAngle());
+		mat4.rotateY(mvMatrix, mvMatrix, this.getZenithAngle());
 		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
 //		mat4.rotateZ(mvMatrix, mvMatrix, this.getAngle());
 //		mat4.rotateX(mvMatrix, mvMatrix, this.getAngle());
@@ -144,12 +149,12 @@ Ext.define('MW.view.ViewportController', {
 		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
-		var pitch = 7 * Math.PI / 8;
 		var dist = 1000;
-		var angle = this.getAngle();
-		var x = dist * Math.sin(pitch) * Math.cos(angle);
-		var y = dist * Math.cos(pitch);
-		var z = dist * Math.sin(pitch) * Math.sin(angle);
+		var zenithAngle = this.getZenithAngle();
+		var azimuthAngle = this.getAzimuthAngle();
+		var x = dist * Math.sin(zenithAngle) * Math.cos(azimuthAngle);
+		var y = dist * Math.cos(zenithAngle);
+		var z = dist * Math.sin(zenithAngle) * Math.sin(azimuthAngle);
 		gl.uniform3fv(shaderProgram.uLightPos, [x, y, z]);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
