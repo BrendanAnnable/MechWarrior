@@ -179,9 +179,21 @@ Ext.define('MW.view.ViewportController', {
 				var model = Ext.decode(response.responseText);
 				var meshes = model.meshes;
 				Ext.each(meshes, function (mesh) {
+					var geom = Ext.create('MW.util.Geometry');
+					var vertices = [];
+					for (var i = 0; i < mesh.vertices.length; i += 3) {
+						vertices.push(Vector.create([
+							mesh.vertices[i + 0],
+							mesh.vertices[i + 1],
+							mesh.vertices[i + 2]
+						]));
+					}
+					geom.setVertices(vertices);
+					geom.center();
+
 					var vertexBuffer = gl.createBuffer();
 					gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-					var vertices = new Float32Array(mesh.vertices);
+					var vertices = geom.getFlattenedVertices();
 					gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 					vertexBuffer.itemSize = 3;
 					vertexBuffer.numItems = vertices.length / 3;
