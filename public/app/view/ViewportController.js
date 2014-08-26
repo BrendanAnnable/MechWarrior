@@ -143,6 +143,9 @@ Ext.define('MW.view.ViewportController', {
 		var normalMatrix = new Float32Array(9);
 		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
+
+		gl.uniform3fv(shaderProgram.uLightPos, [0, -1000, 100]);
+		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
 	initShaders: function (gl, callback) {
 		this.loadShaders(gl, function (vertexShader, fragmentShader) {
@@ -169,6 +172,9 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 			shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+
+			shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
+			shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
 			callback.call(this, shaderProgram);
 		});
 	},
