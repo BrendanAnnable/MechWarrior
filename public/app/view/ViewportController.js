@@ -144,7 +144,13 @@ Ext.define('MW.view.ViewportController', {
 		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
-		gl.uniform3fv(shaderProgram.uLightPos, [0, -1000, 100]);
+		var pitch = 7 * Math.PI / 8;
+		var dist = 1000;
+		var angle = this.getAngle();
+		var x = dist * Math.sin(pitch) * Math.cos(angle);
+		var y = dist * Math.cos(pitch);
+		var z = dist * Math.sin(pitch) * Math.sin(angle);
+		gl.uniform3fv(shaderProgram.uLightPos, [x, y, z]);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
 	initShaders: function (gl, callback) {
