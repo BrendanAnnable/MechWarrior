@@ -16,6 +16,9 @@ Ext.define('MW.view.ViewportController', {
 		zenithAngle: 0, // Spherical coordinates angle for pitch
 		azimuthAngle: 0 // Spherical coordinates angle for yaw
 	},
+	/**
+	 * Initialization function which runs on page load
+	 */
 	init: function () {
 		// Initialize any needed arrays or objects
 		this.setPMatrix(new Float32Array(16));
@@ -23,6 +26,13 @@ Ext.define('MW.view.ViewportController', {
 		this.setMvStack([]);
 		this.setModels({});
 	},
+	/**
+	 * Callback that is run when the window is resized
+	 *
+	 * @param container The container object that was resized
+	 * @param width The new width of the container
+	 * @param height The new height of the container
+	 */
 	onResize: function (container, width, height) {
 		// Resize the WebGL viewport based on the new size
 		var canvas = this.getCanvas();
@@ -32,20 +42,28 @@ Ext.define('MW.view.ViewportController', {
 		gl.viewportWidth = width;
 		gl.viewportHeight = height;
 	},
+	/**
+	 * Push a copy of the current model-view projection matrix on the stack
+	 */
 	mvPush: function () {
-		// Push a copy of the current model-view projection matrix on the stack
 		this.getMvStack().push(mat4.clone(this.getMvMatrix()));
 	},
+	/**
+	 * Pop the latest model-view projection matrix off the stack
+	 */
 	mvPop: function () {
-		// Pop the latest model-view projection matrix off the stack
 		var mvStack = this.getMvStack();
 		if (mvStack.length === 0) {
 			throw "mvStack empty";
 		}
 		this.setMvMatrix(mvStack.pop());
 	},
+	/**
+	 * Callback that is run after the DOM has been rendered
+	 *
+	 * @param container The container that has been rendered
+	 */
 	onAfterRender: function (container) {
-		// Called after the DOM has rendered the canvas element
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
 
@@ -70,13 +88,18 @@ Ext.define('MW.view.ViewportController', {
 			});
 		});
 	},
+	/**
+	 * Animation tick, uses requestAnimationFrame to run as fast as possible
+	 */
 	tick: function () {
 		this.animate();
 		this.drawScene();
 		requestAnimationFrame(Ext.bind(this.tick, this));
 	},
+	/**
+	 * Updates any values based on the amount of time that has elapsed since the last frame
+	 */
 	animate: function () {
-		// Update any needed values based on the time elapsed
 		var now = Date.now();
 		var lastTime = this.getLastTime();
 		if (lastTime != 0) {
@@ -158,7 +181,7 @@ Ext.define('MW.view.ViewportController', {
 		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
 		// Update the WebGL uniforms
-		this.setMatrixUniforms(gl, shaderProgram);
+		this.updateUniforms(gl, shaderProgram);
 
 		// Draw the face to the scene
 		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
@@ -166,7 +189,13 @@ Ext.define('MW.view.ViewportController', {
 		// Restore original position
 		this.mvPop();
 	},
-	setMatrixUniforms: function (gl, shaderProgram) {
+	/**
+	 * Updates the uniform constants given to WebGL
+	 *
+	 * @param gl The WebGL context
+	 * @param shaderProgram The WebGL shader program
+	 */
+	updateUniforms: function (gl, shaderProgram) {
 		var pMatrix = this.getPMatrix();
 		var mvMatrix = this.getMvMatrix();
 		// Send the projection and model-view matrices to WebGL
@@ -189,6 +218,13 @@ Ext.define('MW.view.ViewportController', {
 		gl.uniform3fv(shaderProgram.uLightPos, [x, y, z]);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
+	/**
+	 * Initializes the WebGL shader program
+	 *
+	 * @param gl The WebGL context
+	 * @param callback Callback once the shaders have been loaded with
+	 * the WebGL shader program as the first parameter
+	 */
 	initShaders: function (gl, callback) {
 		// Initialize the shaders
 		this.loadShaders(gl, function (vertexShader, fragmentShader) {
@@ -224,6 +260,14 @@ Ext.define('MW.view.ViewportController', {
 			callback.call(this, shaderProgram);
 		});
 	},
+	/**
+	 * Loads a model asynchronously
+	 *
+	 * @param gl The WebGL context
+	 * @param modelName The name of the model file
+	 * @param callback Callback that is called once the model has been loaded with
+	 * the first parameter as the model
+	 */
 	loadModel: function (gl, modelName, callback) {
 		var modelPath = Ext.Loader.getPath('MW') + '/scene/model/';
 		var url = modelPath + modelName;
@@ -298,6 +342,12 @@ Ext.define('MW.view.ViewportController', {
 			}
 		});
 	},
+	/**
+	 * Load the regular vertex and fragment shaders
+	 * @param gl The WebGL context
+	 * @param callback Callback that is called once the shaders have been loaded with
+	 * the first parameter as the vertex shader and the second as the fragment shader
+	 */
 	loadShaders: function (gl, callback) {
 		var shaderPath = Ext.Loader.getPath('MW') + '/shader/';
 
@@ -308,11 +358,19 @@ Ext.define('MW.view.ViewportController', {
 			});
 		});
 	},
+	/**
+	 * Load the given vertex shader
+	 *
+	 * @param gl The WebGL context
+	 * @param url The URL of the vertex shader file
+	 * @param callback Callback that is called once the shader has loaded
+	 */
 	loadVertexShader: function (gl, url, callback) {
 		Ext.Ajax.request({
 			url: url,
 			scope: this,
 			success: function (response) {
+				// Use the ajax response to create and compile the shader
 				var shader = gl.createShader(gl.VERTEX_SHADER);
 				gl.shaderSource(shader, response.responseText);
 				gl.compileShader(shader);
@@ -323,11 +381,19 @@ Ext.define('MW.view.ViewportController', {
 			}
 		});
 	},
+	/**
+	 * Load the given fragment shader
+	 *
+	 * @param gl The WebGL context
+	 * @param url The URL of the fragment shader file
+	 * @param callback Callback that is called once the shader has loaded
+	 */
 	loadFragmentShader: function (gl, url, callback) {
 		Ext.Ajax.request({
 			url: url,
 			scope: this,
 			success: function (response) {
+				// Use the ajax response to create and compile the shader
 				var shader = gl.createShader(gl.FRAGMENT_SHADER);
 				gl.shaderSource(shader, response.responseText);
 				gl.compileShader(shader);
