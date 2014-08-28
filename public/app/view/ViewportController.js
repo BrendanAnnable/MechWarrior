@@ -12,9 +12,7 @@ Ext.define('MW.view.ViewportController', {
 		mvMatrix: null, // The current model-view project matrix (where to draw)
 		pMatrix: null, // The perspective projection matrix
 		models: null, // A map of models that have been loaded, keyed by their name
-		lastTime: 0, // Used by the animate function, to keep track of the time between animation frames
-		facePosition: null,
-		lightPosition: null
+		lastTime: 0 // Used by the animate function, to keep track of the time between animation frames
 	},
 	/**
 	 * Initialization function which runs on page load
@@ -25,16 +23,6 @@ Ext.define('MW.view.ViewportController', {
 		this.setMvMatrix(mat4.create());
 		this.setMvStack([]);
 		this.setModels({});
-		this.setFacePosition(mat4.create());
-
-		var r = 1000;
-		var angle = Math.PI / 2; // 0 being straight down
-		var lightPosition = mat4.create();
-		mat4.translate(lightPosition, lightPosition, [0, -r, 0]);
-		var translateVector = mat4.translateVector(lightPosition);
-		vec4.rotateZ(translateVector, translateVector, angle);
-
-		this.setLightPosition(lightPosition);
 	},
 	/**
 	 * Callback that is run when the window is resized
@@ -105,31 +93,8 @@ Ext.define('MW.view.ViewportController', {
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible
 	 */
 	tick: function () {
-		this.animate();
 		this.drawScene();
 		requestAnimationFrame(Ext.bind(this.tick, this));
-	},
-	/**
-	 * Updates any values based on the amount of time that has elapsed since the last frame
-	 */
-	animate: function () {
-		var now = Date.now();
-		var lastTime = this.getLastTime();
-		if (lastTime != 0) {
-			var elapsed = now - lastTime;
-
-			var facePosition = this.getFacePosition();
-			var angle = (2 * Math.PI  * elapsed) / 4000;
-			mat4.rotateY(facePosition, facePosition, angle);
-
-			var transform = mat4.create();
-			var angle = (2 * Math.PI  * elapsed) / 1500;
-			mat4.rotateY(transform, transform, -angle);
-			var lightPosition = this.getLightPosition();
-			var translateVector = mat4.translateVector(lightPosition);
-			vec4.transformMat4(translateVector, translateVector, transform);
-		}
-		this.setLastTime(now);
 	},
 	/**
 	 * Draws the WebGL scene, must be called continuously to produce animations
@@ -148,59 +113,81 @@ Ext.define('MW.view.ViewportController', {
 			return;
 		}
 
-		// Set the viewport size
-		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+		var now = Date.now();
+		var lastTime = this.getLastTime();
+		if (lastTime != 0) {
+			var elapsed = now - lastTime;
 
-		// Clear the color buffer and depth buffer bits
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+			// Set the viewport size
+			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 
-		var mvMatrix = this.getMvMatrix();
-		var pMatrix = this.getPMatrix();
+			// Clear the color buffer and depth buffer bits
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		// Create a perspective projection matrix
-		mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 100);
+			var mvMatrix = this.getMvMatrix();
+			var pMatrix = this.getPMatrix();
 
-		// Save current position on the stack
-		this.mvPush();
+			// Create a perspective projection matrix
+			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 500);
 
-		// Translate away from the camera
-		mat4.translate(mvMatrix, mvMatrix, [0, 0, -30]);
+			// Save current position on the stack
+			this.mvPush();
 
-		// Get the models map
-		var models = this.getModels();
+			// Translate away from the camera
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, -50]);
 
-		// Start drawing the face
-		var face = models.face;
+			// Get the models map
+			var models = this.getModels();
 
-		// Save current position on the stack
-		this.mvPush();
+			// Start drawing the face
+			var face = models.face;
 
-		// Convert from local coordinates to world before drawing
-		mat4.multiply(mvMatrix, mvMatrix, this.getFacePosition());
+			// Save current position on the stack
+			this.mvPush();
 
-		// Update the face position
-		var vertexBuffer = face.vertexBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			// This animates the face such that is rotates around a point at the given radius,
+			// and 'bobs' up and down at the given height with the given periods
+			var radius = 20;
+			var yawPeriod = 8000;
+			var pitchPeriod = 1000;
+			var height = 5;
+			var yaw = (2 * Math.PI * now) / yawPeriod;
+			var pitch = Math.asin(height * Math.sin((2 * Math.PI * now) / pitchPeriod) / radius);
 
-		// Update the face normals
-		var normalBuffer = face.normalBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			// Rotate to the direction of where the face will be drawn
+			mat4.rotateY(mvMatrix, mvMatrix, yaw);
+			mat4.rotateX(mvMatrix, mvMatrix, pitch);
+			// Translate forward to outer radius
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, -radius]);
+			// Rotate back so that the face always 'faces' the camera
+			mat4.rotateX(mvMatrix, mvMatrix, -pitch);
+			mat4.rotateY(mvMatrix, mvMatrix, -yaw);
 
-		// Update the face faces (ha)
-		var faceBuffer = face.faceBuffer;
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+			// Update the face position
+			var vertexBuffer = face.vertexBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		// Update the WebGL uniforms
-		this.updateUniforms(gl, shaderProgram);
+			// Update the face normals
+			var normalBuffer = face.normalBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		// Draw the face to the scene
-		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+			// Update the face faces (ha)
+			var faceBuffer = face.faceBuffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
-		// Restore original position
-		this.mvPop();
-		this.mvPop();
+			// Update the WebGL uniforms
+			this.updateUniforms(gl, shaderProgram);
+
+			// Draw the face to the scene
+			gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+
+			// Restore original positio
+			this.mvPop();
+			this.mvPop();
+		}
+		this.setLastTime(now);
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
@@ -221,8 +208,7 @@ Ext.define('MW.view.ViewportController', {
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
 		// Send the light position and color to WebGL
-		var lightPosition = vec4.fromValues(0, 0, 0, 1);
-		vec4.transformMat4(lightPosition, lightPosition, this.getLightPosition());
+		var lightPosition = vec4.fromValues(0, 0, -100, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
