@@ -13,18 +13,28 @@ Ext.define('MW.view.ViewportController', {
 		pMatrix: null, // The perspective projection matrix
 		models: null, // A map of models that have been loaded, keyed by their name
 		lastTime: 0, // Used by the animate function, to keep track of the time between animation frames
-		zenithAngle: 0, // Spherical coordinates angle for pitch
-		azimuthAngle: 0 // Spherical coordinates angle for yaw
+		facePosition: null,
+		lightPosition: null
 	},
 	/**
 	 * Initialization function which runs on page load
 	 */
 	init: function () {
 		// Initialize any needed arrays or objects
-		this.setPMatrix(new Float32Array(16));
-		this.setMvMatrix(new Float32Array(16));
+		this.setPMatrix(mat4.create());
+		this.setMvMatrix(mat4.create());
 		this.setMvStack([]);
 		this.setModels({});
+		this.setFacePosition(mat4.create());
+
+		var r = 1000;
+		var angle = Math.PI / 2; // 0 being straight down
+		var lightPosition = mat4.create();
+		mat4.translate(lightPosition, lightPosition, [0, -r, 0]);
+		var translateVector = mat4.translateVector(lightPosition);
+		vec4.rotateZ(translateVector, translateVector, angle);
+
+		this.setLightPosition(lightPosition);
 	},
 	/**
 	 * Callback that is run when the window is resized
@@ -41,6 +51,9 @@ Ext.define('MW.view.ViewportController', {
 		canvas.height = height;
 		gl.viewportWidth = width;
 		gl.viewportHeight = height;
+	},
+	onMouseMove: function (e, container) {
+		// TODO
 	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack
@@ -103,16 +116,18 @@ Ext.define('MW.view.ViewportController', {
 		var now = Date.now();
 		var lastTime = this.getLastTime();
 		if (lastTime != 0) {
-			var zenithAngle = this.getZenithAngle();
 			var elapsed = now - lastTime;
-			// The zenith angle will have a period of 4 seconds
-			zenithAngle += (2 * Math.PI  * elapsed) / 4000;
-			this.setZenithAngle(zenithAngle);
 
-			var azimuthAngle = this.getAzimuthAngle();
-			// The azimuth angle will have a period of 1.5 seconds
-			azimuthAngle += (2 * Math.PI  * elapsed) / 1500;
-			this.setAzimuthAngle(azimuthAngle);
+			var facePosition = this.getFacePosition();
+			var angle = (2 * Math.PI  * elapsed) / 4000;
+			mat4.rotateY(facePosition, facePosition, angle);
+
+			var transform = mat4.create();
+			var angle = (2 * Math.PI  * elapsed) / 1500;
+			mat4.rotateY(transform, transform, -angle);
+			var lightPosition = this.getLightPosition();
+			var translateVector = mat4.translateVector(lightPosition);
+			vec4.transformMat4(translateVector, translateVector, transform);
 		}
 		this.setLastTime(now);
 	},
@@ -145,8 +160,8 @@ Ext.define('MW.view.ViewportController', {
 		// Create a perspective projection matrix
 		mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 100);
 
-		// Reset model-view project to the origin
-		mat4.identity(mvMatrix);
+		// Save current position on the stack
+		this.mvPush();
 
 		// Translate away from the camera
 		mat4.translate(mvMatrix, mvMatrix, [0, 0, -30]);
@@ -160,11 +175,8 @@ Ext.define('MW.view.ViewportController', {
 		// Save current position on the stack
 		this.mvPush();
 
-		// Animate the face around the Y axis
-		mat4.rotateY(mvMatrix, mvMatrix, this.getZenithAngle());
-
-		// Rotate the face so that it faces the camera
-		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
+		// Convert from local coordinates to world before drawing
+		mat4.multiply(mvMatrix, mvMatrix, this.getFacePosition());
 
 		// Update the face position
 		var vertexBuffer = face.vertexBuffer;
@@ -188,6 +200,7 @@ Ext.define('MW.view.ViewportController', {
 
 		// Restore original position
 		this.mvPop();
+		this.mvPop();
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
@@ -207,15 +220,10 @@ Ext.define('MW.view.ViewportController', {
 		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
-		// Convert from spherical to cartesian coordinates
-		var dist = 1000;
-		var zenithAngle = this.getZenithAngle();
-		var azimuthAngle = this.getAzimuthAngle();
-		var x = dist * Math.sin(zenithAngle) * Math.cos(azimuthAngle);
-		var y = dist * Math.cos(zenithAngle);
-		var z = dist * Math.sin(zenithAngle) * Math.sin(azimuthAngle);
 		// Send the light position and color to WebGL
-		gl.uniform3fv(shaderProgram.uLightPos, [x, y, z]);
+		var lightPosition = vec4.fromValues(0, 0, 0, 1);
+		vec4.transformMat4(lightPosition, lightPosition, this.getLightPosition());
+		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
 	/**

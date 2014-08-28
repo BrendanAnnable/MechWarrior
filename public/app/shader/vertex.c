@@ -15,17 +15,17 @@ varying vec3 vNormal;
 varying vec4 vColor;
 
 void main(void) {
-//	vColor = aVertexColor;
+ //	vColor = aVertexColor;
 
-	// Convert position to eye-space
-	vPosition = vec3(uMVMatrix * vec4(aVertexPosition, 1.0));
+ 	// Convert position to eye-space
+ 	vPosition = vec3(uMVMatrix * vec4(aVertexPosition, 1.0));
 
-	// Convert normal to eye-space
-	vNormal = vec3(uMVMatrix * vec4(aVertexNormal, 0.0));
+ 	// Convert normal to eye-space
+ 	vNormal = vec3(uMVMatrix * vec4(aVertexNormal, 0.0));
 
-	// Default color to white
-	vColor = vec4(1, 1, 1, 1);
+ 	// Default color to white
+ 	vColor = vec4(1, 1, 1, 1);
 
-	// Convert position to clip-space
-	gl_Position = uPMatrix * vec4(vPosition, 1.0);
-}
+ 	// Convert position to clip-space
+ 	gl_Position = uPMatrix * vec4(vPosition, 1.0);
+ }
