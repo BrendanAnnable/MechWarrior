@@ -13,16 +13,15 @@ Ext.define('MW.view.ViewportController', {
 		pMatrix: null, // The perspective projection matrix
 		models: null, // A map of models that have been loaded, keyed by their name
 		lastTime: 0, // Used by the animate function, to keep track of the time between animation frames
-		zenithAngle: 0, // Spherical coordinates angle for pitch
-		azimuthAngle: 0 // Spherical coordinates angle for yaw
+		controls: null
 	},
 	/**
 	 * Initialization function which runs on page load
 	 */
 	init: function () {
 		// Initialize any needed arrays or objects
-		this.setPMatrix(new Float32Array(16));
-		this.setMvMatrix(new Float32Array(16));
+		this.setPMatrix(mat4.create());
+		this.setMvMatrix(mat4.create());
 		this.setMvStack([]);
 		this.setModels({});
 	},
@@ -42,6 +41,9 @@ Ext.define('MW.view.ViewportController', {
 		gl.viewportWidth = width;
 		gl.viewportHeight = height;
 	},
+	onMouseMove: function (e, container) {
+		// TODO
+	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack
 	 */
@@ -56,7 +58,9 @@ Ext.define('MW.view.ViewportController', {
 		if (mvStack.length === 0) {
 			throw "mvStack empty";
 		}
-		this.setMvMatrix(mvStack.pop());
+		var mvMatrix = mvStack.pop();
+		this.setMvMatrix(mvMatrix);
+		return mvMatrix;
 	},
 	/**
 	 * Callback that is run after the DOM has been rendered
@@ -66,6 +70,10 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
+
+		this.setControls(Ext.create('MW.control.Mouse', {
+			element: canvas
+		}));
 
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -82,6 +90,7 @@ Ext.define('MW.view.ViewportController', {
 				gl.clearColor(0, 0, 0, 1);
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
+				this.createFloor(gl, 'floor');
 
 				// Start the animation loop
 				this.tick();
@@ -92,29 +101,46 @@ Ext.define('MW.view.ViewportController', {
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible
 	 */
 	tick: function () {
-		this.animate();
 		this.drawScene();
 		requestAnimationFrame(Ext.bind(this.tick, this));
 	},
-	/**
-	 * Updates any values based on the amount of time that has elapsed since the last frame
-	 */
-	animate: function () {
-		var now = Date.now();
-		var lastTime = this.getLastTime();
-		if (lastTime != 0) {
-			var zenithAngle = this.getZenithAngle();
-			var elapsed = now - lastTime;
-			// The zenith angle will have a period of 4 seconds
-			zenithAngle += (2 * Math.PI  * elapsed) / 4000;
-			this.setZenithAngle(zenithAngle);
+	createFloor: function (gl, name) {
+		// TODO: refactor this stuff!
+		var models = this.getModels();
+		var plane = Ext.create('MW.util.PlaneGeometry', {
+			width: 100,
+			height: 50
+		});
 
-			var azimuthAngle = this.getAzimuthAngle();
-			// The azimuth angle will have a period of 1.5 seconds
-			azimuthAngle += (2 * Math.PI  * elapsed) / 1500;
-			this.setAzimuthAngle(azimuthAngle);
-		}
-		this.setLastTime(now);
+		var vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		var vertices = plane.getFlattenedVertices();
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		vertexBuffer.itemSize = 3;
+		vertexBuffer.numItems = vertices.length / 3;
+
+		var normalBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+		var normals = plane.getFlattenedNormals();
+		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+		normalBuffer.itemSize = 3;
+		normalBuffer.numItems = normals.length / 3;
+
+		var faceBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+		var faces = plane.getFlattenedFaces();
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
+		faceBuffer.itemSize = 3;
+		faceBuffer.numItems = faces.length / 3;
+
+		var model = {
+			vertexBuffer: vertexBuffer,
+			normalBuffer: normalBuffer,
+			faceBuffer: faceBuffer
+		};
+
+		// Store into the models map
+		models[name] = model;
 	},
 	/**
 	 * Draws the WebGL scene, must be called continuously to produce animations
@@ -133,61 +159,115 @@ Ext.define('MW.view.ViewportController', {
 			return;
 		}
 
-		// Set the viewport size
-		gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+		var now = Date.now();
+		var lastTime = this.getLastTime();
 
-		// Clear the color buffer and depth buffer bits
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+		if (lastTime != 0) {
+			var elapsed = now - lastTime;
+			var periodNominator = 2 * Math.PI * now;
+			// Get the models map
+			var models = this.getModels();
 
-		var mvMatrix = this.getMvMatrix();
-		var pMatrix = this.getPMatrix();
+			// Set the viewport size
+			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
 
-		// Create a perspective projection matrix
-		mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 100);
+			// Clear the color buffer and depth buffer bits
+			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-		// Reset model-view project to the origin
-		mat4.identity(mvMatrix);
+			var mvMatrix = this.getMvMatrix();
+			var pMatrix = this.getPMatrix();
 
-		// Translate away from the camera
-		mat4.translate(mvMatrix, mvMatrix, [0, 0, -30]);
+			// Create a perspective projection matrix
+			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 500);
 
-		// Get the models map
-		var models = this.getModels();
+			// Save current position on the stack
+			this.mvPush();
 
-		// Start drawing the face
-		var face = models.face;
+			// Draw the floor
+			/*this.mvPush();
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, 0]);
+			var floor = models.floor;
+			// Update the floor position
+			var vertexBuffer = floor.vertexBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		// Save current position on the stack
-		this.mvPush();
+			// Update the floor normals
+			var normalBuffer = floor.normalBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		// Animate the face around the Y axis
-		mat4.rotateY(mvMatrix, mvMatrix, this.getZenithAngle());
+			// Update the floor faces
+			var faceBuffer = floor.faceBuffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
-		// Rotate the face so that it faces the camera
-		mat4.rotateX(mvMatrix, mvMatrix, -Math.PI / 2);
+			// Update the WebGL uniforms
+			this.updateUniforms(gl, shaderProgram);
 
-		// Update the face position
-		var vertexBuffer = face.vertexBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			// Draw the face to the scene
+//			gl.drawElements(gl.TRIANGLE_STRIP, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+			gl.drawArrays(gl.LINE_LOOP, 0, vertexBuffer.numItems);
+			mvMatrix = this.mvPop();*/
 
-		// Update the face normals
-		var normalBuffer = face.normalBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+			// Translate away from the camera
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, -100]);
+			//var controls = this.getControls();
+			//mat4.multiply(mvMatrix, mvMatrix, controls.getRotation());
 
-		// Update the face faces (ha)
-		var faceBuffer = face.faceBuffer;
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+			// Start drawing the face
+			var face = models.face;
 
-		// Update the WebGL uniforms
-		this.updateUniforms(gl, shaderProgram);
+			// Save current position on the stack
+			this.mvPush();
 
-		// Draw the face to the scene
-		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+			// This animates the face such that is rotates around a point at the given radius,
+			// and 'bobs' up and down at the given height with the given periods
+			var minRadius = 10;
+			var maxRadius = 20;
+			var radiusPeriod = 1000;
+			var yawPeriod = 8000;
+			var pitchPeriod = 2000;
+			var height = 5;
 
-		// Restore original position
-		this.mvPop();
+			var radius = 0.5 * (maxRadius - minRadius) * (Math.sin(periodNominator / radiusPeriod) + 1) + minRadius;
+			var yaw = periodNominator / yawPeriod;
+			var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
+
+			// Rotate to the direction of where the face will be drawn
+			mat4.rotateY(mvMatrix, mvMatrix, yaw);
+			mat4.rotateX(mvMatrix, mvMatrix, pitch);
+			// Translate forward to outer radius
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, -radius]);
+			// Rotate back so that the face always 'faces' the camera
+			mat4.rotateX(mvMatrix, mvMatrix, -pitch);
+			mat4.rotateY(mvMatrix, mvMatrix, -yaw);
+
+			// Update the face position
+			var vertexBuffer = face.vertexBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			// Update the face normals
+			var normalBuffer = face.normalBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			// Update the face faces (ha)
+			var faceBuffer = face.faceBuffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+
+			// Update the WebGL uniforms
+			this.updateUniforms(gl, shaderProgram);
+
+			// Draw the face to the scene
+			gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+
+
+			// Restore original positio
+			mvMatrix = this.mvPop();
+			mvMatrix = this.mvPop();
+		}
+		this.setLastTime(now);
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
@@ -207,15 +287,9 @@ Ext.define('MW.view.ViewportController', {
 		mat3.normalFromMat4(normalMatrix, mvMatrix);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
-		// Convert from spherical to cartesian coordinates
-		var dist = 1000;
-		var zenithAngle = this.getZenithAngle();
-		var azimuthAngle = this.getAzimuthAngle();
-		var x = dist * Math.sin(zenithAngle) * Math.cos(azimuthAngle);
-		var y = dist * Math.cos(zenithAngle);
-		var z = dist * Math.sin(zenithAngle) * Math.sin(azimuthAngle);
 		// Send the light position and color to WebGL
-		gl.uniform3fv(shaderProgram.uLightPos, [x, y, z]);
+		var lightPosition = vec4.fromValues(0, -1000, 0, 1);
+		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
 	/**

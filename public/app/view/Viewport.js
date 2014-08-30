@@ -16,7 +16,10 @@ Ext.define('MW.view.Viewport', {
 		reference: 'canvas',
 		listeners: {
 			resize: 'onResize',
-			afterrender: 'onAfterRender'
+			afterrender: 'onAfterRender',
+			el: {
+				mousemove: 'onMouseMove'
+			}
 		}
 	}]
 });

@@ -1,7 +1,7 @@
 precision mediump float;
 
 // The position of the point light, passed in by JavaScript
-uniform vec3 uLightPos;
+uniform vec4 uLightPos;
 // The color of the point light, passed in by JavaScript
 uniform vec3 uLightColor;
 
@@ -32,12 +32,12 @@ void main(void) {
 	// Point light
 
 	// Calculate the intensity of the point light per-pixel
-	vec3 pointLightDirection = normalize(uLightPos - vPosition);
+	vec3 pointLightDirection = normalize(uLightPos.xyz - vPosition);
 	// Based on the angle of the normal of the point and the direction of the light source
 	float diffuseLightWeight = max(dot(normal, pointLightDirection), 0.0);
 
 	// TODO: use the distance to attenuate the light
-	//float distance = distance(uLightPos, vPosition);
+	//float distance = distance(uLightPos.xyz, vPosition);
 
 
 	// Determine directional light weighting based on the angle between the light rays and the normal
