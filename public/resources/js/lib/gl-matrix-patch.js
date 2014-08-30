@@ -54,6 +54,22 @@ mat4.createRotateZ = function (rad) {
 	return rotZ;
 };
 
+mat2d.zeros = function () {
+	return new Float32Array(6);
+};
+
+mat2.zeros = function () {
+	return new Float32Array(4);
+};
+
+mat3.zeros = function () {
+	return new Float32Array(9);
+};
+
+mat4.zeros = function () {
+	return new Float32Array(16);
+};
+
 vec4.createPoint = function () {
 	return vec4.fromValues(0, 0, 0, 1);
 };

@@ -1,5 +1,5 @@
-Ext.define('MW.util.PlaneGeometry', {
-	extend: 'MW.util.Geometry',
+Ext.define('MW.geometry.PlaneGeometry', {
+	extend: 'MW.geometry.Geometry',
 	alias: 'PlaneGeometry',
 	config: {
 		width: 0,
@@ -16,19 +16,19 @@ Ext.define('MW.util.PlaneGeometry', {
 		var halfWidth = width / 2;
 		var halfHeight = height / 2;
 		this.setVertices([
-			Vector.create([-halfWidth, halfHeight, 0]),
-			Vector.create([halfWidth, halfHeight, 0]),
-			Vector.create([halfWidth, -halfHeight, 0]),
-			Vector.create([-halfWidth, -halfHeight, 0])
+			vec3.fromValues(-halfWidth, halfHeight, 0),
+			vec3.fromValues(halfWidth, halfHeight, 0),
+			vec3.fromValues(halfWidth, -halfHeight, 0),
+			vec3.fromValues(-halfWidth, -halfHeight, 0)
 		]);
 		this.setNormals([
-			Vector.create([0, 0, 1]),
-			Vector.create([0, 0, 1]),
-			Vector.create([0, 0, 1]),
-			Vector.create([0, 0, 1])
+			vec3.fromValues(0, 0, 1),
+			vec3.fromValues(0, 0, 1),
+			vec3.fromValues(0, 0, 1),
+			vec3.fromValues(0, 0, 1)
 		]);
 		this.setFaces([
-			Vector.create([0,1,2,3,0])
+			vec3.fromValues(0,1,2,3,0)
 		]);
 	}
 });

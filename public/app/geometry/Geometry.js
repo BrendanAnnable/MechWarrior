@@ -1,4 +1,4 @@
-Ext.define('MW.util.Geometry', {
+Ext.define('MW.geometry.Geometry', {
 	alias: 'Geometry',
 	config: {
 		vertices: null,
@@ -21,44 +21,44 @@ Ext.define('MW.util.Geometry', {
 			boundingBox = this.computeBoundingBox();
 		}
 
-		var offset = boundingBox.min.add(boundingBox.max);
-		offset = offset.multiply(-0.5);
+		var offset = vec3.add(vec3.create(), boundingBox.min, boundingBox.max);
+		vec3.scale(offset, offset, -0.5);
 
 		var vertices = this.getVertices();
 		for (var i = 0; i < vertices.length; i++) {
 			var vertex = vertices[i];
-			vertices[i] = vertex.add(offset);
+			vec3.add(vertex, vertex, offset);
 		}
 
 	},
 	computeBoundingBox: function () {
 		var boundingBox = {
-			min: Vector.create([Infinity, Infinity, Infinity]),
-			max: Vector.create([-Infinity, -Infinity, -Infinity])
+			min: vec3.fromValues(Infinity, Infinity, Infinity),
+			max: vec3.fromValues(-Infinity, -Infinity, -Infinity)
 		};
 		var vertices = this.getVertices();
 		for (var i = 0; i < vertices.length; i++) {
 			var vertex = vertices[i];
-			var x = vertex.e(1);
-			var y = vertex.e(2);
-			var z = vertex.e(3);
-			if (x < boundingBox.min.e(1)) {
-				boundingBox.min.elements[0] = x;
+			var x = vertex[0];
+			var y = vertex[1];
+			var z = vertex[2];
+			if (x < boundingBox.min[0]) {
+				boundingBox.min[0] = x;
 			}
-			if (x > boundingBox.max.e(1)) {
-				boundingBox.max.elements[0] = x;
+			if (x > boundingBox.max[0]) {
+				boundingBox.max[0] = x;
 			}
-			if (y < boundingBox.min.e(2)) {
-				boundingBox.min.elements[1] = y;
+			if (y < boundingBox.min[1]) {
+				boundingBox.min[1] = y;
 			}
-			if (y > boundingBox.max.e(2)) {
-				boundingBox.max.elements[1] = y;
+			if (y > boundingBox.max[1]) {
+				boundingBox.max[1] = y;
 			}
-			if (z < boundingBox.min.e(3)) {
-				boundingBox.min.elements[2] = z;
+			if (z < boundingBox.min[2]) {
+				boundingBox.min[2] = z;
 			}
-			if (z > boundingBox.max.e(3)) {
-				boundingBox.max.elements[2] = z;
+			if (z > boundingBox.max[2]) {
+				boundingBox.max[2] = z;
 			}
 		}
 
@@ -69,9 +69,9 @@ Ext.define('MW.util.Geometry', {
 		var vertices = this.getVertices();
 		for (var i = 0; i < vertices.length; i++) {
 			var vertex = vertices[i];
-			vArray.push(vertex.e(1));
-			vArray.push(vertex.e(2));
-			vArray.push(vertex.e(3));
+			vArray.push(vertex[0]);
+			vArray.push(vertex[1]);
+			vArray.push(vertex[2]);
 		}
 		return new Float32Array(vArray);
 	},
@@ -80,9 +80,9 @@ Ext.define('MW.util.Geometry', {
 		var vertices = this.getNormals();
 		for (var i = 0; i < vertices.length; i++) {
 			var vertex = vertices[i];
-			nArray.push(vertex.e(1));
-			nArray.push(vertex.e(2));
-			nArray.push(vertex.e(3));
+			nArray.push(vertex[0]);
+			nArray.push(vertex[1]);
+			nArray.push(vertex[2]);
 		}
 		return new Float32Array(nArray);
 	},
@@ -91,8 +91,8 @@ Ext.define('MW.util.Geometry', {
 		var faces = this.getFaces();
 		for (var i = 0; i < faces.length; i++) {
 			var face = faces[i];
-			for (var j = 0; j < face.elements.length; j++) {
-				var index = face.elements[j];
+			for (var j = 0; j < face.length; j++) {
+				var index = face[j];
 				fArray.push(index);
 			}
 		}
