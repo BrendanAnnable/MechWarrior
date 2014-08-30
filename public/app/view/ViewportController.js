@@ -12,7 +12,8 @@ Ext.define('MW.view.ViewportController', {
 		mvMatrix: null, // The current model-view project matrix (where to draw)
 		pMatrix: null, // The perspective projection matrix
 		models: null, // A map of models that have been loaded, keyed by their name
-		lastTime: 0 // Used by the animate function, to keep track of the time between animation frames
+		lastTime: 0, // Used by the animate function, to keep track of the time between animation frames
+		controls: null
 	},
 	/**
 	 * Initialization function which runs on page load
@@ -57,7 +58,9 @@ Ext.define('MW.view.ViewportController', {
 		if (mvStack.length === 0) {
 			throw "mvStack empty";
 		}
-		this.setMvMatrix(mvStack.pop());
+		var mvMatrix = mvStack.pop();
+		this.setMvMatrix(mvMatrix);
+		return mvMatrix;
 	},
 	/**
 	 * Callback that is run after the DOM has been rendered
@@ -67,6 +70,10 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
+
+		this.setControls(Ext.create('MW.control.Mouse', {
+			element: canvas
+		}));
 
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
@@ -83,6 +90,7 @@ Ext.define('MW.view.ViewportController', {
 				gl.clearColor(0, 0, 0, 1);
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
+				this.createFloor(gl, 'floor');
 
 				// Start the animation loop
 				this.tick();
@@ -95,6 +103,44 @@ Ext.define('MW.view.ViewportController', {
 	tick: function () {
 		this.drawScene();
 		requestAnimationFrame(Ext.bind(this.tick, this));
+	},
+	createFloor: function (gl, name) {
+		// TODO: refactor this stuff!
+		var models = this.getModels();
+		var plane = Ext.create('MW.util.PlaneGeometry', {
+			width: 100,
+			height: 50
+		});
+
+		var vertexBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		var vertices = plane.getFlattenedVertices();
+		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+		vertexBuffer.itemSize = 3;
+		vertexBuffer.numItems = vertices.length / 3;
+
+		var normalBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+		var normals = plane.getFlattenedNormals();
+		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
+		normalBuffer.itemSize = 3;
+		normalBuffer.numItems = normals.length / 3;
+
+		var faceBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+		var faces = plane.getFlattenedFaces();
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
+		faceBuffer.itemSize = 3;
+		faceBuffer.numItems = faces.length / 3;
+
+		var model = {
+			vertexBuffer: vertexBuffer,
+			normalBuffer: normalBuffer,
+			faceBuffer: faceBuffer
+		};
+
+		// Store into the models map
+		models[name] = model;
 	},
 	/**
 	 * Draws the WebGL scene, must be called continuously to produce animations
@@ -115,8 +161,12 @@ Ext.define('MW.view.ViewportController', {
 
 		var now = Date.now();
 		var lastTime = this.getLastTime();
+
 		if (lastTime != 0) {
 			var elapsed = now - lastTime;
+			var periodNominator = 2 * Math.PI * now;
+			// Get the models map
+			var models = this.getModels();
 
 			// Set the viewport size
 			gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
@@ -133,11 +183,36 @@ Ext.define('MW.view.ViewportController', {
 			// Save current position on the stack
 			this.mvPush();
 
-			// Translate away from the camera
-			mat4.translate(mvMatrix, mvMatrix, [0, 0, -50]);
+			// Draw the floor
+			/*this.mvPush();
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, 0]);
+			var floor = models.floor;
+			// Update the floor position
+			var vertexBuffer = floor.vertexBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-			// Get the models map
-			var models = this.getModels();
+			// Update the floor normals
+			var normalBuffer = floor.normalBuffer;
+			gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+			gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+			// Update the floor faces
+			var faceBuffer = floor.faceBuffer;
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+
+			// Update the WebGL uniforms
+			this.updateUniforms(gl, shaderProgram);
+
+			// Draw the face to the scene
+//			gl.drawElements(gl.TRIANGLE_STRIP, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+			gl.drawArrays(gl.LINE_LOOP, 0, vertexBuffer.numItems);
+			mvMatrix = this.mvPop();*/
+
+			// Translate away from the camera
+			mat4.translate(mvMatrix, mvMatrix, [0, 0, -100]);
+			//var controls = this.getControls();
+			//mat4.multiply(mvMatrix, mvMatrix, controls.getRotation());
 
 			// Start drawing the face
 			var face = models.face;
@@ -147,12 +222,16 @@ Ext.define('MW.view.ViewportController', {
 
 			// This animates the face such that is rotates around a point at the given radius,
 			// and 'bobs' up and down at the given height with the given periods
-			var radius = 20;
+			var minRadius = 10;
+			var maxRadius = 20;
+			var radiusPeriod = 1000;
 			var yawPeriod = 8000;
-			var pitchPeriod = 1000;
+			var pitchPeriod = 2000;
 			var height = 5;
-			var yaw = (2 * Math.PI * now) / yawPeriod;
-			var pitch = Math.asin(height * Math.sin((2 * Math.PI * now) / pitchPeriod) / radius);
+
+			var radius = 0.5 * (maxRadius - minRadius) * (Math.sin(periodNominator / radiusPeriod) + 1) + minRadius;
+			var yaw = periodNominator / yawPeriod;
+			var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
 
 			// Rotate to the direction of where the face will be drawn
 			mat4.rotateY(mvMatrix, mvMatrix, yaw);
@@ -183,9 +262,10 @@ Ext.define('MW.view.ViewportController', {
 			// Draw the face to the scene
 			gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
 
+
 			// Restore original positio
-			this.mvPop();
-			this.mvPop();
+			mvMatrix = this.mvPop();
+			mvMatrix = this.mvPop();
 		}
 		this.setLastTime(now);
 	},
@@ -208,7 +288,7 @@ Ext.define('MW.view.ViewportController', {
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
 		// Send the light position and color to WebGL
-		var lightPosition = vec4.fromValues(0, 0, -100, 1);
+		var lightPosition = vec4.fromValues(0, -1000, 0, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},

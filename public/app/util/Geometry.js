@@ -7,7 +7,9 @@ Ext.define('MW.util.Geometry', {
 		faces: null,
 		boundingBox: null
 	},
-	init: function () {
+	constructor: function (config) {
+		this.initConfig(config);
+
 		this.setVertices([]);
 		this.setColors([]);
 		this.setNormals([]);
@@ -72,5 +74,28 @@ Ext.define('MW.util.Geometry', {
 			vArray.push(vertex.e(3));
 		}
 		return new Float32Array(vArray);
+	},
+	getFlattenedNormals: function () {
+		var nArray= [];
+		var vertices = this.getNormals();
+		for (var i = 0; i < vertices.length; i++) {
+			var vertex = vertices[i];
+			nArray.push(vertex.e(1));
+			nArray.push(vertex.e(2));
+			nArray.push(vertex.e(3));
+		}
+		return new Float32Array(nArray);
+	},
+	getFlattenedFaces: function () {
+		var fArray = [];
+		var faces = this.getFaces();
+		for (var i = 0; i < faces.length; i++) {
+			var face = faces[i];
+			for (var j = 0; j < face.elements.length; j++) {
+				var index = face.elements[j];
+				fArray.push(index);
+			}
+		}
+		return new Uint16Array(fArray);
 	}
 });
