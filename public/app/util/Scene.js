@@ -47,12 +47,12 @@ Ext.define('MW.util.Scene', {
 			var pMatrix = this.getPMatrix();
 
 			// Create a perspective projection matrix
-			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 500);
+			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 2000);
 			this.mvPush();
 
 			this.mvPush();
 			this.renderFloor(gl, shaders, mvMatrix, periodNominator);
-			this.mvPop();
+            mvMatrix = this.mvPop();
 
 			// Translate away from the camera
 			mat4.translate(mvMatrix, mvMatrix, [0, 0, -100]);
@@ -62,7 +62,7 @@ Ext.define('MW.util.Scene', {
 
 			this.mvPush();
 			this.renderFace(gl, shaders, mvMatrix, periodNominator);
-			this.mvPop();
+            mvMatrix = this.mvPop();
 
 			this.mvPop();
 		}
@@ -70,7 +70,7 @@ Ext.define('MW.util.Scene', {
 	},
 	renderFloor: function (gl, shaders, mvMatrix, periodNominator) {
 		// Draw the floor
-		mat4.translate(mvMatrix, mvMatrix, [0, 0, 0]);
+		mat4.translate(mvMatrix, mvMatrix, [0, -10, 0]);
 		// Get the models map
 		var models = this.getModels();
 		var floor = models.floor;
@@ -91,10 +91,7 @@ Ext.define('MW.util.Scene', {
 		// Update the WebGL uniforms
 		this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
 
-		// Draw the face to the scene
-		//			gl.drawElements(gl.TRIANGLE_STRIP, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
-//		gl.drawArrays(gl.TRIANGLES, 0, vertexBuffer.numItems);
-		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+        gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
 	},
 	renderFace: function (gl, shaders, mvMatrix, periodNominator) {
 		// Get the models map
@@ -260,10 +257,10 @@ Ext.define('MW.util.Scene', {
 		// TODO: refactor this stuff!
 		var models = this.getModels();
 		var plane = Ext.create('MW.geometry.PlaneGeometry', {
-			width: 100,
-			height: 50
+			width: 500,
+			height: 200
 		});
-
+        plane.rotateX(Math.PI * 0.5);
 		var vertexBuffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		var vertices = plane.getFlattenedVertices();

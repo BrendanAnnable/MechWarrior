@@ -129,13 +129,12 @@ Ext.define('MW.view.ViewportController', {
 	 * the first parameter as the vertex shader and the second as the fragment shader
 	 */
 	loadShaders: function (gl, callback) {
-		var me = this; //todo fix scope
 		// Load the vertex and fragment shader
 		Ext.create('MW.shader.vertex.Vertex').load(gl, function (vertexShader) {
 			Ext.create('MW.shader.fragment.Fragment').load(gl, function (fragmentShader) {
-				callback.call(me, vertexShader, fragmentShader);
-			});
-		});
+				callback.call(this, vertexShader, fragmentShader);
+			}, this);
+		}, this);
 	}
 });
 

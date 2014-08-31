@@ -20,16 +20,13 @@ Ext.define('MW.geometry.Geometry', {
 		if (boundingBox === null) {
 			boundingBox = this.computeBoundingBox();
 		}
-
 		var offset = vec3.add(vec3.create(), boundingBox.min, boundingBox.max);
 		vec3.scale(offset, offset, -0.5);
-
 		var vertices = this.getVertices();
 		for (var i = 0; i < vertices.length; i++) {
 			var vertex = vertices[i];
 			vec3.add(vertex, vertex, offset);
 		}
-
 	},
 	computeBoundingBox: function () {
 		var boundingBox = {
@@ -61,7 +58,6 @@ Ext.define('MW.geometry.Geometry', {
 				boundingBox.max[2] = z;
 			}
 		}
-
 		return boundingBox;
 	},
 	getFlattenedVertices: function () {
@@ -97,5 +93,32 @@ Ext.define('MW.geometry.Geometry', {
 			}
 		}
 		return new Uint16Array(fArray);
-	}
+	},
+    rotateX: function (rad) {
+        var vertices = this.getVertices();
+        var normals = this.getNormals();
+        var origin = vec3.create();
+        for (var i = 0; i < vertices.length; i++) {
+            vec3.rotateX(vertices[i], vertices[i], origin, rad);
+            vec3.findNormal(normals[i], normals[i]);
+        }
+    },
+    rotateY: function (rad) {
+        var vertices = this.getVertices();
+        var normals = this.getNormals();
+        var origin = vec3.create();
+        for (var i = 0; i < vertices.length; i++) {
+            vec3.rotateY(vertices[i], vertices[i], origin, rad);
+            vec3.findNormal(normals[i], normals[i]);
+        }
+    },
+    rotateZ: function (rad) {
+        var vertices = this.getVertices();
+        var normals = this.getNormals();
+        var origin = vec3.create();
+        for (var i = 0; i < vertices.length; i++) {
+            vec3.rotateZ(vertices[i], vertices[i], origin, rad);
+            vec3.findNormal(normals[i], normals[i]);
+        }
+    }
 });

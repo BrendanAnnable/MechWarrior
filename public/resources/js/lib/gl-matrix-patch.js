@@ -97,3 +97,11 @@ vec4.rotateZ = function (out, a, rad) {
 	vec4.transformMat4(out, a, rotZ);
 	return out;
 };
+
+vec3.findNormal = function (out, a) {
+    // TODO: handle edge cases
+    out[0] = -a[1];
+    out[1] = a[0];
+    out[2] = 0;
+    return out;
+};
