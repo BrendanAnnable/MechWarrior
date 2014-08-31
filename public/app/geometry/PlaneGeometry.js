@@ -16,10 +16,10 @@ Ext.define('MW.geometry.PlaneGeometry', {
 		var halfWidth = width / 2;
 		var halfHeight = height / 2;
 		this.setVertices([
-			vec3.fromValues(-halfWidth, halfHeight, 0),
-			vec3.fromValues(halfWidth, halfHeight, 0),
+			vec3.fromValues(-halfWidth, -halfHeight, 0),
 			vec3.fromValues(halfWidth, -halfHeight, 0),
-			vec3.fromValues(-halfWidth, -halfHeight, 0)
+			vec3.fromValues(halfWidth, halfHeight, 0),
+			vec3.fromValues(-halfWidth, halfHeight, 0)
 		]);
 		this.setNormals([
 			vec3.fromValues(0, 0, 1),
@@ -28,7 +28,8 @@ Ext.define('MW.geometry.PlaneGeometry', {
 			vec3.fromValues(0, 0, 1)
 		]);
 		this.setFaces([
-			vec3.fromValues(0,1,2,3,0)
+			vec3.fromValues(0, 1, 2),
+			vec3.fromValues(0, 2, 3)
 		]);
 	}
 });

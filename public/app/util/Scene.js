@@ -18,9 +18,8 @@ Ext.define('MW.util.Scene', {
 	 *
 	 * @param gl The WebGL context
 	 * @param shaders The WebGL shader program
-	 * @param uniforms the callback to update the uniforms
 	 */
-	render: function (gl, shaders, uniforms) {
+	render: function (gl, shaders, controls) {
 		/*if (gl === undefined) {
 			gl = this.getGl();
 		}
@@ -51,55 +50,53 @@ Ext.define('MW.util.Scene', {
 			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 500);
 			this.mvPush();
 
-//			this.mvPush();
-//			this.renderFloor(gl, shaders, mvMatrix, periodNominator);
-//			this.mvPop();
+			this.mvPush();
+			this.renderFloor(gl, shaders, mvMatrix, periodNominator);
+			this.mvPop();
 
 			// Translate away from the camera
 			mat4.translate(mvMatrix, mvMatrix, [0, 0, -100]);
 
 			// Move camera around character
-			//var controls = this.getControls();
-			//mat4.multiply(mvMatrix, mvMatrix, controls.getRotation());
+			mat4.multiply(mvMatrix, mvMatrix, controls.getRotation());
 
 			this.mvPush();
-			this.renderFace(gl, shaders, uniforms, mvMatrix, periodNominator);
+			this.renderFace(gl, shaders, mvMatrix, periodNominator);
 			this.mvPop();
 
 			this.mvPop();
 		}
 		this.setLastTime(now);
 	},
-	renderFloor: function (gl, shaders, uniforms, mvMatrix, periodNominator) {
+	renderFloor: function (gl, shaders, mvMatrix, periodNominator) {
 		// Draw the floor
-		/*this.mvPush();
-		 mat4.translate(mvMatrix, mvMatrix, [0, 0, 0]);
-		 // Get the models map
-		 var models = this.getModels();
-		 var floor = models.floor;
-		 // Update the floor position
-		 var vertexBuffer = floor.vertexBuffer;
-		 gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		 gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		mat4.translate(mvMatrix, mvMatrix, [0, 0, 0]);
+		// Get the models map
+		var models = this.getModels();
+		var floor = models.floor;
+		// Update the floor position
+		var vertexBuffer = floor.vertexBuffer;
+		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+		gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		 // Update the floor normals
-		 var normalBuffer = floor.normalBuffer;
-		 gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		 gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		// Update the floor normals
+		var normalBuffer = floor.normalBuffer;
+		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+		gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
-		 // Update the floor faces
-		 var faceBuffer = floor.faceBuffer;
-		 gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+		// Update the floor faces
+		var faceBuffer = floor.faceBuffer;
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
-		 // Update the WebGL uniforms
-		 this.updateUniforms(gl, shaders);
+		// Update the WebGL uniforms
+		this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
 
-		 // Draw the face to the scene
-		 //			gl.drawElements(gl.TRIANGLE_STRIP, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
-		 gl.drawArrays(gl.LINE_LOOP, 0, vertexBuffer.numItems);
-		 mvMatrix = this.mvPop();*/
+		// Draw the face to the scene
+		//			gl.drawElements(gl.TRIANGLE_STRIP, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+//		gl.drawArrays(gl.TRIANGLES, 0, vertexBuffer.numItems);
+		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 	},
-	renderFace: function (gl, shaders, uniforms, mvMatrix, periodNominator) {
+	renderFace: function (gl, shaders, mvMatrix, periodNominator) {
 		// Get the models map
 		var models = this.getModels();
 		// Start drawing the face

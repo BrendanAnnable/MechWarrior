@@ -51,6 +51,7 @@ Ext.define('MW.view.ViewportController', {
 
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+//		gl = WebGLDebugUtils.makeDebugContext(gl);
 		gl.viewportWidth = canvas.width;
 		gl.viewportHeight = canvas.height;
 		this.setGl(gl);
@@ -76,7 +77,7 @@ Ext.define('MW.view.ViewportController', {
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible
 	 */
 	tick: function () {
-		this.getScene().render(this.getGl(), this.getShaders(), Ext.bind(this.updateUniforms, this));
+		this.getScene().render(this.getGl(), this.getShaders(), this.getControls());
 		requestAnimationFrame(Ext.bind(this.tick, this));
 	},
 	/**
