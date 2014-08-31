@@ -68,37 +68,56 @@ Ext.define('MW.util.Scene', {
 		}
 		this.setLastTime(now);
 	},
+    /**
+     * Renders a specified model in the scene.
+     *
+     * @param gl The WebGL context
+     * @param model The model to render
+     * @param shaders The WebGL shader program
+     * @param mvMatrix The current model-view project matrix
+     */
+    renderModel: function (gl, model, shaders, mvMatrix) {
+        // Update the model position
+        var vertexBuffer = model.vertexBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        // Update the model normals
+        var normalBuffer = model.normalBuffer;
+        gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+        gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+
+        // Update the model faces
+        var faceBuffer = model.faceBuffer;
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
+
+        // Update the WebGL uniforms
+        this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
+
+        gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+    },
+    /**
+     * Renders the floor model in the scene.
+     *
+     * @param gl The WebGL context
+     * @param shaders The WebGL shader program
+     * @param mvMatrix The current model-view project matrix
+     * @param periodNominator How often to update animation
+     */
 	renderFloor: function (gl, shaders, mvMatrix, periodNominator) {
 		// Draw the floor
 		mat4.translate(mvMatrix, mvMatrix, [0, -10, 0]);
-		// Get the models map
-		var models = this.getModels();
-		var floor = models.floor;
-		// Update the floor position
-		var vertexBuffer = floor.vertexBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-		// Update the floor normals
-		var normalBuffer = floor.normalBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-		// Update the floor faces
-		var faceBuffer = floor.faceBuffer;
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-
-		// Update the WebGL uniforms
-		this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
-
-        gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+		this.renderModel(gl, this.getModels().floor, shaders, mvMatrix);
 	},
+    /**
+     * Renders the face model in the scene.
+     *
+     * @param gl The WebGL context
+     * @param shaders The WebGL shader program
+     * @param mvMatrix The current model-view project matrix
+     * @param periodNominator How often to update animation
+     */
 	renderFace: function (gl, shaders, mvMatrix, periodNominator) {
-		// Get the models map
-		var models = this.getModels();
-		// Start drawing the face
-		var face = models.face;
-
 		// This animates the face such that is rotates around a point at the given radius,
 		// and 'bobs' up and down at the given height with the given periods
 		var minRadius = 10;
@@ -121,33 +140,15 @@ Ext.define('MW.util.Scene', {
 		mat4.rotateX(mvMatrix, mvMatrix, -pitch);
 		mat4.rotateY(mvMatrix, mvMatrix, -yaw);
 
-		// Update the face position
-		var vertexBuffer = face.vertexBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-		// Update the face normals
-		var normalBuffer = face.normalBuffer;
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
-
-		// Update the face faces (ha)
-		var faceBuffer = face.faceBuffer;
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-
-		// Update the WebGL uniforms
-		this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
-
-		// Draw the face to the scene
-		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+        this.renderModel(gl, this.getModels().face, shaders, mvMatrix);
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
 	 *
 	 * @param gl The WebGL context
 	 * @param shaderProgram The WebGL shader program
-	 * @param pMatrix the perspective projection matrix
-	 * @param mvMatrix the current model-view project matrix
+	 * @param pMatrix The perspective projection matrix
+	 * @param mvMatrix The current model-view project matrix
 	 */
 	updateUniforms: function (gl, shaderProgram, pMatrix, mvMatrix) {
 		// Send the projection and model-view matrices to WebGL
@@ -164,6 +165,26 @@ Ext.define('MW.util.Scene', {
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
 	},
+    /**
+     * Creates a model for the scene.
+     *
+     * @param gl The WebGL context
+     * @param geometry the geometry for the model being created
+     * @param name the name of the object
+     */
+    createModel: function (gl, geometry, name) {
+        // create the WebGL buffers for the vertices, normals and faces
+        var buffers = Ext.create('MW.buffer.Buffer');
+        var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
+        var normalBuffer = buffers.createNormalBuffer(gl, geometry);
+        var faceBuffer = buffers.createFaceBuffer(gl, geometry);
+        // Store the model into the models map
+        this.getModels()[name] = {
+            vertexBuffer: vertexBuffer,
+            normalBuffer: normalBuffer,
+            faceBuffer: faceBuffer
+        };
+    },
 	/**
 	 * Loads a model asynchronously
 	 *
@@ -188,7 +209,7 @@ Ext.define('MW.util.Scene', {
 				// Loop meshes array
 				Ext.each(meshes, function (mesh) {
 					// Create a geometry object
-					var geom = Ext.create('MW.geometry.Geometry');
+					var geometry = Ext.create('MW.geometry.Geometry');
 					var vertices = [];
 					// Loop through the flat vertices array and convert to proper Vector3 objects
 					for (var i = 0; i < mesh.vertices.length; i += 3) {
@@ -199,7 +220,7 @@ Ext.define('MW.util.Scene', {
 						));
 					}
 					// Update the geometry vertices
-					geom.setVertices(vertices);
+                    geometry.setVertices(vertices);
 
 					// Loop through the flat normals array and convert to proper Vector3 objects
 					var normals = [];
@@ -211,86 +232,32 @@ Ext.define('MW.util.Scene', {
 						));
 					}
 					// Update the geometry normals
-					geom.setVertices(vertices);
-					geom.setNormals(normals);
-					geom.setFaces(mesh.faces);
+                    geometry.setVertices(vertices);
+                    geometry.setNormals(normals);
+                    geometry.setFaces(mesh.faces);
 
 					// Move the model's pivot point to the center of the model
-					geom.center();
-
-					// Create the WebGL buffers for the vertices, normals and faces
-					var vertexBuffer = gl.createBuffer();
-					gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-					vertices = geom.getFlattenedVertices();
-					gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-					vertexBuffer.itemSize = 3;
-					vertexBuffer.numItems = vertices.length / 3;
-
-					var normalBuffer = gl.createBuffer();
-					gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-					var normals = geom.getFlattenedNormals();
-					gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-					normalBuffer.itemSize = 3;
-					normalBuffer.numItems = normals.length / 3;
-
-					var faceBuffer = gl.createBuffer();
-					gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-					var faces = geom.getFlattenedFaces();
-					gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
-					faceBuffer.itemSize = 3;
-					faceBuffer.numItems = faces.length / 3;
-
-					var model = {
-						vertexBuffer: vertexBuffer,
-						normalBuffer: normalBuffer,
-						faceBuffer: faceBuffer
-					};
-
-					// Store into the models map
-					models[mesh.name] = model;
+                    geometry.center();
+                    this.createModel(gl, geometry, mesh.name);
 					callback.call(model);
 				}, this);
 			}
 		});
 	},
-	createFloor: function (gl, name) {
-		// TODO: refactor this stuff!
-		var models = this.getModels();
-		var plane = Ext.create('MW.geometry.PlaneGeometry', {
-			width: 500,
-			height: 200
-		});
-        plane.rotateX(Math.PI * 0.5);
-		var vertexBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-		var vertices = plane.getFlattenedVertices();
-		gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-		vertexBuffer.itemSize = 3;
-		vertexBuffer.numItems = vertices.length / 3;
-
-		var normalBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-		var normals = plane.getFlattenedNormals();
-		gl.bufferData(gl.ARRAY_BUFFER, normals, gl.STATIC_DRAW);
-		normalBuffer.itemSize = 3;
-		normalBuffer.numItems = normals.length / 3;
-
-		var faceBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
-		var faces = plane.getFlattenedFaces();
-		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
-		faceBuffer.itemSize = 3;
-		faceBuffer.numItems = faces.length / 3;
-
-		var model = {
-			vertexBuffer: vertexBuffer,
-			normalBuffer: normalBuffer,
-			faceBuffer: faceBuffer
-		};
-
-		// Store into the models map
-		models[name] = model;
-	},
+    /**
+     * Creates a plane geometry to represent the floor in the scene.
+     *
+     * @param gl The WebGL context
+     * @param name The name of the floor
+     */
+    createFloor: function (gl, name) {
+        var plane = Ext.create('MW.geometry.PlaneGeometry', {
+            width: 500,
+            height: 200
+        });
+        plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
+        this.createModel(gl, plane, name);  // create the model using the plane and its name
+    },
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack
 	 */

@@ -9,7 +9,6 @@ Ext.define('MW.geometry.Geometry', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
-
 		this.setVertices([]);
 		this.setColors([]);
 		this.setNormals([]);
