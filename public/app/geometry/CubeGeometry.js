@@ -52,7 +52,7 @@ Ext.define('MW.geometry.CubeGeometry', {
 			vec3.fromValues(-1.0,  1.0, -1.0)
 		];
 		var normals = [];
-		var scale = vec3.fromValues(width, height, depth);
+		var scale = vec3.fromValues(width / 2, height / 2, depth / 2);
 		var j = vertices.length;
 		for (var i = 0; i < j; i++) {
 			normals[i] = vec3.create();

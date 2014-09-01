@@ -3,14 +3,16 @@ Ext.define('MW.util.Scene', {
 	config: {
 		models: null,           // A map of models that have been loaded, keyed by their name
 		mvStack: null,          // The model-view projection stack, used to keep a history of where you draw
-		cursor: null,         // The current model-view project matrix (where to draw)
+		cursor: null,           // The current model-view project matrix (where to draw)
 		pMatrix: null,          // The perspective projection matrix
+		playerPosition: null,   // The players current position in the level
 		lastTime: 0             // Used by the animate function, to keep track of the time between animation frames
 	},
 	constructor: function () {
 		this.setModels({});
 		this.setPMatrix(mat4.create());
 		this.setCursor(mat4.create());
+		this.setPlayerPosition(mat4.create());
 		this.setMvStack([]);
 	},
 	/**
@@ -51,22 +53,28 @@ Ext.define('MW.util.Scene', {
 			mat4.identity(cursor);
 
 			// Translate away from the camera
-			mat4.translate(cursor, cursor, [0, 0, -70]);
+			mat4.translate(cursor, cursor, [0, 0, -40]);
+
+			// Apply pitch from camera
+			mat4.multiply(cursor, cursor, controls.getPitchRotation());
 
 			this.saveCursor();
+			// TODO: make face look 'forward'
+			// mat4.rotateY(cursor, cursor, Math.PI); ?
 			this.renderFace(gl, shaders, cursor, periodNominator);
 			cursor = this.restoreCursor();
 
-			/*var period = 5000;
-			var angle = 2 * Math.PI * Date.now() / period;
-			mat4.rotateY(cursor, cursor, angle);*/
+			// Apply yaw from camera
+			mat4.multiply(cursor, cursor, controls.getYawRotation());
 
-			// Move camera around character
-			//mat4.multiply(cursor, cursor, controls.getRotation());
-
-			var period = 10000;
-			var angle = 2 * Math.PI * Date.now() / period;
-			mat4.rotateY(cursor, cursor, angle);
+			// player position
+			// Simulate player moving backwards and forwards
+			var position = this.getPlayerPosition();
+			var period = 20000;
+			var x = 80 * Math.sin(2 * Math.PI * Date.now() / period);
+			var translateVector = mat4.translateVector(position);
+			translateVector[0] = x;
+			mat4.multiply(cursor, cursor, position);
 
 			this.saveCursor();
 			this.renderSkybox(gl, shaders, cursor, periodNominator);
@@ -115,7 +123,7 @@ Ext.define('MW.util.Scene', {
      * @param periodNominator How often to update animation
      */
 	renderFloor: function (gl, shaders, cursor, periodNominator) {
-		mat4.translate(cursor, cursor, [0, -10, 0]);
+		mat4.translate(cursor, cursor, [0, -20, 0]);
 		this.renderModel(gl, this.getModels().floor, shaders, cursor);
 	},
 	/**
@@ -155,14 +163,14 @@ Ext.define('MW.util.Scene', {
 		var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
 
 		// Rotate to the direction of where the face will be drawn
-		mat4.rotateY(cursor, cursor, yaw);
+		/*mat4.rotateY(cursor, cursor, yaw);
 		mat4.rotateX(cursor, cursor, pitch);
 		// Translate forward to outer radius
 		mat4.translate(cursor, cursor, [0, 0, -radius]);
 		// Rotate back so that the face always 'faces' the camera
 		mat4.rotateX(cursor, cursor, -pitch);
 		mat4.rotateY(cursor, cursor, -yaw);
-//		mat4.rotateZ(cursor, cursor, -yaw);
+//		mat4.rotateZ(cursor, cursor, -yaw);*/
 
         this.renderModel(gl, this.getModels().face, shaders, cursor);
 	},
@@ -277,8 +285,8 @@ Ext.define('MW.util.Scene', {
      */
     createFloor: function (gl, name) {
         var plane = Ext.create('MW.geometry.PlaneGeometry', {
-            width: 100,
-            height: 100
+            width: 300,
+            height: 300
         });
         plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
         this.createModel(gl, plane, name);  // create the model using the plane and its name
@@ -291,9 +299,9 @@ Ext.define('MW.util.Scene', {
 	 */
 	createSkybox: function (gl, name) {
 		var skybox = Ext.create('MW.geometry.CubeGeometry', {
-			width: 100,
-			height: 100,
-			depth: 100
+			width: 300,
+			height: 300,
+			depth: 300
 		});
 		skybox.negateNormals();
 		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
