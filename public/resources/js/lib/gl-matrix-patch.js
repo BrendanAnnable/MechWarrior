@@ -99,9 +99,16 @@ vec4.rotateZ = function (out, a, rad) {
 };
 
 vec3.findNormal = function (out, a) {
-    // TODO: handle edge cases
-    out[0] = -a[1];
-    out[1] = a[0];
-    out[2] = 0;
+	// TODO: account for floating point badness
+	if (a[0] > 0) {
+		out[0] = -a[1];
+		out[1] = a[0];
+		out[2] = 0;
+	}
+	else {
+		out[0] = 0;
+		out[1] = -a[2];
+		out[2] = a[1];
+	}
     return out;
 };

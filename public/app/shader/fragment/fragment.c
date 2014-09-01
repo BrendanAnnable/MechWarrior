@@ -49,4 +49,5 @@ void main(void) {
 		+ uLightColor * diffuseLightWeight
 		+ directionalLightColor * directionalLightWeight
 	, 1);
+	//gl_FragColor = vec4(vNormal, 1);
 }

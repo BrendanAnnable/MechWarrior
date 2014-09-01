@@ -54,6 +54,10 @@ Ext.define('MW.util.Scene', {
 			this.renderFloor(gl, shaders, cursor, periodNominator);
             cursor = this.restoreCursor();
 
+			this.saveCursor();
+			this.renderSkybox(gl, shaders, cursor, periodNominator);
+			cursor = this.restoreCursor();
+
 			// Translate away from the camera
 			mat4.translate(cursor, cursor, [0, 0, -70]);
 
@@ -62,7 +66,7 @@ Ext.define('MW.util.Scene', {
 			mat4.rotateY(cursor, cursor, angle);*/
 
 			// Move camera around character
-			mat4.multiply(cursor, cursor, controls.getRotation());
+			//mat4.multiply(cursor, cursor, controls.getRotation());
 
 			this.saveCursor();
 			this.renderFace(gl, shaders, cursor, periodNominator);
@@ -109,9 +113,22 @@ Ext.define('MW.util.Scene', {
      * @param periodNominator How often to update animation
      */
 	renderFloor: function (gl, shaders, cursor, periodNominator) {
-		// Draw the floor
 		mat4.translate(cursor, cursor, [0, -10, 0]);
 		this.renderModel(gl, this.getModels().floor, shaders, cursor);
+	},
+	/**
+	 * Renders the skybox model in the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param shaders The WebGL shader program
+	 * @param cursor The current model-view project matrix
+	 * @param periodNominator How often to update animation
+	 */
+	renderSkybox: function (gl, shaders, cursor, periodNominator) {
+		mat4.translate(cursor, cursor, [-4, 2, -10]);
+	//	mat4.rotateY(cursor, cursor, periodNominator / 4000);
+//		mat4.rotateX(cursor, cursor, periodNominator / 4000);
+		this.renderModel(gl, this.getModels().skybox, shaders, cursor);
 	},
     /**
      * Renders the face model in the scene.
@@ -166,7 +183,7 @@ Ext.define('MW.util.Scene', {
 
 		// Send the light position and color to WebGL
 		// TODO: make these less hardcoded and into variables
-		var x = 100 * Math.sin(2 * Math.PI * Date.now() / 1000);
+		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
 		var lightPosition = vec4.fromValues(x, -100, 0, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
@@ -264,6 +281,20 @@ Ext.define('MW.util.Scene', {
         plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
         this.createModel(gl, plane, name);  // create the model using the plane and its name
     },
+	/**
+	 * Creates a cube geometry to represent the skybox in the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param name The name of the skybox
+	 */
+	createSkybox: function (gl, name) {
+		var skybox = Ext.create('MW.geometry.CubeGeometry', {
+			width: 500,
+			height: 200,
+			depth: 200
+		});
+		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
+	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack
 	 */

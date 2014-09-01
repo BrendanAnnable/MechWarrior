@@ -68,6 +68,7 @@ Ext.define('MW.view.ViewportController', {
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
 				scene.createFloor(gl, 'floor');
+				scene.createSkybox(gl, 'skybox');
 				// Start the animation loop
 				this.tick();
 			}, this));
