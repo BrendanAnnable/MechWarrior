@@ -76,13 +76,7 @@ Ext.define('MW.util.Scene', {
 			translateVector[0] = x;
 			mat4.multiply(cursor, cursor, position);
 
-			this.saveCursor();
-			this.renderSkybox(gl, shaders, cursor, periodNominator);
-			cursor = this.restoreCursor();
-
-			this.saveCursor();
-			this.renderFloor(gl, shaders, cursor, periodNominator);
-			cursor = this.restoreCursor();
+			this.renderWorld(gl, shaders, cursor, periodNominator);
 		}
 		this.setLastTime(now);
 	},
@@ -114,6 +108,23 @@ Ext.define('MW.util.Scene', {
 
         gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
     },
+	/**
+	 * Renders the world in the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param shaders The WebGL shader program
+	 * @param cursor The current model-view project matrix
+	 * @param periodNominator How often to update animation
+	 */
+	renderWorld: function (gl, shaders, cursor, periodNominator) {
+		this.saveCursor();
+		this.renderSkybox(gl, shaders, cursor, periodNominator);
+		cursor = this.restoreCursor();
+
+		this.saveCursor();
+		this.renderFloor(gl, shaders, cursor, periodNominator);
+		cursor = this.restoreCursor();
+	},
     /**
      * Renders the floor model in the scene.
      *
@@ -229,8 +240,6 @@ Ext.define('MW.util.Scene', {
 	loadModel: function (gl, modelName, callback) {
 		var modelPath = Ext.Loader.getPath('MW') + '/scene/model/';
 		var url = modelPath + modelName;
-		var models = this.getModels();
-
 		Ext.Ajax.request({
 			url: url,
 			scope: this,
@@ -277,16 +286,30 @@ Ext.define('MW.util.Scene', {
 			}
 		});
 	},
+	/**
+	 * Creates the world for the scene the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param width the width of the world
+	 * @param height the height of the world
+	 * @param depth the depth of the world
+	 */
+	createWorld: function (gl, width, height, depth) {
+		this.createFloor(gl, 'floor', width, height);           // creates space in the gpu for the floor model
+		this.createSkybox(gl, 'skybox', width, height, depth);  // creates space in the gpu for the skybox model
+	},
     /**
      * Creates a plane geometry to represent the floor in the scene.
      *
      * @param gl The WebGL context
      * @param name The name of the floor
+     * @param width the width of the floor
+     * @param height the height of the floor
      */
-    createFloor: function (gl, name) {
+    createFloor: function (gl, name, width, height) {
         var plane = Ext.create('MW.geometry.PlaneGeometry', {
-            width: 300,
-            height: 300
+            width: width,
+            height: height
         });
         plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
         this.createModel(gl, plane, name);  // create the model using the plane and its name
@@ -296,12 +319,15 @@ Ext.define('MW.util.Scene', {
 	 *
 	 * @param gl The WebGL context
 	 * @param name The name of the skybox
+	 * @param width the width of the skybox
+	 * @param height the height of the skybox
+	 * @param depth the depth of the skybox
 	 */
-	createSkybox: function (gl, name) {
+	createSkybox: function (gl, name, width, height, depth) {
 		var skybox = Ext.create('MW.geometry.CubeGeometry', {
-			width: 300,
-			height: 300,
-			depth: 300
+			width: width,
+			height: height,
+			depth: depth
 		});
 		skybox.negateNormals();
 		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
