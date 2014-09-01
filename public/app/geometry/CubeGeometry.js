@@ -14,7 +14,6 @@ Ext.define('MW.geometry.CubeGeometry', {
         this.calculatePoints(width, height, depth);
     },
 	calculatePoints: function (width, height, depth) {
-		// fix it!!!!
 		var vertices = [
 			// Front face
 			vec3.fromValues(-1.0, -1.0,  1.0),
@@ -53,10 +52,12 @@ Ext.define('MW.geometry.CubeGeometry', {
 			vec3.fromValues(-1.0,  1.0, -1.0)
 		];
 		var normals = [];
+		var scale = vec3.fromValues(width, height, depth);
 		var j = vertices.length;
 		for (var i = 0; i < j; i++) {
 			normals[i] = vec3.create();
 			vec3.copy(normals[i], vertices[i]);
+			vec3.multiply(vertices[i], vertices[i], scale);
 		}
 		this.setVertices(vertices);
 		this.setNormals(normals);

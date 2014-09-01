@@ -119,5 +119,11 @@ Ext.define('MW.geometry.Geometry', {
             vec3.rotateZ(vertices[i], vertices[i], origin, rad);
             vec3.findNormal(normals[i], normals[i]);
         }
-    }
+    },
+	negateNormals: function () {
+		var normals = this.getNormals();
+		for (var i = 0; i < normals.length; i++) {
+			vec3.negate(normals[i], normals[i]);
+		}
+	}
 });

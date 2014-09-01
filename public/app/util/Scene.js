@@ -48,18 +48,14 @@ Ext.define('MW.util.Scene', {
 
 			// Create a perspective projection matrix
 			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 2000);
-			this.saveCursor();
-
-			this.saveCursor();
-			this.renderFloor(gl, shaders, cursor, periodNominator);
-            cursor = this.restoreCursor();
-
-			this.saveCursor();
-			this.renderSkybox(gl, shaders, cursor, periodNominator);
-			cursor = this.restoreCursor();
+			mat4.identity(cursor);
 
 			// Translate away from the camera
 			mat4.translate(cursor, cursor, [0, 0, -70]);
+
+			this.saveCursor();
+			this.renderFace(gl, shaders, cursor, periodNominator);
+			cursor = this.restoreCursor();
 
 			/*var period = 5000;
 			var angle = 2 * Math.PI * Date.now() / period;
@@ -68,11 +64,17 @@ Ext.define('MW.util.Scene', {
 			// Move camera around character
 			//mat4.multiply(cursor, cursor, controls.getRotation());
 
-			this.saveCursor();
-			this.renderFace(gl, shaders, cursor, periodNominator);
-            cursor = this.restoreCursor();
+			var period = 10000;
+			var angle = 2 * Math.PI * Date.now() / period;
+			mat4.rotateY(cursor, cursor, angle);
 
-			this.restoreCursor();
+			this.saveCursor();
+			this.renderSkybox(gl, shaders, cursor, periodNominator);
+			cursor = this.restoreCursor();
+
+			this.saveCursor();
+			this.renderFloor(gl, shaders, cursor, periodNominator);
+			cursor = this.restoreCursor();
 		}
 		this.setLastTime(now);
 	},
@@ -125,7 +127,7 @@ Ext.define('MW.util.Scene', {
 	 * @param periodNominator How often to update animation
 	 */
 	renderSkybox: function (gl, shaders, cursor, periodNominator) {
-		mat4.translate(cursor, cursor, [-4, 2, -10]);
+//		mat4.translate(cursor, cursor, [-4, 2, -10]);
 	//	mat4.rotateY(cursor, cursor, periodNominator / 4000);
 //		mat4.rotateX(cursor, cursor, periodNominator / 4000);
 		this.renderModel(gl, this.getModels().skybox, shaders, cursor);
@@ -183,8 +185,8 @@ Ext.define('MW.util.Scene', {
 
 		// Send the light position and color to WebGL
 		// TODO: make these less hardcoded and into variables
-		var x = 100 * Math.sin(2 * Math.PI * Date.now() / 1000);
-		var lightPosition = vec4.fromValues(x, -100, 0, 1);
+		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
+		var lightPosition = vec4.fromValues(x, 0, 0, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
 	},
@@ -275,8 +277,8 @@ Ext.define('MW.util.Scene', {
      */
     createFloor: function (gl, name) {
         var plane = Ext.create('MW.geometry.PlaneGeometry', {
-            width: 500,
-            height: 200
+            width: 100,
+            height: 100
         });
         plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
         this.createModel(gl, plane, name);  // create the model using the plane and its name
@@ -289,10 +291,11 @@ Ext.define('MW.util.Scene', {
 	 */
 	createSkybox: function (gl, name) {
 		var skybox = Ext.create('MW.geometry.CubeGeometry', {
-			width: 500,
-			height: 200,
-			depth: 200
+			width: 100,
+			height: 100,
+			depth: 100
 		});
+		skybox.negateNormals();
 		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
 	},
 	/**
