@@ -3,14 +3,14 @@ Ext.define('MW.util.Scene', {
 	config: {
 		models: null,           // A map of models that have been loaded, keyed by their name
 		mvStack: null,          // The model-view projection stack, used to keep a history of where you draw
-		mvMatrix: null,         // The current model-view project matrix (where to draw)
+		cursor: null,         // The current model-view project matrix (where to draw)
 		pMatrix: null,          // The perspective projection matrix
 		lastTime: 0             // Used by the animate function, to keep track of the time between animation frames
 	},
 	constructor: function () {
 		this.setModels({});
 		this.setPMatrix(mat4.create());
-		this.setMvMatrix(mat4.create());
+		this.setCursor(mat4.create());
 		this.setMvStack([]);
 	},
 	/**
@@ -43,28 +43,32 @@ Ext.define('MW.util.Scene', {
 			// Clear the color buffer and depth buffer bits
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-			var mvMatrix = this.getMvMatrix();
+			var cursor = this.getCursor();
 			var pMatrix = this.getPMatrix();
 
 			// Create a perspective projection matrix
 			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 2000);
-			this.mvPush();
+			this.saveCursor();
 
-			this.mvPush();
-			this.renderFloor(gl, shaders, mvMatrix, periodNominator);
-            mvMatrix = this.mvPop();
+			this.saveCursor();
+			this.renderFloor(gl, shaders, cursor, periodNominator);
+            cursor = this.restoreCursor();
 
 			// Translate away from the camera
-			mat4.translate(mvMatrix, mvMatrix, [0, 0, -100]);
+			mat4.translate(cursor, cursor, [0, 0, -70]);
+
+			/*var period = 5000;
+			var angle = 2 * Math.PI * Date.now() / period;
+			mat4.rotateY(cursor, cursor, angle);*/
 
 			// Move camera around character
-			mat4.multiply(mvMatrix, mvMatrix, controls.getRotation());
+			mat4.multiply(cursor, cursor, controls.getRotation());
 
-			this.mvPush();
-			this.renderFace(gl, shaders, mvMatrix, periodNominator);
-            mvMatrix = this.mvPop();
+			this.saveCursor();
+			this.renderFace(gl, shaders, cursor, periodNominator);
+            cursor = this.restoreCursor();
 
-			this.mvPop();
+			this.restoreCursor();
 		}
 		this.setLastTime(now);
 	},
@@ -74,9 +78,9 @@ Ext.define('MW.util.Scene', {
      * @param gl The WebGL context
      * @param model The model to render
      * @param shaders The WebGL shader program
-     * @param mvMatrix The current model-view project matrix
+     * @param cursor The current model-view project matrix
      */
-    renderModel: function (gl, model, shaders, mvMatrix) {
+    renderModel: function (gl, model, shaders, cursor) {
         // Update the model position
         var vertexBuffer = model.vertexBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -92,7 +96,7 @@ Ext.define('MW.util.Scene', {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
         // Update the WebGL uniforms
-        this.updateUniforms(gl, shaders, this.getPMatrix(), mvMatrix);
+        this.updateUniforms(gl, shaders, this.getPMatrix(), cursor);
 
         gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
     },
@@ -101,23 +105,23 @@ Ext.define('MW.util.Scene', {
      *
      * @param gl The WebGL context
      * @param shaders The WebGL shader program
-     * @param mvMatrix The current model-view project matrix
+     * @param cursor The current model-view project matrix
      * @param periodNominator How often to update animation
      */
-	renderFloor: function (gl, shaders, mvMatrix, periodNominator) {
+	renderFloor: function (gl, shaders, cursor, periodNominator) {
 		// Draw the floor
-		mat4.translate(mvMatrix, mvMatrix, [0, -10, 0]);
-		this.renderModel(gl, this.getModels().floor, shaders, mvMatrix);
+		mat4.translate(cursor, cursor, [0, -10, 0]);
+		this.renderModel(gl, this.getModels().floor, shaders, cursor);
 	},
     /**
      * Renders the face model in the scene.
      *
      * @param gl The WebGL context
      * @param shaders The WebGL shader program
-     * @param mvMatrix The current model-view project matrix
+     * @param cursor The current model-view project matrix
      * @param periodNominator How often to update animation
      */
-	renderFace: function (gl, shaders, mvMatrix, periodNominator) {
+	renderFace: function (gl, shaders, cursor, periodNominator) {
 		// This animates the face such that is rotates around a point at the given radius,
 		// and 'bobs' up and down at the given height with the given periods
 		var minRadius = 10;
@@ -132,15 +136,16 @@ Ext.define('MW.util.Scene', {
 		var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
 
 		// Rotate to the direction of where the face will be drawn
-		mat4.rotateY(mvMatrix, mvMatrix, yaw);
-		mat4.rotateX(mvMatrix, mvMatrix, pitch);
+		mat4.rotateY(cursor, cursor, yaw);
+		mat4.rotateX(cursor, cursor, pitch);
 		// Translate forward to outer radius
-		mat4.translate(mvMatrix, mvMatrix, [0, 0, -radius]);
+		mat4.translate(cursor, cursor, [0, 0, -radius]);
 		// Rotate back so that the face always 'faces' the camera
-		mat4.rotateX(mvMatrix, mvMatrix, -pitch);
-		mat4.rotateY(mvMatrix, mvMatrix, -yaw);
+		mat4.rotateX(cursor, cursor, -pitch);
+		mat4.rotateY(cursor, cursor, -yaw);
+//		mat4.rotateZ(cursor, cursor, -yaw);
 
-        this.renderModel(gl, this.getModels().face, shaders, mvMatrix);
+        this.renderModel(gl, this.getModels().face, shaders, cursor);
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
@@ -148,22 +153,23 @@ Ext.define('MW.util.Scene', {
 	 * @param gl The WebGL context
 	 * @param shaderProgram The WebGL shader program
 	 * @param pMatrix The perspective projection matrix
-	 * @param mvMatrix The current model-view project matrix
+	 * @param cursor The current model-view project matrix
 	 */
-	updateUniforms: function (gl, shaderProgram, pMatrix, mvMatrix) {
+	updateUniforms: function (gl, shaderProgram, pMatrix, cursor) {
 		// Send the projection and model-view matrices to WebGL
 		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, mvMatrix);
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, cursor);
 
 		// Send the model-view projection normal matrix to WebGL
-		var normalMatrix = mat3.normalFromMat4(mat3.zeros(), mvMatrix);
+		var normalMatrix = mat3.normalFromMat4(mat3.zeros(), cursor);
 		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
 
 		// Send the light position and color to WebGL
 		// TODO: make these less hardcoded and into variables
-		var lightPosition = vec4.fromValues(0, -1000, 0, 1);
+		var x = 100 * Math.sin(2 * Math.PI * Date.now() / 1000);
+		var lightPosition = vec4.fromValues(x, -100, 0, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
-		gl.uniform3fv(shaderProgram.uLightColor, [0.6, 0, 0]);
+		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
 	},
     /**
      * Creates a model for the scene.
@@ -261,19 +267,19 @@ Ext.define('MW.util.Scene', {
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack
 	 */
-	mvPush: function () {
-		this.getMvStack().push(mat4.clone(this.getMvMatrix()));
+	saveCursor: function () {
+		this.getMvStack().push(mat4.clone(this.getCursor()));
 	},
 	/**
 	 * Pop the latest model-view projection matrix off the stack
 	 */
-	mvPop: function () {
+	restoreCursor: function () {
 		var mvStack = this.getMvStack();
 		if (mvStack.length === 0) {
 			throw "mvStack empty";
 		}
-		var mvMatrix = mvStack.pop();
-		this.setMvMatrix(mvMatrix);
-		return mvMatrix;
+		var cursor = mvStack.pop();
+		this.setCursor(cursor);
+		return cursor;
 	}
 });
