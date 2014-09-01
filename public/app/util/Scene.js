@@ -183,7 +183,7 @@ Ext.define('MW.util.Scene', {
 
 		// Send the light position and color to WebGL
 		// TODO: make these less hardcoded and into variables
-		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
+		var x = 100 * Math.sin(2 * Math.PI * Date.now() / 1000);
 		var lightPosition = vec4.fromValues(x, -100, 0, 1);
 		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
 		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
