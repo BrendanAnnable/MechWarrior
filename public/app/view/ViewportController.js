@@ -109,6 +109,9 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
 			gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
+			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
 //			shaders.vertexColorAttribute = gl.getAttribLocation(shaders, "aVertexColor");
 //			gl.enableVertexAttribArray(shaders.vertexColorAttribute);
 

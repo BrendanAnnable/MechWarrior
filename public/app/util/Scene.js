@@ -61,7 +61,7 @@ Ext.define('MW.util.Scene', {
 			this.saveCursor();
 			// TODO: make face look 'forward'
 			// mat4.rotateY(cursor, cursor, Math.PI); ?
-			this.renderFace(gl, shaders, cursor, periodNominator);
+			this.renderPlayer(gl, shaders, cursor, periodNominator);
 			cursor = this.restoreCursor();
 
 			// Apply yaw from camera
@@ -103,10 +103,21 @@ Ext.define('MW.util.Scene', {
         var faceBuffer = model.faceBuffer;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
-        // Update the WebGL uniforms
-        this.updateUniforms(gl, shaders, this.getPMatrix(), cursor);
-
-        gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+	    // http://learningwebgl.com/blog/?p=507
+	    /*TODO FIX
+	    if (model.textureBuffer.textures !== null) {
+		    // Update the model texture
+		    var textureBuffer = model.textureBuffer;
+		    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+		    gl.vertexAttribPointer(shaders.textureCoordAttribute, textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+		    gl.activeTexture(gl.TEXTURE0);
+		    gl.bindTexture(gl.TEXTURE_2D, textureBuffer.textures);
+		    gl.uniform1i(gl.getUniformLocation(shaders, "uSampler"), 0);
+		    //gl.uniform1i(shaders.samplerUniform, 0);
+	    }*/
+	    // Update the WebGL uniforms
+	    this.updateUniforms(gl, shaders, this.getPMatrix(), cursor);
+	    gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
     },
 	/**
 	 * Renders the world in the scene.
@@ -134,7 +145,7 @@ Ext.define('MW.util.Scene', {
      * @param periodNominator How often to update animation
      */
 	renderFloor: function (gl, shaders, cursor, periodNominator) {
-		mat4.translate(cursor, cursor, [0, -20, 0]);
+		mat4.translate(cursor, cursor, vec3.fromValues(0, -20, 0));
 		this.renderModel(gl, this.getModels().floor, shaders, cursor);
 	},
 	/**
@@ -146,10 +157,11 @@ Ext.define('MW.util.Scene', {
 	 * @param periodNominator How often to update animation
 	 */
 	renderSkybox: function (gl, shaders, cursor, periodNominator) {
-//		mat4.translate(cursor, cursor, [-4, 2, -10]);
+//		mat4.translate(cursor, cursor, vec3.fromValues(-4, 2, -10));
 	//	mat4.rotateY(cursor, cursor, periodNominator / 4000);
 //		mat4.rotateX(cursor, cursor, periodNominator / 4000);
-		this.renderModel(gl, this.getModels().skybox, shaders, cursor);
+		var model = this.getModels().skybox;
+		this.renderModel(gl, model, shaders, cursor);
 	},
     /**
      * Renders the face model in the scene.
@@ -159,7 +171,7 @@ Ext.define('MW.util.Scene', {
      * @param cursor The current model-view project matrix
      * @param periodNominator How often to update animation
      */
-	renderFace: function (gl, shaders, cursor, periodNominator) {
+	renderPlayer: function (gl, shaders, cursor, periodNominator) {
 		// This animates the face such that is rotates around a point at the given radius,
 		// and 'bobs' up and down at the given height with the given periods
 		var minRadius = 10;
@@ -222,11 +234,13 @@ Ext.define('MW.util.Scene', {
         var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
         var normalBuffer = buffers.createNormalBuffer(gl, geometry);
         var faceBuffer = buffers.createFaceBuffer(gl, geometry);
+	    var textureBuffer = buffers.createTextureBuffer(gl, geometry);
         // Store the model into the models map
         this.getModels()[name] = {
             vertexBuffer: vertexBuffer,
             normalBuffer: normalBuffer,
-            faceBuffer: faceBuffer
+            faceBuffer: faceBuffer,
+	        textureBuffer: textureBuffer
         };
     },
 	/**
@@ -329,6 +343,7 @@ Ext.define('MW.util.Scene', {
 			height: height,
 			depth: depth
 		});
+		skybox.setTextures(Ext.create('MW.loader.Texture', gl, "/resources/image/texture.png"));
 		skybox.negateNormals();
 		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
 	},

@@ -46,5 +46,22 @@ Ext.define('MW.buffer.Buffer', {
         faceBuffer.itemSize = 3;
         faceBuffer.numItems = faces.length / 3;
         return faceBuffer;
-    }
+    },
+	/**
+	 * Creates a texture buffer for a model.
+	 *
+	 * @param gl The WebGL context
+	 * @param geometry the geometry to apply the face buffer to
+	 * @returns {*} the vertex buffer being created
+	 */
+	createTextureBuffer: function (gl, geometry) {
+		var textureBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+		var textureCoordinates = geometry.getFlattenedTextureCoordinates();
+		gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
+		textureBuffer.itemSize = 3;
+		textureBuffer.numItems = textureCoordinates.length / 3;
+		textureBuffer.textures = geometry.getTextures();
+		return textureBuffer;
+	}
 });

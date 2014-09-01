@@ -10,6 +10,10 @@ varying vec3 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 
+// textures
+varying highp vec2 vTextureCoord;
+uniform sampler2D uSampler;
+
 void main(void) {
 	// normalize the normal as the interpolated value may not be of unit length
 	vec3 normal = normalize(vNormal);
@@ -43,11 +47,13 @@ void main(void) {
 	// Determine directional light weighting based on the angle between the light rays and the normal
 	float directionalLightWeight = max(dot(normal, normalize(directionLightVector)), 0.0);
 
-	// Colour the pixel based on the original colour and the various lighting factors
+	//gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+
+    // Colour the pixel based on the original colour and the various lighting factors
 	gl_FragColor = vColor * vec4(
 		ambientLighting
 		+ uLightColor * diffuseLightWeight
-		+ directionalLightColor * directionalLightWeight
-	, 1);
+		+ directionalLightColor * directionalLightWeight,
+		1);
 	//gl_FragColor = vec4(vNormal, 1);
 }
