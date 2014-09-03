@@ -1,5 +1,5 @@
 Ext.define('MW.loader.Texture', {
-	alias: 'Texture',
+	alias: 'TextureLoader',
 	constructor: function (gl, url) {
 		var texture = gl.createTexture();
 		texture.image = new Image();

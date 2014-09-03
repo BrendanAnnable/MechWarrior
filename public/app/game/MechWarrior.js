@@ -1,16 +1,16 @@
 /**
+ * @author Brendan Annable
  * @author Monica Olejniczak
  */
-
 Ext.define('MW.game.MechWarrior', {
 	alias: 'MechWarrior',
 	config: {
-		gl: null,               // The webGL context
+		gl: null,               // The WebGL context
 		shaderProgram: null,    // The shader program containing the vertex and fragment shader
 		scene: null,            // The scene object to hold models
 		zenithAngle: 0,         // Spherical coordinates angle for pitch
 		azimuthAngle: 0,        // Spherical coordinates angle for yaw
-		controls: null
+		controls: null          // The mouse controls
 	},
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
@@ -31,21 +31,51 @@ Ext.define('MW.game.MechWarrior', {
 		gl.viewportWidth = canvas.width;
 		gl.viewportHeight = canvas.height;
 		this.setGl(gl);
+		this.setGl(gl);
 		// Initialize the shaderProgram
-		this.initShaders(gl, function (shaderProgram) {
+		this.initShaderProgram(gl, function (shaderProgram) {
 			this.setShaderProgram(shaderProgram);
 			// get the scene
 			var scene = this.getScene();
-			// Load the face model
-			scene.loadModel(gl, 'face.json', Ext.bind(function () {
+			// load the player model and add it to the scene
+			Ext.create('MW.game.character.Player', gl, 'face.json', Ext.bind(function (player) {
+				this.createObject(gl, scene, player, player.getName());
 				// Set the background color
 				gl.clearColor(0, 0, 0, 1);
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
-				scene.createWorld(gl, 300, 300, 300);
+				var world = Ext.create('MW.game.world.World', gl, 300, 300, 300);
+				this.createObject(gl, scene, world, world.getName());
 				// Start the animation loop
-				this.tick(gl, shaderProgram, controls);
+				this.tick(gl, shaderProgram, scene, controls);
 			}, this));
+		});
+	},
+	/**
+	 * Creates an object for the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param scene The scene being rendered to
+	 * @param object The object being added to the scene
+	 * @param name The name of the object
+	 */
+	createObject: function (gl, scene, object, name) {
+		// create the WebGL buffers for the vertices, normals, faces and textures
+		var buffers = Ext.create('MW.buffer.Buffer');
+		Ext.each(object.getChildren() || object, function (obj) {
+			var geometry = obj.getGeometry();
+			var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
+			var normalBuffer = buffers.createNormalBuffer(gl, geometry);
+			var faceBuffer = buffers.createFaceBuffer(gl, geometry);
+			var textureBuffer = buffers.createTextureBuffer(gl, obj);
+			// add the object to the scene
+			scene.addObject({
+				object: object,
+				vertexBuffer: vertexBuffer,
+				normalBuffer: normalBuffer,
+				faceBuffer: faceBuffer,
+				textureBuffer: textureBuffer
+			}, name);
 		});
 	},
 	/**
@@ -53,11 +83,12 @@ Ext.define('MW.game.MechWarrior', {
 	 *
 	 * @param gl The WebGL context
 	 * @param shaderProgram The WebGL shader program
+	 * @param scene The scene to draw objects in
 	 * @param controls The mouse controls
 	 */
-	tick: function (gl, shaderProgram, controls) {
-		this.getScene().render(gl, shaderProgram, controls);
-		requestAnimationFrame(Ext.bind(this.tick, this, [gl, shaderProgram, controls]));
+	tick: function (gl, shaderProgram, scene, controls) {
+		scene.render(gl, shaderProgram, controls);
+		requestAnimationFrame(Ext.bind(this.tick, this, [gl, shaderProgram, scene, controls]));
 	},
 	/**
 	 * Initializes the WebGL shader program
@@ -66,9 +97,9 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param callback Callback once the shaderProgram have been loaded with
 	 * the WebGL shader program as the first parameter
 	 */
-	initShaders: function (gl, callback) {
+	initShaderProgram: function (gl, callback) {
 		// Initialize the shaderProgram
-		this.loadShaders(gl, function (vertexShader, fragmentShader) {
+		this.loadShaderProgram(gl, function (vertexShader, fragmentShader) {
 			// Create a WebGL shader program
 			var shaderProgram = gl.createProgram();
 			gl.attachShader(shaderProgram, vertexShader);
@@ -112,7 +143,7 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param callback Callback that is called once the shaderProgram have been loaded with
 	 * the first parameter as the vertex shader and the second as the fragment shader
 	 */
-	loadShaders: function (gl, callback) {
+	loadShaderProgram: function (gl, callback) {
 		// Load the vertex and fragment shader
 		Ext.create('MW.shader.vertex.Vertex').load(gl, function (vertexShader) {
 			Ext.create('MW.shader.fragment.Fragment').load(gl, function (fragmentShader) {
