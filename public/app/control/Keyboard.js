@@ -46,17 +46,18 @@ Ext.define('MW.control.Keyboard', {
         else if(event.keyCode == event.S){
             this.transZ = 1;
         }
-//        else if(event.keyCode == event.space){
-//            console.log("spacebar pressed. jump robot jump!");
-//        }
+        else if(event.keyCode == event.space){
+            console.log("spacebar pressed. jump robot jump!");
+        }
         else{console.log("keypressed: "+String.fromCharCode(event.keyCode))
         }
 
     },
 
     getTranslation: function(){
-
-        return mat4.translate(out, receiving, vec3.fromValues(transX, transY, transZ));
+        // out is the receiving matrix
+        // matrixToTranslate is the matrix to translate
+        return mat4.translate(out, matrixToTranslate, vec3.fromValues(transX, transY, transZ));
 
     }
 });
