@@ -1,5 +1,5 @@
 Ext.define('MW.util.Scene', {
-	alias: 'Geometry',
+	alias: 'Scene',
 	config: {
 		models: null,           // A map of models that have been loaded, keyed by their name
 		mvStack: null,          // The model-view projection stack, used to keep a history of where you draw
@@ -104,7 +104,7 @@ Ext.define('MW.util.Scene', {
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
 	    // http://learningwebgl.com/blog/?p=507
-	    /*TODO FIX
+	    //TODO FIX
 	    if (model.textureBuffer.textures !== null) {
 		    // Update the model texture
 		    var textureBuffer = model.textureBuffer;
@@ -114,7 +114,7 @@ Ext.define('MW.util.Scene', {
 		    gl.bindTexture(gl.TEXTURE_2D, textureBuffer.textures);
 		    gl.uniform1i(gl.getUniformLocation(shaders, "uSampler"), 0);
 		    //gl.uniform1i(shaders.samplerUniform, 0);
-	    }*/
+	    }
 	    // Update the WebGL uniforms
 	    this.updateUniforms(gl, shaders, this.getPMatrix(), cursor);
 	    gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
@@ -225,16 +225,17 @@ Ext.define('MW.util.Scene', {
      * Creates a model for the scene.
      *
      * @param gl The WebGL context
-     * @param geometry the geometry for the model being created
+     * @param mesh the geometry and texture for the model being created
      * @param name the name of the object
      */
-    createModel: function (gl, geometry, name) {
+    createModel: function (gl, mesh, name) {
         // create the WebGL buffers for the vertices, normals and faces
         var buffers = Ext.create('MW.buffer.Buffer');
+        var geometry = mesh.getGeometry();
         var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
         var normalBuffer = buffers.createNormalBuffer(gl, geometry);
         var faceBuffer = buffers.createFaceBuffer(gl, geometry);
-	    var textureBuffer = buffers.createTextureBuffer(gl, geometry);
+	    var textureBuffer = buffers.createTextureBuffer(gl, mesh);
         // Store the model into the models map
         this.getModels()[name] = {
             vertexBuffer: vertexBuffer,
@@ -263,16 +264,16 @@ Ext.define('MW.util.Scene', {
 				// Get the meshes array
 				var meshes = model.meshes;
 				// Loop meshes array
-				Ext.each(meshes, function (mesh) {
-					// Create a geometry object
-					var geometry = Ext.create('MW.geometry.Geometry');
+				Ext.each(meshes, function (jMesh) {
+					// Create a mesh and geometry object
+                    var geometry = Ext.create('MW.geometry.Geometry');
 					var vertices = [];
 					// Loop through the flat vertices array and convert to proper Vector3 objects
-					for (var i = 0; i < mesh.vertices.length; i += 3) {
+					for (var i = 0; i < jMesh.vertices.length; i += 3) {
 						vertices.push(vec3.fromValues(
-							mesh.vertices[i + 0],
-							mesh.vertices[i + 1],
-							mesh.vertices[i + 2]
+                            jMesh.vertices[i + 0],
+                            jMesh.vertices[i + 1],
+                            jMesh.vertices[i + 2]
 						));
 					}
 					// Update the geometry vertices
@@ -280,21 +281,24 @@ Ext.define('MW.util.Scene', {
 
 					// Loop through the flat normals array and convert to proper Vector3 objects
 					var normals = [];
-					for (var i = 0; i < mesh.normals.length; i += 3) {
+					for (var i = 0; i < jMesh.normals.length; i += 3) {
 						normals.push(vec3.fromValues(
-							mesh.normals[i + 0],
-							mesh.normals[i + 1],
-							mesh.normals[i + 2]
+                            jMesh.normals[i + 0],
+                            jMesh.normals[i + 1],
+                            jMesh.normals[i + 2]
 						));
 					}
 					// Update the geometry normals
                     geometry.setVertices(vertices);
                     geometry.setNormals(normals);
-                    geometry.setFaces(mesh.faces);
+                    geometry.setFaces(jMesh.faces);
 
 					// Move the model's pivot point to the center of the model
                     geometry.center();
-                    this.createModel(gl, geometry, mesh.name);
+                    var mesh = Ext.create('MW.object.Mesh', {
+                        geometry: geometry
+                    });
+                    this.createModel(gl, mesh, jMesh.name);
 					callback.call(model);
 				}, this);
 			}
@@ -321,12 +325,15 @@ Ext.define('MW.util.Scene', {
      * @param height the height of the floor
      */
     createFloor: function (gl, name, width, height) {
-        var plane = Ext.create('MW.geometry.PlaneGeometry', {
+        var geometry = Ext.create('MW.geometry.PlaneGeometry', {
             width: width,
             height: height
         });
-        plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
-        this.createModel(gl, plane, name);  // create the model using the plane and its name
+        geometry.rotateX(Math.PI * 0.5);    // rotate the plane so it is horizontal to the ground
+        var mesh = Ext.create('MW.object.Mesh', {
+            geometry: geometry
+       });
+        this.createModel(gl, mesh, name);  // create the model using the plane and its name
     },
 	/**
 	 * Creates a cube geometry to represent the skybox in the scene.
@@ -338,14 +345,18 @@ Ext.define('MW.util.Scene', {
 	 * @param depth the depth of the skybox
 	 */
 	createSkybox: function (gl, name, width, height, depth) {
-		var skybox = Ext.create('MW.geometry.CubeGeometry', {
-			width: width,
-			height: height,
-			depth: depth
-		});
-		skybox.setTextures(Ext.create('MW.loader.Texture', gl, "/resources/image/texture.png"));
-		skybox.negateNormals();
-		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
+		var geometry = Ext.create('MW.geometry.CubeGeometry', {
+            width: width,
+            height: height,
+            depth: depth
+        });
+        var texture = Ext.create('MW.loader.Texture', gl, "/resources/image/texture.png");
+        var mesh = Ext.create('MW.object.Mesh', {
+            geometry: geometry,
+            texture: texture
+        });
+        mesh.negateNormals();
+		this.createModel(gl, mesh, name);  // create the model using the skybox and its name
 	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack

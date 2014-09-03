@@ -4,7 +4,7 @@ Ext.define('MW.buffer.Buffer', {
      *
      * @param gl The WebGL context
      * @param geometry the geometry to apply the vertex buffer to
-     * @returns {*} the vertex buffer being created
+     * @returns {*} the vertex buffer being created for the geometry
      */
     createVertexBuffer: function (gl, geometry) {
         var vertexBuffer = gl.createBuffer();
@@ -20,7 +20,7 @@ Ext.define('MW.buffer.Buffer', {
      *
      * @param gl The WebGL context
      * @param geometry the geometry to apply the normal buffer to
-     * @returns {*} the vertex buffer being created
+     * @returns {*} the normal buffer being created for the geometry
      */
     createNormalBuffer: function (gl, geometry) {
         var normalBuffer = gl.createBuffer();
@@ -36,7 +36,7 @@ Ext.define('MW.buffer.Buffer', {
      *
      * @param gl The WebGL context
      * @param geometry the geometry to apply the face buffer to
-     * @returns {*} the vertex buffer being created
+     * @returns {*} the face buffer being created for the geometry
      */
     createFaceBuffer: function (gl, geometry) {
         var faceBuffer = gl.createBuffer();
@@ -48,20 +48,25 @@ Ext.define('MW.buffer.Buffer', {
         return faceBuffer;
     },
 	/**
-	 * Creates a texture buffer for a model.
+	 * Creates a texture buffer for a model provided the model has a texture, otherwise no buffer is created.
 	 *
 	 * @param gl The WebGL context
-	 * @param geometry the geometry to apply the face buffer to
-	 * @returns {*} the vertex buffer being created
+	 * @param mesh the mesh to apply the texture buffer to
+	 * @returns {*} the texture buffer being created for the mesh if it contains a texture
 	 */
-	createTextureBuffer: function (gl, geometry) {
-		var textureBuffer = gl.createBuffer();
-		gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
-		var textureCoordinates = geometry.getFlattenedTextureCoordinates();
-		gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
-		textureBuffer.itemSize = 3;
-		textureBuffer.numItems = textureCoordinates.length / 3;
-		textureBuffer.textures = geometry.getTextures();
-		return textureBuffer;
+	createTextureBuffer: function (gl, mesh) {
+        var texture = mesh.getTexture();
+        if (texture == null) {
+            return null;
+        } else {
+            var textureBuffer = gl.createBuffer();
+            gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+            var textureCoordinates = geometry.getFlattenedTextureCoordinates();
+            gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
+            textureBuffer.itemSize = 3;
+            textureBuffer.numItems = textureCoordinates.length / 3;
+            textureBuffer.textures = texture;
+            return textureBuffer;
+        }
 	}
 });

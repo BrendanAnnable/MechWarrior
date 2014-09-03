@@ -30,6 +30,5 @@ void main(void) {
 
  	// Convert position to clip-space
  	gl_Position = uPMatrix * vec4(vPosition, 1.0);
- 	//gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-   // vTextureCoord = aTextureCoord;
+    vTextureCoord = aTextureCoord;
  }
