@@ -25,10 +25,10 @@ Ext.define('MW.util.Scene', {
 		/*if (gl === undefined) {
 			gl = this.getGl();
 		}
-		if (shaders === undefined) {
-			shaders = this.getShaderProgram();
+		if (shaderProgram === undefined) {
+			shaderProgram = this.getShaderProgram();
 		}
-		if (shaders === null) {
+		if (shaderProgram === null) {
 			return;
 		} */
 

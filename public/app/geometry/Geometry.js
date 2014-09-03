@@ -5,8 +5,7 @@ Ext.define('MW.geometry.Geometry', {
 		normals: null,
 		colors: null,
 		faces: null,
-		boundingBox: null,
-		textures: null
+		boundingBox: null
 	},
 	constructor: function (config) {
 		this.initConfig(config);
