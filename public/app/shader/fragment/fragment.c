@@ -5,6 +5,7 @@ uniform vec4 uLightPos;
 // The color of the point light, passed in by JavaScript
 uniform vec3 uLightColor;
 uniform bool useTexture;
+uniform bool useLighting;
 
 // The linearly interpolated values from the vertex shader
 varying vec3 vPosition;
@@ -49,13 +50,18 @@ void main(void) {
 	float directionalLightWeight = max(dot(normal, normalize(directionLightVector)), 0.0);
 
     // Colour the pixel based on the original colour and the various lighting factors
-	gl_FragColor = vColor * vec4(
-		ambientLighting
-		+ uLightColor * diffuseLightWeight
-		+ directionalLightColor * directionalLightWeight,
-		1);
-	gl_FragColor = vec4(vNormal, 1);
 	if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    } else {
+    	gl_FragColor = vColor;
     }
+
+    if (useLighting) {
+		gl_FragColor = gl_FragColor * vec4(
+			ambientLighting
+			+ uLightColor * diffuseLightWeight
+			+ directionalLightColor * directionalLightWeight,
+		1);
+    }
+//		gl_FragColor = vec4(vNormal, 1);
 }

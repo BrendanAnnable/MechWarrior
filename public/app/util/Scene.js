@@ -54,13 +54,15 @@ Ext.define('MW.util.Scene', {
 
 			// Translate away from the camera
 			mat4.translate(cursor, cursor, [0, 0, -40]);
-
 			// Apply pitch from camera
 			mat4.multiply(cursor, cursor, controls.getPitchRotation());
 
 			this.saveCursor();
-			// TODO: make face look 'forward'
-			// mat4.rotateY(cursor, cursor, Math.PI); ?
+			/*var axis = vec4.fromValues(0, 1, 0, 0);
+			vec4.transformMat4(axis, axis, controls.getPitchRotation());
+			mat4.rotate(cursor, cursor, Math.PI, vec4.vec3(axis));*/
+//			mat4.rotateY(cursor, cursor, Math.PI);
+
 			this.renderPlayer(gl, shaders, cursor, periodNominator);
 			cursor = this.restoreCursor();
 
@@ -106,8 +108,6 @@ Ext.define('MW.util.Scene', {
         var useTexture = model.textureBuffer !== null;
         gl.uniform1i(shaderProgram.useTextureUniform, useTexture);
 
-	    // http://learningwebgl.com/blog/?p=507
-	    //TODO FIX
 	    if (useTexture) {
             gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		    // Update the model texture
@@ -117,8 +117,12 @@ Ext.define('MW.util.Scene', {
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture);
 		    gl.uniform1i(shaderProgram.samplerUniform, 0);
+
+			// TODO: fix mee!!
+			gl.uniform1i(shaderProgram.useLightingUniform, 0);
 	    } else {
             gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+			gl.uniform1i(shaderProgram.useLightingUniform, 1);
         }
 	    // Update the WebGL uniforms and then draw the model on the screen
 	    this.updateUniforms(gl, shaderProgram, this.getPMatrix(), cursor);

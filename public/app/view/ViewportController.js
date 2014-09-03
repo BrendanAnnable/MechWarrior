@@ -46,7 +46,8 @@ Ext.define('MW.view.ViewportController', {
 		this.setCanvas(canvas);
 
 		this.setControls(Ext.create('MW.control.Mouse', {
-			element: canvas
+			element: canvas,
+			minPitch: -Math.PI / 6
 		}));
 
 		// Setup WebGL
@@ -120,6 +121,7 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 			shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
             shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, "useTexture");
+			shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "useLighting");
 
 			shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
 			shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
