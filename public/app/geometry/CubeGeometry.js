@@ -57,7 +57,7 @@ Ext.define('MW.geometry.CubeGeometry', {
 		for (var i = 0; i < j; i++) {
 			normals[i] = vec3.create();
 			vec3.copy(normals[i], vertices[i]);
-			vec3.multiply(vertices[i], vertices[i], scale);
+			vec3.multiply(vertices[i], vertices[i], scale); //multiply(a,b,c) => a = b * c
 		}
 		this.setVertices(vertices);
 		this.setNormals(normals);

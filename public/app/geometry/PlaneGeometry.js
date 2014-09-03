@@ -1,4 +1,4 @@
-Ext.define('MW.geometry.PlaneGeometry', {
+Ext.define('MW.geometry.PlaneGeometry', { //define: makes class, create: makes instance
 	extend: 'MW.geometry.Geometry',
 	alias: 'PlaneGeometry',
 	config: {
@@ -6,7 +6,7 @@ Ext.define('MW.geometry.PlaneGeometry', {
 		height: 0
 	},
 	constructor: function (config) {
-		this.callParent(arguments);
+		this.callParent(arguments);  //like java super
 
 		var width = this.getWidth();
 		var height = this.getHeight();
