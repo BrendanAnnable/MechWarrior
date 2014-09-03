@@ -144,7 +144,16 @@ Ext.define('MW.util.Scene', {
 		this.saveCursor();
 		this.renderFloor(gl, shaders, cursor, periodNominator);
 		cursor = this.restoreCursor();
-	},
+
+        //render mybox
+        this.saveCursor(); //make a snapshot of our origin frame before we start making an object (so we can restore it later)
+
+        mat4.translate(cursor, cursor, vec3.fromValues(0, 0, 25));
+        this.renderModel(gl, this.getModels().mybox, shaders, cursor);
+        cursor  = this.restoreCursor();
+
+
+    },
     /**
      * Renders the floor model in the scene.
      *
@@ -324,7 +333,20 @@ Ext.define('MW.util.Scene', {
 	createWorld: function (gl, width, height, depth) {
 		this.createFloor(gl, 'floor', width, height);           // creates space in the gpu for the floor model
 		this.createSkybox(gl, 'skybox', width, height, depth);  // creates space in the gpu for the skybox model
-	},
+        //create a box
+
+
+        var myboxGeo = Ext.create('MW.geometry.CubeGeometry', { //this creates cube Geometry
+            width: 20, height: 20, depth: 0});
+
+
+        var myboxMesh = Ext.create('MW.object.Mesh', {geometry: myboxGeo}); //texture is not reeuqired
+
+
+        this.createModel(gl, myboxMesh , "mybox"); //now we make the mesh = geometry + material
+
+        //end createbox
+    },
     /**
      * Creates a plane mesh to represent the floor in the scene.
      *
@@ -341,8 +363,10 @@ Ext.define('MW.util.Scene', {
         });
         geometry.rotateX(Math.PI * 0.5);
         // create the mesh containing the geometry
+        var floortex = Ext.create('MW.loader.Texture', gl, "/resources/image/floor.png");
         var mesh = Ext.create('MW.object.Mesh', {
-            geometry: geometry
+            geometry: geometry,
+            texture: floortex
        });
        this.createModel(gl, mesh, name); // create the model using the plane and its name
     },
