@@ -1,5 +1,5 @@
 Ext.define('MW.util.Scene', {
-	alias: 'Geometry',
+	alias: 'Scene',
 	config: {
 		models: null,           // A map of models that have been loaded, keyed by their name
 		mvStack: null,          // The model-view projection stack, used to keep a history of where you draw
@@ -61,7 +61,7 @@ Ext.define('MW.util.Scene', {
 			this.saveCursor();
 			// TODO: make face look 'forward'
 			// mat4.rotateY(cursor, cursor, Math.PI); ?
-			this.renderFace(gl, shaders, cursor, periodNominator);
+			this.renderPlayer(gl, shaders, cursor, periodNominator);
 			cursor = this.restoreCursor();
 
 			// Apply yaw from camera
@@ -76,13 +76,7 @@ Ext.define('MW.util.Scene', {
 			translateVector[0] = x;
 			mat4.multiply(cursor, cursor, position);
 
-			this.saveCursor();
-			this.renderSkybox(gl, shaders, cursor, periodNominator);
-			cursor = this.restoreCursor();
-
-			this.saveCursor();
-			this.renderFloor(gl, shaders, cursor, periodNominator);
-			cursor = this.restoreCursor();
+			this.renderWorld(gl, shaders, cursor, periodNominator);
 		}
 		this.setLastTime(now);
 	},
@@ -91,29 +85,62 @@ Ext.define('MW.util.Scene', {
      *
      * @param gl The WebGL context
      * @param model The model to render
-     * @param shaders The WebGL shader program
+     * @param shaderProgram The WebGL shader program
      * @param cursor The current model-view project matrix
      */
-    renderModel: function (gl, model, shaders, cursor) {
+    renderModel: function (gl, model, shaderProgram, cursor) {
         // Update the model position
         var vertexBuffer = model.vertexBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
-        gl.vertexAttribPointer(shaders.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         // Update the model normals
         var normalBuffer = model.normalBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
-        gl.vertexAttribPointer(shaders.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         // Update the model faces
         var faceBuffer = model.faceBuffer;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
 
-        // Update the WebGL uniforms
-        this.updateUniforms(gl, shaders, this.getPMatrix(), cursor);
+        var useTexture = model.textureBuffer !== null;
+        gl.uniform1i(shaderProgram.useTextureUniform, useTexture);
 
-        gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
+	    // http://learningwebgl.com/blog/?p=507
+	    //TODO FIX
+	    if (useTexture) {
+            gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+		    // Update the model texture
+		    var textureBuffer = model.textureBuffer;
+		    gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
+            gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureBuffer.itemSize, gl.FLOAT, false, 0, 0);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture);
+		    gl.uniform1i(shaderProgram.samplerUniform, 0);
+	    } else {
+            gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+        }
+	    // Update the WebGL uniforms and then draw the model on the screen
+	    this.updateUniforms(gl, shaderProgram, this.getPMatrix(), cursor);
+	    gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
     },
+	/**
+	 * Renders the world in the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param shaders The WebGL shader program
+	 * @param cursor The current model-view project matrix
+	 * @param periodNominator How often to update animation
+	 */
+	renderWorld: function (gl, shaders, cursor, periodNominator) {
+		this.saveCursor();
+		this.renderSkybox(gl, shaders, cursor, periodNominator);
+		cursor = this.restoreCursor();
+
+		this.saveCursor();
+		this.renderFloor(gl, shaders, cursor, periodNominator);
+		cursor = this.restoreCursor();
+	},
     /**
      * Renders the floor model in the scene.
      *
@@ -123,7 +150,7 @@ Ext.define('MW.util.Scene', {
      * @param periodNominator How often to update animation
      */
 	renderFloor: function (gl, shaders, cursor, periodNominator) {
-		mat4.translate(cursor, cursor, [0, -20, 0]);
+		mat4.translate(cursor, cursor, vec3.fromValues(0, -20, 0));
 		this.renderModel(gl, this.getModels().floor, shaders, cursor);
 	},
 	/**
@@ -135,10 +162,11 @@ Ext.define('MW.util.Scene', {
 	 * @param periodNominator How often to update animation
 	 */
 	renderSkybox: function (gl, shaders, cursor, periodNominator) {
-//		mat4.translate(cursor, cursor, [-4, 2, -10]);
+//		mat4.translate(cursor, cursor, vec3.fromValues(-4, 2, -10));
 	//	mat4.rotateY(cursor, cursor, periodNominator / 4000);
 //		mat4.rotateX(cursor, cursor, periodNominator / 4000);
-		this.renderModel(gl, this.getModels().skybox, shaders, cursor);
+		var model = this.getModels().skybox;
+		this.renderModel(gl, model, shaders, cursor);
 	},
     /**
      * Renders the face model in the scene.
@@ -148,7 +176,7 @@ Ext.define('MW.util.Scene', {
      * @param cursor The current model-view project matrix
      * @param periodNominator How often to update animation
      */
-	renderFace: function (gl, shaders, cursor, periodNominator) {
+	renderPlayer: function (gl, shaders, cursor, periodNominator) {
 		// This animates the face such that is rotates around a point at the given radius,
 		// and 'bobs' up and down at the given height with the given periods
 		var minRadius = 10;
@@ -202,20 +230,23 @@ Ext.define('MW.util.Scene', {
      * Creates a model for the scene.
      *
      * @param gl The WebGL context
-     * @param geometry the geometry for the model being created
+     * @param mesh the geometry and texture for the model being created
      * @param name the name of the object
      */
-    createModel: function (gl, geometry, name) {
-        // create the WebGL buffers for the vertices, normals and faces
+    createModel: function (gl, mesh, name) {
+        // create the WebGL buffers for the vertices, normals, faces and textures
         var buffers = Ext.create('MW.buffer.Buffer');
+        var geometry = mesh.getGeometry();
         var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
         var normalBuffer = buffers.createNormalBuffer(gl, geometry);
         var faceBuffer = buffers.createFaceBuffer(gl, geometry);
+	    var textureBuffer = buffers.createTextureBuffer(gl, mesh);
         // Store the model into the models map
         this.getModels()[name] = {
             vertexBuffer: vertexBuffer,
             normalBuffer: normalBuffer,
-            faceBuffer: faceBuffer
+            faceBuffer: faceBuffer,
+	        textureBuffer: textureBuffer
         };
     },
 	/**
@@ -229,8 +260,6 @@ Ext.define('MW.util.Scene', {
 	loadModel: function (gl, modelName, callback) {
 		var modelPath = Ext.Loader.getPath('MW') + '/scene/model/';
 		var url = modelPath + modelName;
-		var models = this.getModels();
-
 		Ext.Ajax.request({
 			url: url,
 			scope: this,
@@ -240,16 +269,16 @@ Ext.define('MW.util.Scene', {
 				// Get the meshes array
 				var meshes = model.meshes;
 				// Loop meshes array
-				Ext.each(meshes, function (mesh) {
-					// Create a geometry object
-					var geometry = Ext.create('MW.geometry.Geometry');
+				Ext.each(meshes, function (jMesh) {
+					// Create a mesh and geometry object
+                    var geometry = Ext.create('MW.geometry.Geometry');
 					var vertices = [];
 					// Loop through the flat vertices array and convert to proper Vector3 objects
-					for (var i = 0; i < mesh.vertices.length; i += 3) {
+					for (var i = 0; i < jMesh.vertices.length; i += 3) {
 						vertices.push(vec3.fromValues(
-							mesh.vertices[i + 0],
-							mesh.vertices[i + 1],
-							mesh.vertices[i + 2]
+                            jMesh.vertices[i + 0],
+                            jMesh.vertices[i + 1],
+                            jMesh.vertices[i + 2]
 						));
 					}
 					// Update the geometry vertices
@@ -257,54 +286,87 @@ Ext.define('MW.util.Scene', {
 
 					// Loop through the flat normals array and convert to proper Vector3 objects
 					var normals = [];
-					for (var i = 0; i < mesh.normals.length; i += 3) {
+					for (i = 0; i < jMesh.normals.length; i += 3) {
 						normals.push(vec3.fromValues(
-							mesh.normals[i + 0],
-							mesh.normals[i + 1],
-							mesh.normals[i + 2]
+                            jMesh.normals[i + 0],
+                            jMesh.normals[i + 1],
+                            jMesh.normals[i + 2]
 						));
 					}
 					// Update the geometry normals
                     geometry.setVertices(vertices);
                     geometry.setNormals(normals);
-                    geometry.setFaces(mesh.faces);
+                    geometry.setFaces(jMesh.faces);
 
 					// Move the model's pivot point to the center of the model
                     geometry.center();
-                    this.createModel(gl, geometry, mesh.name);
+                    var mesh = Ext.create('MW.object.Mesh', {
+                        geometry: geometry
+                    });
+                    this.createModel(gl, mesh, jMesh.name);
 					callback.call(model);
 				}, this);
 			}
 		});
 	},
+	/**
+	 * Creates the world for the scene.
+	 *
+	 * @param gl The WebGL context
+	 * @param width the width of the world
+	 * @param height the height of the world
+	 * @param depth the depth of the world
+	 */
+	createWorld: function (gl, width, height, depth) {
+		this.createFloor(gl, 'floor', width, height);           // creates space in the gpu for the floor model
+		this.createSkybox(gl, 'skybox', width, height, depth);  // creates space in the gpu for the skybox model
+	},
     /**
-     * Creates a plane geometry to represent the floor in the scene.
+     * Creates a plane mesh to represent the floor in the scene.
      *
      * @param gl The WebGL context
      * @param name The name of the floor
+     * @param width the width of the floor
+     * @param height the height of the floor
      */
-    createFloor: function (gl, name) {
-        var plane = Ext.create('MW.geometry.PlaneGeometry', {
-            width: 300,
-            height: 300
+    createFloor: function (gl, name, width, height) {
+        // create the plane geometry and rotate it so that it is horizontal to the ground
+        var geometry = Ext.create('MW.geometry.PlaneGeometry', {
+            width: width,
+            height: height
         });
-        plane.rotateX(Math.PI * 0.5);       // rotate the plane so it is horizontal to the ground
-        this.createModel(gl, plane, name);  // create the model using the plane and its name
+        geometry.rotateX(Math.PI * 0.5);
+        // create the mesh containing the geometry
+        var mesh = Ext.create('MW.object.Mesh', {
+            geometry: geometry
+       });
+       this.createModel(gl, mesh, name); // create the model using the plane and its name
     },
 	/**
-	 * Creates a cube geometry to represent the skybox in the scene.
+	 * Creates a cube mesh to represent the skybox in the scene.
 	 *
 	 * @param gl The WebGL context
 	 * @param name The name of the skybox
+	 * @param width the width of the skybox
+	 * @param height the height of the skybox
+	 * @param depth the depth of the skybox
 	 */
-	createSkybox: function (gl, name) {
-		var skybox = Ext.create('MW.geometry.CubeGeometry', {
-			width: 300,
-			height: 300,
-			depth: 300
-		});
-		skybox.negateNormals();
-		this.createModel(gl, skybox, name);  // create the model using the skybox and its name
+	createSkybox: function (gl, name, width, height, depth) {
+		// create the cube mesh and negate its normals so the texture can be applied to the interior of the cube
+        var geometry = Ext.create('MW.geometry.CubeGeometry', {
+            width: width,
+            height: height,
+            depth: depth
+        });
+        geometry.negateNormals();
+        // create and load the texture from the specified source
+        var texture = Ext.create('MW.loader.Texture', gl, "/resources/image/texture.png");
+        // create the mesh with the newly created geometry and texture
+        var mesh = Ext.create('MW.object.Mesh', {
+            geometry: geometry,
+            texture: texture
+        });
+		this.createModel(gl, mesh, name); // create the model using the skybox and its name
 	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack

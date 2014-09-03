@@ -67,8 +67,7 @@ Ext.define('MW.view.ViewportController', {
 				gl.clearColor(0, 0, 0, 1);
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
-				scene.createFloor(gl, 'floor');
-				scene.createSkybox(gl, 'skybox');
+				scene.createWorld(gl, 300, 300, 300);
 				// Start the animation loop
 				this.tick();
 			}, this));
@@ -110,6 +109,9 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.vertexNormalAttribute = gl.getAttribLocation(shaderProgram, "aVertexNormal");
 			gl.enableVertexAttribArray(shaderProgram.vertexNormalAttribute);
 
+			shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
+			gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
+
 //			shaders.vertexColorAttribute = gl.getAttribLocation(shaders, "aVertexColor");
 //			gl.enableVertexAttribArray(shaders.vertexColorAttribute);
 
@@ -117,6 +119,7 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 			shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+            shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, "useTexture");
 
 			shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
 			shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
