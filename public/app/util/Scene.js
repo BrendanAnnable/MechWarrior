@@ -21,7 +21,7 @@ Ext.define('MW.util.Scene', {
 	 * @param gl The WebGL context
 	 * @param shaders The WebGL shader program
 	 */
-	render: function (gl, shaders, controls) {
+	render: function (gl, shaders, controls, keyboardControls) {
 		/*if (gl === undefined) {
 			gl = this.getGl();
 		}

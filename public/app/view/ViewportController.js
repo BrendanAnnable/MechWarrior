@@ -11,7 +11,8 @@ Ext.define('MW.view.ViewportController', {
 		scene: null,            // The scene object to hold models
 		zenithAngle: 0,         // Spherical coordinates angle for pitch
 		azimuthAngle: 0,        // Spherical coordinates angle for yaw
-		controls: null
+		controls: null,
+        keyboardControls: null
 	},
 	/**
 	 * Initialization function which runs on page load
@@ -49,6 +50,10 @@ Ext.define('MW.view.ViewportController', {
 			element: canvas,
 			minPitch: -Math.PI / 6
 		}));
+
+        this.setKeyboardControls(Ext.create('MW.control.Keyboard', {
+            element: window.document
+        }));
 
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
