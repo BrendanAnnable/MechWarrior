@@ -7,8 +7,8 @@ Ext.define('MW.buffer.Buffer', {
      * @returns {*} the vertex buffer being created for the geometry
      */
     createVertexBuffer: function (gl, geometry) {
-        var vertexBuffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+        var vertexBuffer = gl.createBuffer();                  // makes a buffer on gpu
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);          // creates an array buffer
         var vertices = geometry.getFlattenedVertices();
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
         vertexBuffer.itemSize = 3;
