@@ -39,7 +39,6 @@ Ext.define('MW.game.MechWarrior', {
 			var scene = this.getScene();
 			// load the player model and add it to the scene
 			Ext.create('MW.game.character.Player', gl, 'face.json', Ext.bind(function (player) {
-				debugger;
 				this.createObject(gl, scene, player, player.getName());
 				// Set the background color
 				gl.clearColor(0, 0, 0, 1);
@@ -65,14 +64,16 @@ Ext.define('MW.game.MechWarrior', {
 		var buffers = Ext.create('MW.buffer.Buffer');
 		Ext.each(object.getChildren() || object, function (obj) {
 			var geometry = obj.getGeometry();
-			// attach the buffers to the object
-			object.vertexBuffer = buffers.createVertexBuffer(gl, geometry);
-			object.normalBuffer = buffers.createNormalBuffer(gl, geometry);
-			object.faceBuffer = buffers.createFaceBuffer(gl, geometry);
-			object.textureBuffer = buffers.createTextureBuffer(gl, obj);
-			// add the object to the scene
-			scene.addObject(object, name);
+			// attach the buffers to the current child object
+			obj.vertexBuffer = buffers.createVertexBuffer(gl, geometry);
+			obj.normalBuffer = buffers.createNormalBuffer(gl, geometry);
+			obj.faceBuffer = buffers.createFaceBuffer(gl, geometry);
+			obj.textureBuffer = buffers.createTextureBuffer(gl, obj);
 		});
+		// add a listener to the object
+		object.on('updateuniforms', this.updateUniforms, this);
+		// add the object to the scene
+		scene.addObject(object, name);
 	},
 	/**
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible.
@@ -83,7 +84,7 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param controls The mouse controls
 	 */
 	tick: function (gl, shaderProgram, scene, controls) {
-		scene.render(gl, shaderProgram, controls);
+		scene.renderScene(gl, shaderProgram, controls);
 		requestAnimationFrame(Ext.bind(this.tick, this, [gl, shaderProgram, scene, controls]));
 	},
 	/**
@@ -146,5 +147,28 @@ Ext.define('MW.game.MechWarrior', {
 				callback.call(this, vertexShader, fragmentShader);
 			}, this);
 		}, this);
+	},
+	/**
+	 * Updates the uniform constants given to WebGL
+	 *
+	 * @param gl The WebGL context
+	 * @param shaderProgram The WebGL shader program
+	 * @param cursor The current model-view project matrix
+	 */
+	updateUniforms: function (gl, shaderProgram, cursor) {
+		// Send the projection and model-view matrices to WebGL
+		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.getScene().getPMatrix());
+		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, cursor);
+
+		// Send the model-view projection normal matrix to WebGL
+		var normalMatrix = mat3.normalFromMat4(mat3.zeros(), cursor);
+		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
+
+		// Send the light position and color to WebGL
+		// TODO: make these less hardcoded and into variables
+		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
+		var lightPosition = vec4.fromValues(x, 0, 0, 1);
+		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
+		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
 	}
 });

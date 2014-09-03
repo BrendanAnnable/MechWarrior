@@ -34,7 +34,7 @@ Ext.define('MW.game.world.World', {
 	 * @param periodNominator How often to update animation
 	 */
 	render: function (gl, shaderProgram, cursor, periodNominator) {
-		this.getSkybox().render(gl, shaderProgram, cursor);
-		this.getFloor().render(gl, shaderProgram, cursor);
+		this.getSkybox().render(gl, shaderProgram, cursor, periodNominator);
+		this.getFloor().render(gl, shaderProgram, cursor, periodNominator);
 	}
 });

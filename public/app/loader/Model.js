@@ -51,10 +51,10 @@ Ext.define('MW.loader.Model', {
 
 					// Move the model's pivot point to the center of the model
 					geometry.center();
-					callback.call(this, Ext.create('MW.object.Mesh', {
+					callback.call(this, {
 						name: modelName,
 						geometry: geometry
-					}));
+					});
 				}, this);
 			}
 		});

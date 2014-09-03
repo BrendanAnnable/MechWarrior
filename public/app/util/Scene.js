@@ -29,7 +29,7 @@ Ext.define('MW.util.Scene', {
 	 * @param shaderProgram The WebGL shader program
 	 * @param controls The mouse controls
 	 */
-	render: function (gl, shaderProgram, controls) {
+	renderScene: function (gl, shaderProgram, controls) {
 		var now = Date.now();
 		var lastTime = this.getLastTime();
 
@@ -79,37 +79,11 @@ Ext.define('MW.util.Scene', {
 			var objects = this.getObjects();
 			for (var key in objects) {
 				this.saveCursor();
-				debugger;
-				// TODO: PROBLEM LINE
 				objects[key].render(gl, shaderProgram, cursor, 20000);
 				cursor = this.restoreCursor();
 			}
 		}
 		this.setLastTime(now);
-	},
-	/**
-	 * Updates the uniform constants given to WebGL
-	 *
-	 * @param gl The WebGL context
-	 * @param shaderProgram The WebGL shader program
-	 * @param pMatrix The perspective projection matrix
-	 * @param cursor The current model-view project matrix
-	 */
-	updateUniforms: function (gl, shaderProgram, pMatrix, cursor) {
-		// Send the projection and model-view matrices to WebGL
-		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, pMatrix);
-		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, cursor);
-
-		// Send the model-view projection normal matrix to WebGL
-		var normalMatrix = mat3.normalFromMat4(mat3.zeros(), cursor);
-		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
-
-		// Send the light position and color to WebGL
-		// TODO: make these less hardcoded and into variables
-		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
-		var lightPosition = vec4.fromValues(x, 0, 0, 1);
-		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
-		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
 	},
 	/**
 	 * Push a copy of the current model-view projection matrix on the stack

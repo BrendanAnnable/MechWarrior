@@ -3,6 +3,7 @@
  */
 Ext.define('MW.object.Object', {
 	alias: 'Object',
+	mixins: ['Ext.mixin.Observable'],
 	config: {
 		name: null,
 		children: null
@@ -19,7 +20,7 @@ Ext.define('MW.object.Object', {
 	 * @param shaderProgram The WebGL shader program
 	 * @param cursor The current model-view project matrix
 	 */
-	render: function (gl, model, shaderProgram, cursor, sa) {
+	renderObject: function (gl, model, shaderProgram, cursor) {
 		// Update the model position
 		var vertexBuffer = model.vertexBuffer;
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
@@ -54,7 +55,7 @@ Ext.define('MW.object.Object', {
 			gl.uniform1i(shaderProgram.useLightingUniform, 1);
 		}
 		// Update the WebGL uniforms and then draw the model on the screen
-		this.updateUniforms(gl, shaderProgram, this.getPMatrix(), cursor);
+		this.fireEvent('updateuniforms', gl, shaderProgram, cursor);
 		gl.drawElements(gl.TRIANGLES, faceBuffer.numItems * faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
 	}
 });

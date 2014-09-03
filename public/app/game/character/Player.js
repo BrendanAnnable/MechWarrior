@@ -15,7 +15,13 @@ Ext.define('MW.game.character.Player', {
 	 */
 	constructor: function (gl, url, callback) {
 		// loads the specified model
-		Ext.create('MW.loader.Model', gl, url, callback);
+		Ext.create('MW.loader.Model', gl, url, Ext.bind(function (player) {
+		    this.initConfig({
+			    name: player.name,
+			    geometry: player.geometry
+		    });
+			callback.call(this, this);
+		}, this));
 	},
 	/**
 	 * Renders the player model in the scene.
@@ -39,16 +45,16 @@ Ext.define('MW.game.character.Player', {
 		var yaw = periodNominator / yawPeriod;
 		var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
 
-		// Rotate to the direction of where the face will be drawn
-		/*mat4.rotateY(cursor, cursor, yaw);
-		 mat4.rotateX(cursor, cursor, pitch);
-		 // Translate forward to outer radius
-		 mat4.translate(cursor, cursor, [0, 0, -radius]);
-		 // Rotate back so that the face always 'faces' the camera
-		 mat4.rotateX(cursor, cursor, -pitch);
-		 mat4.rotateY(cursor, cursor, -yaw);
-		 //		mat4.rotateZ(cursor, cursor, -yaw);*/
+		/*// Rotate to the direction of where the face will be drawn
+		mat4.rotateY(cursor, cursor, yaw);
+		mat4.rotateX(cursor, cursor, pitch);
+		// Translate forward to outer radius
+		mat4.translate(cursor, cursor, [0, 0, -radius]);
+		// Rotate back so that the face always 'faces' the camera
+		mat4.rotateX(cursor, cursor, -pitch);
+		mat4.rotateY(cursor, cursor, -yaw);
+		//		mat4.rotateZ(cursor, cursor, -yaw);*/
 
-		this.callParent().render(gl, this, shaderProgram, cursor, periodNominator);
+		this.renderMesh(gl, this, shaderProgram, cursor);
 	}
 });

@@ -10,5 +10,8 @@ Ext.define('MW.object.Mesh', {
     },
     constructor: function (config) {
 	    this.initConfig(config);
-    }
+    },
+	renderMesh: function (gl, model, shaderProgram, cursor) {
+		this.renderObject(gl, model, shaderProgram, cursor);
+	}
 });
