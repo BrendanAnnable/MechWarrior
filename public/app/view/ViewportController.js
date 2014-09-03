@@ -119,6 +119,7 @@ Ext.define('MW.view.ViewportController', {
 			shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
 			shaderProgram.mvMatrixUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
 			shaderProgram.nMatrixUniform = gl.getUniformLocation(shaderProgram, "uNMatrix");
+            shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, "useTexture");
 
 			shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
 			shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");

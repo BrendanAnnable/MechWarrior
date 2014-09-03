@@ -3,9 +3,9 @@ Ext.define('MW.loader.Texture', {
 	constructor: function (gl, url) {
 		var texture = gl.createTexture();
 		texture.image = new Image();
-		texture.image.onLoad = function () {
+		texture.image.onload = Ext.bind(function () {
 			this.onLoad(gl, texture);
-		};
+		}, this);
 		texture.image.src = url;
 		return texture;
 	},

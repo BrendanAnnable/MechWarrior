@@ -4,6 +4,7 @@ precision mediump float;
 uniform vec4 uLightPos;
 // The color of the point light, passed in by JavaScript
 uniform vec3 uLightColor;
+uniform bool useTexture;
 
 // The linearly interpolated values from the vertex shader
 varying vec3 vPosition;
@@ -53,6 +54,8 @@ void main(void) {
 		+ uLightColor * diffuseLightWeight
 		+ directionalLightColor * directionalLightWeight,
 		1);
-	//gl_FragColor = vec4(vNormal, 1);
-	//gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+	gl_FragColor = vec4(vNormal, 1);
+	if (useTexture) {
+        gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+    }
 }

@@ -8,6 +8,7 @@ attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 uniform mat3 uNMatrix;
+uniform bool useTexture;
 
 // Varying variables which are linearly interpolated and given to the fragment shader
 //varying vec4 vColor;
@@ -30,5 +31,7 @@ void main(void) {
 
  	// Convert position to clip-space
  	gl_Position = uPMatrix * vec4(vPosition, 1.0);
-    vTextureCoord = aTextureCoord;
+    if (useTexture) {
+        vTextureCoord = aTextureCoord;
+    }
  }

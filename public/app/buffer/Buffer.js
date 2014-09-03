@@ -61,11 +61,11 @@ Ext.define('MW.buffer.Buffer', {
         } else {
             var textureBuffer = gl.createBuffer();
             gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
-            var textureCoordinates = geometry.getFlattenedTextureCoordinates();
+            var textureCoordinates = mesh.getGeometry().getFlattenedTextureCoordinates();
             gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
-            textureBuffer.itemSize = 3;
-            textureBuffer.numItems = textureCoordinates.length / 3;
-            textureBuffer.textures = texture;
+            textureBuffer.itemSize = 2;
+            textureBuffer.numItems = textureCoordinates.length / textureBuffer.itemSize;
+            textureBuffer.texture = texture;
             return textureBuffer;
         }
 	}
