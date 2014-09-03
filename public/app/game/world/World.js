@@ -17,7 +17,7 @@ Ext.define('MW.game.world.World', {
 	 * @param depth the depth of the world
 	 */
 	constructor: function (gl, width, height, depth) {
-		this.callParent();
+		this.callParent(arguments);
 		this.setName('world'); // todo fix
 		var floor = Ext.create('MW.game.world.Floor', gl, width, height);
 		var skybox = Ext.create('MW.game.world.Skybox', gl, width, height, depth);

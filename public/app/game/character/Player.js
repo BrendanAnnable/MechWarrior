@@ -49,7 +49,6 @@ Ext.define('MW.game.character.Player', {
 		 mat4.rotateY(cursor, cursor, -yaw);
 		 //		mat4.rotateZ(cursor, cursor, -yaw);*/
 
-		debugger;
 		this.callParent().render(gl, this, shaderProgram, cursor, periodNominator);
 	}
 });

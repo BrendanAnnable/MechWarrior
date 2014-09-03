@@ -3,7 +3,7 @@
  */
 Ext.define('MW.game.world.Floor', {
 	alias: 'Floor',
-	extend: 'Object',
+	extend: 'MW.object.Object',
 	/**
 	 * Creates a plane mesh to represent the floor in the scene.
 	 *
@@ -12,9 +12,8 @@ Ext.define('MW.game.world.Floor', {
 	 * @param height the height of the floor
 	 */
 	constructor: function (gl, width, height) {
-		this.callParent({
-			name: 'floor'
-		});
+		this.callParent(arguments);
+		this.setName('floor');
 		// create the plane geometry and rotate it so that it is horizontal to the ground
 		var geometry = Ext.create('MW.geometry.PlaneGeometry', {
 			width: width,

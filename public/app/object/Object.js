@@ -21,7 +21,6 @@ Ext.define('MW.object.Object', {
 	 */
 	render: function (gl, model, shaderProgram, cursor, sa) {
 		// Update the model position
-		debugger;
 		var vertexBuffer = model.vertexBuffer;
 		gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
 		gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);

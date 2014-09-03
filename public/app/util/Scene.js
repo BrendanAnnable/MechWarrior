@@ -76,11 +76,12 @@ Ext.define('MW.util.Scene', {
 			var translateVector = mat4.translateVector(position);
 			translateVector[0] = x;
 			mat4.multiply(cursor, cursor, position);   */
-
 			var objects = this.getObjects();
-			for (var i = 0; i < objects.length; i++) {
+			for (var key in objects) {
 				this.saveCursor();
-				objects[i].render(gl, objects[i], shaderProgram, cursor, 20000);
+				debugger;
+				// TODO: PROBLEM LINE
+				objects[key].render(gl, shaderProgram, cursor, 20000);
 				cursor = this.restoreCursor();
 			}
 		}

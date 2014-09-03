@@ -39,6 +39,7 @@ Ext.define('MW.game.MechWarrior', {
 			var scene = this.getScene();
 			// load the player model and add it to the scene
 			Ext.create('MW.game.character.Player', gl, 'face.json', Ext.bind(function (player) {
+				debugger;
 				this.createObject(gl, scene, player, player.getName());
 				// Set the background color
 				gl.clearColor(0, 0, 0, 1);
@@ -64,18 +65,13 @@ Ext.define('MW.game.MechWarrior', {
 		var buffers = Ext.create('MW.buffer.Buffer');
 		Ext.each(object.getChildren() || object, function (obj) {
 			var geometry = obj.getGeometry();
-			var vertexBuffer = buffers.createVertexBuffer(gl, geometry);
-			var normalBuffer = buffers.createNormalBuffer(gl, geometry);
-			var faceBuffer = buffers.createFaceBuffer(gl, geometry);
-			var textureBuffer = buffers.createTextureBuffer(gl, obj);
+			// attach the buffers to the object
+			object.vertexBuffer = buffers.createVertexBuffer(gl, geometry);
+			object.normalBuffer = buffers.createNormalBuffer(gl, geometry);
+			object.faceBuffer = buffers.createFaceBuffer(gl, geometry);
+			object.textureBuffer = buffers.createTextureBuffer(gl, obj);
 			// add the object to the scene
-			scene.addObject({
-				object: object,
-				vertexBuffer: vertexBuffer,
-				normalBuffer: normalBuffer,
-				faceBuffer: faceBuffer,
-				textureBuffer: textureBuffer
-			}, name);
+			scene.addObject(object, name);
 		});
 	},
 	/**

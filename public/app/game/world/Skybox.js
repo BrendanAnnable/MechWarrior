@@ -3,7 +3,7 @@
  */
 Ext.define('MW.game.world.Skybox', {
 	alias: 'Skybox',
-	extend: 'Object',
+	extend: 'MW.object.Object',
 	/**
 	 * Creates a cube mesh to represent the skybox in the scene.
 	 *
@@ -13,9 +13,8 @@ Ext.define('MW.game.world.Skybox', {
 	 * @param depth the depth of the skybox
 	 */
 	constructor: function (gl, width, height, depth) {
-		this.callParent({
-			name: 'skybox'
-		});
+		this.callParent(arguments);
+		this.setName('skybox');
 		// create the cube mesh and negate its normals so the texture can be applied to the interior of the cube
 		var geometry = Ext.create('MW.geometry.CubeGeometry', {
 			width: width,
