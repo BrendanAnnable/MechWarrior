@@ -30,7 +30,7 @@ Ext.define('MW.object.Object', {
 		mat4.multiply(cursorCopy, cursorCopy, this.getPosition());
 		this.mixins.renderer.render(gl, this, shaderProgram, cursorCopy);
 		for (var i = 0; i < children.length; i++) {
-			this.mixins.renderer.render(gl, children[i], shaderProgram, cursorCopy);
+			children[i].render(gl, shaderProgram, cursor);
 		}
 	},
 	translate: function (x, y, z) {
