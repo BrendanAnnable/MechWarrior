@@ -147,6 +147,8 @@ mat4.othoNormalInvert = function(out, a){
 	out[13] = tInv[1];
 	out[14] = tInv[2];
 	out[15] = a33;
+
+	return out;
 };
 
 mat4.getRotationSubMatrix = function (out, a) {
@@ -165,6 +167,47 @@ mat4.getRotationSubMatrix = function (out, a) {
 	out[6] = a20;
 	out[7] = a21;
 	out[8] = a22;
+
+	return out;
+};
+
+mat3.round = function (out, a, dp) {
+	if (dp === undefined) {
+		dp = 0;
+	}
+	out[0] = a[0].toFixed(dp);
+	out[1] = a[1].toFixed(dp);
+	out[2] = a[2].toFixed(dp);
+	out[3] = a[3].toFixed(dp);
+	out[4] = a[4].toFixed(dp);
+	out[5] = a[5].toFixed(dp);
+	out[6] = a[6].toFixed(dp);
+	out[7] = a[7].toFixed(dp);
+	out[8] = a[8].toFixed(dp);
+
+	return out;
+};
+
+mat4.round = function (out, a, dp) {
+	if (dp === undefined) {
+		dp = 0;
+	}
+	out[0] = a[0].toFixed(dp);
+	out[1] = a[1].toFixed(dp);
+	out[2] = a[2].toFixed(dp);
+	out[3] = a[3].toFixed(dp);
+	out[4] = a[4].toFixed(dp);
+	out[5] = a[5].toFixed(dp);
+	out[6] = a[6].toFixed(dp);
+	out[7] = a[7].toFixed(dp);
+	out[8] = a[8].toFixed(dp);
+	out[9] = a[9].toFixed(dp);
+	out[10] = a[10].toFixed(dp);
+	out[11] = a[11].toFixed(dp);
+	out[12] = a[12].toFixed(dp);
+	out[13] = a[13].toFixed(dp);
+	out[14] = a[14].toFixed(dp);
+	out[15] = a[15].toFixed(dp);
 
 	return out;
 };
