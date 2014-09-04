@@ -20,7 +20,7 @@ Ext.define('MW.game.world.Floor', {
 		});
 		geometry.rotateX(Math.PI * 0.5);
 		// create the mesh containing the geometry
-		var texture = Ext.create('MW.loader.Texture', gl, "/resources/image/floor.png");
+		var texture = Ext.create('MW.loader.Texture', gl, "/resources/image/metal.jpg");
 		this.setName('floor');
 		this.setGeometry(geometry);
 		this.setTexture(texture);

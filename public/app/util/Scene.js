@@ -5,7 +5,6 @@ Ext.define('MW.util.Scene', {
 	alias: 'Scene',
 	config: {
 		objects: null,          // A map of objects that have been loaded, keyed by their name
-		mvStack: null,          // The model-view projection stack, used to keep a history of where you draw
 		cursor: null,           // The current model-view project matrix (where to draw)
 		pMatrix: null,          // The perspective projection matrix
 		playerPosition: null,   // The players current position in the level
@@ -14,7 +13,6 @@ Ext.define('MW.util.Scene', {
 	constructor: function (config) {
         this.initConfig(config);
 		this.setObjects({});
-		this.setMvStack([]);
 		this.setCursor(mat4.create());
 		this.setPMatrix(mat4.create());
 		this.setPlayerPosition(mat4.create());
@@ -56,10 +54,14 @@ Ext.define('MW.util.Scene', {
 			mat4.perspective(pMatrix, 45 * Math.PI / 180 , gl.viewportWidth / gl.viewportHeight, 0.1, 2000);
 			mat4.identity(cursor);
 
+			var cameraPosition = controls.getPosition();
+			var cameraPositionInvert = mat4.create();
+			mat4.othoNormalInvert(cameraPositionInvert, cameraPosition);
+
 			// Translate away from the camera
 			mat4.translate(cursor, cursor, [0, 0, -40]);
-			// Apply pitch from camera
-			mat4.multiply(cursor, cursor, controls.getPitchRotation());
+
+			mat4.multiply(cursor, cursor, cameraPositionInvert);
 
 			/*
 			this.saveCursor();
@@ -84,29 +86,9 @@ Ext.define('MW.util.Scene', {
 			mat4.multiply(cursor, cursor, position);   */
 			var objects = this.getObjects();
 			for (var key in objects) {
-				this.saveCursor();
 				objects[key].render(gl, shaderProgram, cursor);
-				cursor = this.restoreCursor();
 			}
 		}
 		this.setLastTime(now);
-	},
-	/**
-	 * Push a copy of the current model-view projection matrix on the stack
-	 */
-	saveCursor: function () {
-		this.getMvStack().push(mat4.clone(this.getCursor()));
-	},
-	/**
-	 * Pop the latest model-view projection matrix off the stack
-	 */
-	restoreCursor: function () {
-		var mvStack = this.getMvStack();
-		if (mvStack.length === 0) {
-			throw "mvStack empty";
-		}
-		var cursor = mvStack.pop();
-		this.setCursor(cursor);
-		return cursor;
 	}
 });

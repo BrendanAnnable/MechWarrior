@@ -1,14 +1,17 @@
 Ext.define('MW.control.Mouse', {
-	lastX: null,
-	lastY: null,
+	pitch: 0,
+	yaw: 0,
+	matrix: null,
+	matrixDirty: true,
+	locked: false,
 	config: {
 		sensitivity: 0.01,
 		element: null,
 		rotation: null,
 		pitch: 0,
 		yaw: 0,
-		maxPitch: Math.PI / 2 - 0.01,
-		minPitch: -Math.PI / 2 + 0.01
+		maxPitch: -Math.PI / 2 - 0.01,
+		minPitch: Math.PI / 2 + 0.01
 	},
 	constructor: function (config) {
 		this.initConfig(config);
@@ -18,40 +21,54 @@ Ext.define('MW.control.Mouse', {
 		element = Ext.get(element);
 		element.on({
 			mousemove: this.onMouseMove,
+			click: this.onMouseClick,
+			//pointerlockerror: null,
+			pointerlockchange: this.onPointerLockChange,
 			scope: this
 		});
+
+		element.dom.addEventListener('click', function () {
+			element.dom.requestPointerLock();
+		});
+
 		this.setElement(element);
+		this.matrix = mat4.create();
 	},
-	getYawRotation: function () {
-		return mat4.createRotateY(this.getYaw());
+	getPosition: function () {
+		var matrix = this.matrix;
+		if (this.matrixDirty) {
+			mat4.identity(matrix);
+			mat4.rotateY(matrix, matrix, this.yaw);
+			mat4.rotateX(matrix, matrix, this.pitch);
+			this.matrixDirty = false;
+		}
+		return matrix;
 	},
-	getPitchRotation: function () {
-		return mat4.createRotateX(this.getPitch());
+	getYaw: function () {
+		return this.yaw;
+	},
+	onPointerLockChange: function (event, dom) {
+		debugger;
+		//this.locked ==
+	},
+	onMouseClick: function (event, dom) {
+		if (!this.locked) {
+			dom.requestPointerLock = dom.requestPointerLock || dom.mozRequestPointerLock || dom.webkitRequestPointerLock;
+			dom.requestPointerLock();
+			this.locked = true;
+		}
 	},
 	onMouseMove: function (event) {
-		var x = event.getX();
-		var y = event.getY();
+		if (this.locked) {
+			var diffX = event.event.movementX;
+			var diffY = event.event.movementY;
+			var sensitivity = this.getSensitivity();
 
-		if (this.lastX === null) {
-			this.lastX = x;
+			this.pitch -= diffY * sensitivity;
+			this.pitch = Math.max(Math.min(this.pitch, this.getMinPitch()), this.getMaxPitch());
+			this.yaw -= diffX * sensitivity;
+
+			this.matrixDirty = true;
 		}
-		if (this.lastY === null) {
-			this.lastY = y;
-		}
-
-		var diffX = this.lastX - x;
-		var diffY = this.lastY - y;
-		var pitch = this.getPitch();
-		var yaw = this.getYaw();
-		var sensitivity = this.getSensitivity();
-
-		pitch -= diffY * sensitivity;
-		pitch = Math.min(Math.max(pitch, this.getMinPitch()), this.getMaxPitch());
-		yaw -= diffX * sensitivity;
-
-		this.setYaw(yaw);
-		this.setPitch(pitch);
-		this.lastX = x;
-		this.lastY = y;
 	}
 });
