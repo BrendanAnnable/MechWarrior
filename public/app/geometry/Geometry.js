@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.geometry.Geometry', {
 	alias: 'Geometry',
 	config: {

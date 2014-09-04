@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.shader.vertex.Vertex', {
 	alias: 'VertexShader',
 	extend: 'MW.shader.Shader',

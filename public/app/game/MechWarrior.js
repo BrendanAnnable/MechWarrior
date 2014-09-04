@@ -72,8 +72,6 @@ Ext.define('MW.game.MechWarrior', {
 			obj.faceBuffer = Ext.create('MW.buffer.Face', gl, geometry).getBuffer();
 			obj.textureBuffer = Ext.create('MW.buffer.Texture', gl, obj).getBuffer();
 		});
-		// add a listener to the object
-		object.on('updateuniforms', this.updateUniforms, this);
 		// add the object to the scene
 		scene.addObject(object, name);
 	},
@@ -149,28 +147,5 @@ Ext.define('MW.game.MechWarrior', {
 				callback.call(this, vertexShader, fragmentShader);
 			}, this);
 		}, this);
-	},
-	/**
-	 * Updates the uniform constants given to WebGL
-	 *
-	 * @param gl The WebGL context
-	 * @param shaderProgram The WebGL shader program
-	 * @param cursor The current model-view project matrix
-	 */
-	updateUniforms: function (gl, shaderProgram, cursor) {
-		// Send the projection and model-view matrices to WebGL
-		gl.uniformMatrix4fv(shaderProgram.pMatrixUniform, false, this.getScene().getPMatrix());
-		gl.uniformMatrix4fv(shaderProgram.mvMatrixUniform, false, cursor);
-
-		// Send the model-view projection normal matrix to WebGL
-		var normalMatrix = mat3.normalFromMat4(mat3.zeros(), cursor);
-		gl.uniformMatrix3fv(shaderProgram.nMatrixUniform, false, normalMatrix);
-
-		// Send the light position and color to WebGL
-		// TODO: make these less hardcoded and into variables
-		var x = 0;//100 * Math.sin(2 * Math.PI * Date.now() / 1000);
-		var lightPosition = vec4.fromValues(x, 0, 0, 1);
-		gl.uniform4fv(shaderProgram.uLightPos, lightPosition);
-		gl.uniform3fv(shaderProgram.uLightColor, [0.0, 0, 0.8]);
 	}
 });

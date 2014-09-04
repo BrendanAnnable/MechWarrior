@@ -4,7 +4,6 @@
 Ext.define('MW.object.Object', {
 	alias: 'Object',
 	mixins: {
-		observable: 'Ext.util.Observable',
 		renderer: 'MW.mixin.Render'
 	},
 	config: {
@@ -14,7 +13,6 @@ Ext.define('MW.object.Object', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
-		this.mixins.observable.constructor.call(this, config);
 		this.setPosition(mat4.create());
 		this.setChildren([]);
 	},

@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.control.Mouse', {
 	pitch: 0,
 	yaw: 0,

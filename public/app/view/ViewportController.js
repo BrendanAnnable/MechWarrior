@@ -1,6 +1,5 @@
 /**
  * @author Brendan Annable
- * @author Monica Olejniczak
  */
 Ext.define('MW.view.ViewportController', {
 	extend: 'Ext.app.ViewController',

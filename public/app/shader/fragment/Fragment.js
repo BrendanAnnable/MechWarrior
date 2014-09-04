@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.shader.fragment.Fragment', {
 	alias: 'FragmentShader',
 	extend: 'MW.shader.Shader',

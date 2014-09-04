@@ -1,3 +1,7 @@
+/**
+ * @author Brendan Annable
+ * @author Monica Olejniczak
+ */
 Ext.define('MW.loader.Model', {
 	alias: 'ModelLoader',
     /**

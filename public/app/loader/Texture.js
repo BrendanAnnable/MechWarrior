@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('MW.loader.Texture', {
 	alias: 'TextureLoader',
 	constructor: function (gl, url) {
