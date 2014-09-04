@@ -69,6 +69,9 @@ Ext.define('MW.util.Scene', {
 			// Apply yaw from camera
 			mat4.multiply(cursor, cursor, controls.getYawRotation());
 
+
+
+
 			// player position
 			// Simulate player moving backwards and forwards
 			var position = this.getPlayerPosition();
@@ -78,7 +81,16 @@ Ext.define('MW.util.Scene', {
 			translateVector[0] = x;
 			mat4.multiply(cursor, cursor, position);
 
-			this.renderWorld(gl, shaders, cursor, periodNominator);
+           // TODO: fix this. it was saying the keyboard controls are undefined, possibly because the element differs..
+            // Translate player position from keyboard controls
+//            var translateVector = mat4.translateVector(position);
+//            var tX = keyboardControls.getTransX();
+//            translateVector[0] = tX;
+////            translateVector[1] = keyboardControls.getTransY();
+////            translateVector[2] = keyboardControls.getTransZ();
+//            mat4.multiply(cursor, cursor, position);
+
+            this.renderWorld(gl, shaders, cursor, periodNominator);
 		}
 		this.setLastTime(now);
 	},

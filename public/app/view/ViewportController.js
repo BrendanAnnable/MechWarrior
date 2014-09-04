@@ -53,6 +53,8 @@ Ext.define('MW.view.ViewportController', {
 
         this.setKeyboardControls(Ext.create('MW.control.Keyboard', {
             element: window.document
+//            element: canvas
+
         }));
 
 		// Setup WebGL
