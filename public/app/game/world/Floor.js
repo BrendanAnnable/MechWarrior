@@ -24,16 +24,5 @@ Ext.define('MW.game.world.Floor', {
 		this.setName('floor');
 		this.setGeometry(geometry);
 		this.setTexture(texture);
-	},
-	/**
-	 * Renders the floor model in the scene.
-	 *
-	 * @param gl The WebGL context
-	 * @param shaderProgram The WebGL shader program
-	 * @param cursor The current model-view project matrix
-	 */
-	render: function (gl, shaderProgram, cursor, periodNominator) {
-		mat4.translate(cursor, cursor, vec3.fromValues(0, -20, 0));
-		this.renderMesh(gl, this, shaderProgram, cursor);
 	}
 });

@@ -20,21 +20,10 @@ Ext.define('MW.game.world.World', {
 		this.callParent(arguments);
 		this.setName('world'); // todo fix
 		var floor = Ext.create('MW.game.world.Floor', gl, width, height);
+        floor.translate(0, -20, 0);
 		var skybox = Ext.create('MW.game.world.Skybox', gl, width, height, depth);
 		this.setChildren([floor, skybox]);
 		this.setSkybox(skybox);
 		this.setFloor(floor);
-	},
-	/**
-	 * Renders the objects within the world in the scene.
-	 *
-	 * @param gl The WebGL context
-	 * @param shaderProgram The WebGL shader program
-	 * @param cursor The current model-view project matrix
-	 * @param periodNominator How often to update animation
-	 */
-	render: function (gl, shaderProgram, cursor, periodNominator) {
-		this.getSkybox().render(gl, shaderProgram, cursor, periodNominator);
-		this.getFloor().render(gl, shaderProgram, cursor, periodNominator);
 	}
 });

@@ -9,9 +9,6 @@ Ext.define('MW.object.Mesh', {
         texture: null
     },
     constructor: function (config) {
-	    this.initConfig(config);
-    },
-	renderMesh: function (gl, model, shaderProgram, cursor) {
-		this.renderObject(gl, model, shaderProgram, cursor);
-	}
+        this.callParent(config);
+    }
 });

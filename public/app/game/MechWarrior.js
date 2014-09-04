@@ -38,7 +38,8 @@ Ext.define('MW.game.MechWarrior', {
 			// get the scene
 			var scene = this.getScene();
 			// load the player model and add it to the scene
-			Ext.create('MW.game.character.Player', gl, 'face.json', Ext.bind(function (player) {
+			var player = Ext.create('MW.game.character.Player');
+            player.load('face.json', function () {
 				this.createObject(gl, scene, player, player.getName());
 				// Set the background color
 				gl.clearColor(0, 0, 0, 1);
@@ -48,7 +49,7 @@ Ext.define('MW.game.MechWarrior', {
 				this.createObject(gl, scene, world, world.getName());
 				// Start the animation loop
 				this.tick(gl, shaderProgram, scene, controls);
-			}, this));
+			}, this);
 		});
 	},
 	/**
@@ -61,14 +62,15 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	createObject: function (gl, scene, object, name) {
 		// create the WebGL buffers for the vertices, normals, faces and textures
-		var buffers = Ext.create('MW.buffer.Buffer');
-		Ext.each(object.getChildren() || object, function (obj) {
+        var children = object.getChildren();
+        var objects = children.length === 0 ? object : children;
+		Ext.each(objects, function (obj) {
 			var geometry = obj.getGeometry();
 			// attach the buffers to the current child object
-			obj.vertexBuffer = buffers.createVertexBuffer(gl, geometry);
-			obj.normalBuffer = buffers.createNormalBuffer(gl, geometry);
-			obj.faceBuffer = buffers.createFaceBuffer(gl, geometry);
-			obj.textureBuffer = buffers.createTextureBuffer(gl, obj);
+			obj.vertexBuffer = Ext.create('MW.buffer.Vertex', gl, geometry).getBuffer();
+			obj.normalBuffer = Ext.create('MW.buffer.Normal', gl, geometry).getBuffer();
+			obj.faceBuffer = Ext.create('MW.buffer.Face', gl, geometry).getBuffer();
+			obj.textureBuffer = Ext.create('MW.buffer.Texture', gl, obj).getBuffer();
 		});
 		// add a listener to the object
 		object.on('updateuniforms', this.updateUniforms, this);

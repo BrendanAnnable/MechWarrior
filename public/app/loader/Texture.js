@@ -7,7 +7,7 @@ Ext.define('MW.loader.Texture', {
 			this.onLoad(gl, texture);
 		}, this);
 		texture.image.src = url;
-		return texture;
+        return texture;
 	},
 	onLoad: function (gl, texture) {
 		gl.bindTexture(gl.TEXTURE_2D, texture);

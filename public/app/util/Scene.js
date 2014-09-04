@@ -11,15 +11,21 @@ Ext.define('MW.util.Scene', {
 		playerPosition: null,   // The players current position in the level
 		lastTime: 0             // Used by the animate function, to keep track of the time between animation frames
 	},
-	constructor: function () {
+	constructor: function (config) {
+        this.initConfig(config);
 		this.setObjects({});
 		this.setMvStack([]);
 		this.setCursor(mat4.create());
 		this.setPMatrix(mat4.create());
 		this.setPlayerPosition(mat4.create());
 	},
+    /**
+     * Adds an object to the scene through the game.
+     *
+     * @param object The object to add to the scene
+     * @param name The name of the object to be added to the object map
+     */
 	addObject: function (object, name) {
-		// store the object in the object map
 		this.getObjects()[name] = object;
 	},
 	/**
@@ -79,7 +85,7 @@ Ext.define('MW.util.Scene', {
 			var objects = this.getObjects();
 			for (var key in objects) {
 				this.saveCursor();
-				objects[key].render(gl, shaderProgram, cursor, 20000);
+				objects[key].render(gl, shaderProgram, cursor);
 				cursor = this.restoreCursor();
 			}
 		}

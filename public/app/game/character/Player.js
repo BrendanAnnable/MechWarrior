@@ -5,24 +5,13 @@
 Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
-	/**
-	 * Creates a player for the game by loading a particular mesh.
-	 *
-	 * @param gl The WebGL context
-	 * @param url The url of the model to load
-	 * @param callback Callback that is called once the model has been loaded with
-	 * the first parameter as the model
-	 */
-	constructor: function (gl, url, callback) {
-		// loads the specified model
-		Ext.create('MW.loader.Model', gl, url, Ext.bind(function (player) {
-		    this.initConfig({
-			    name: player.name,
-			    geometry: player.geometry
-		    });
-			callback.call(this, this);
-		}, this));
-	},
+    load: function (url, callback, thisArg) {
+        Ext.create('MW.loader.Model').load(url, function (mesh) {
+            this.setName(mesh.name);
+            this.setGeometry(mesh.geometry);
+            callback.call(thisArg);
+        }, this);
+    }
 	/**
 	 * Renders the player model in the scene.
 	 *
@@ -31,7 +20,7 @@ Ext.define('MW.game.character.Player', {
 	 * @param cursor The current model-view project matrix
 	 * @param periodNominator How often to update animation
 	 */
-	render: function (gl, shaderProgram, cursor, periodNominator) {
+	/*render: function (gl, shaderProgram, cursor, periodNominator) {
 		// This animates the face such that is rotates around a point at the given radius,
 		// and 'bobs' up and down at the given height with the given periods
 		var minRadius = 10;
@@ -45,7 +34,7 @@ Ext.define('MW.game.character.Player', {
 		var yaw = periodNominator / yawPeriod;
 		var pitch = Math.asin(height * Math.sin(periodNominator / pitchPeriod) / radius);
 
-		/*// Rotate to the direction of where the face will be drawn
+		// Rotate to the direction of where the face will be drawn
 		mat4.rotateY(cursor, cursor, yaw);
 		mat4.rotateX(cursor, cursor, pitch);
 		// Translate forward to outer radius
@@ -53,8 +42,8 @@ Ext.define('MW.game.character.Player', {
 		// Rotate back so that the face always 'faces' the camera
 		mat4.rotateX(cursor, cursor, -pitch);
 		mat4.rotateY(cursor, cursor, -yaw);
-		//		mat4.rotateZ(cursor, cursor, -yaw);*/
+		//		mat4.rotateZ(cursor, cursor, -yaw);
 
-		this.renderMesh(gl, this, shaderProgram, cursor);
-	}
+		this.superclass.render(gl, shaderProgram, cursor);
+	}*/
 });

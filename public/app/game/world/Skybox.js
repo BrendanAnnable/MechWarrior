@@ -27,15 +27,5 @@ Ext.define('MW.game.world.Skybox', {
 		this.setName('skybox');
 		this.setGeometry(geometry);
 		this.setTexture(texture);
-	},
-	/**
-	 * Renders the skybox model in the scene.
-	 *
-	 * @param gl The WebGL context
-	 * @param shaderProgram The WebGL shader program
-	 * @param cursor The current model-view project matrix
-	 */
-	render: function (gl, shaderProgram, cursor, periodNominator) {
-		this.renderMesh(gl, this, shaderProgram, cursor);
 	}
 });
