@@ -4,6 +4,9 @@
 Ext.define('MW.view.ViewportController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.ViewportController',
+    requires: [
+        'MW.game.MechWarrior'
+    ],
 	game: null,
 	config: {
 		canvas: null       // The HTML canvas used for drawing on

@@ -7,8 +7,8 @@ Ext.define('MW.camera.Camera', {
 	config: {
 		perspective: null
 	},
-	constructor: function (config) {
-		this.callParent(config);
+	constructor: function () {
+		this.callParent(arguments);
 		this.setPerspective(mat4.create());
 	}
 });

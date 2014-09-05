@@ -4,24 +4,29 @@
 Ext.define('MW.game.world.Floor', {
 	alias: 'Floor',
 	extend: 'MW.object.Mesh',
+    requires: [
+        'MW.geometry.PlaneGeometry',
+        'MW.loader.Texture'
+    ],
+    config: {
+        width: 0,
+        height: 0
+    },
 	/**
 	 * Creates a plane mesh to represent the floor in the scene.
-	 *
-	 * @param gl The WebGL context
-	 * @param width the width of the floor
-	 * @param height the height of the floor
 	 */
-	constructor: function (gl, width, height) {
+	constructor: function () {
 		this.callParent(arguments);
 		// create the plane geometry and rotate it so that it is horizontal to the ground
 		var geometry = Ext.create('MW.geometry.PlaneGeometry', {
-			width: width,
-			height: height
+			width: this.getWidth(),
+			height: this.getHeight()
 		});
 		geometry.rotateX(Math.PI * 0.5);
 		// create the mesh containing the geometry
-		var texture = Ext.create('MW.loader.Texture', gl, "/resources/image/metal.jpg");
-		this.setName('floor');
+		var texture = Ext.create('MW.loader.Texture', {
+            url: "/resources/image/metal.jpg"
+        });
 		this.setGeometry(geometry);
 		this.setTexture(texture);
 	}

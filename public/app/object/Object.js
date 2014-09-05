@@ -49,5 +49,8 @@ Ext.define('MW.object.Object', {
 	 */
 	hasChildren: function () {
 		return this.getChildren().length !== 0;
-	}
+	},
+    isRenderable: function () {
+        return this.getRenderable();
+    }
 });

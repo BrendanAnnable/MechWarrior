@@ -9,8 +9,8 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 		target: null,
 		distance: 70
 	},
-	constructor: function (config) {
-		this.callParent(config);
+	constructor: function () {
+		this.callParent(arguments);
 		this.position = mat4.create();
 	},
 	getPosition: function () {

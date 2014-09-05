@@ -20,7 +20,6 @@ Ext.define('MW.buffer.Texture', {
             gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
             textureBuffer.itemSize = 2;
             textureBuffer.numItems = textureCoordinates.length / textureBuffer.itemSize;
-            textureBuffer.texture = texture;
             this.setBuffer(textureBuffer);
         }
     }

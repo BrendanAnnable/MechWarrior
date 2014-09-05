@@ -4,12 +4,15 @@
 Ext.define('MW.object.Mesh', {
     alias: 'Mesh',
 	extend: 'MW.object.Object',
+    requires: [
+        'MW.geometry.Geometry'
+    ],
     config: {
         geometry: null,
         texture: null
     },
-    constructor: function (config) {
-        this.callParent(config);
+    constructor: function () {
+        this.callParent(arguments);
 		this.setRenderable(true);
     }
 });

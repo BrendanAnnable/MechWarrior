@@ -5,6 +5,9 @@
 Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
+    requires: [
+        'MW.loader.Model'
+    ],
     load: function (url, callback, thisArg) {
         Ext.create('MW.loader.Model').load(url, function (mesh) {
             this.setName(mesh.name);

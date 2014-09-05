@@ -12,7 +12,7 @@ Ext.define('MW.util.Scene', {
 		lastTime: 0             // Used by the animate function, to keep track of the time between animation frames
 	},
 	constructor: function (config) {
-		this.callParent(config);
+		this.callParent(arguments);
 		this.setCursor(mat4.create());
 		this.setPMatrix(mat4.create());
 		this.setPlayerPosition(mat4.create());

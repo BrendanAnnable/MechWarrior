@@ -4,6 +4,7 @@
  */
 Ext.define('MW.loader.Model', {
 	alias: 'ModelLoader',
+    extend: 'MW.loader.Loader',
     /**
      * Loads a model asynchronously
      *
@@ -54,6 +55,7 @@ Ext.define('MW.loader.Model', {
 
                     // Move the model's pivot point to the center of the model
                     geometry.center();
+                    this.setLoaded(true);
                     callback.call(thisArg, {
                         name: modelName,
                         geometry: geometry
