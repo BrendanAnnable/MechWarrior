@@ -12,10 +12,9 @@ Ext.define('MW.buffer.Texture', {
      * @returns {*} the texture buffer being created for the mesh if it contains a texture
      */
     constructor: function (gl, mesh) {
-        var material = mesh.getMaterial();
-        if (material !== null) {
-            var texture = material.getTexture();
-            if (texture !== null) {
+        if (mesh.hasMaterial()) {
+            var material = mesh.getMaterial();
+            if (material.hasTexture()) {
                 var textureBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
                 var textureCoordinates = mesh.getGeometry().getFlattenedTextureCoordinates();

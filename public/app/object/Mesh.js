@@ -14,5 +14,8 @@ Ext.define('MW.object.Mesh', {
     constructor: function () {
         this.callParent(arguments);
 		this.setRenderable(true);
+    },
+    hasMaterial: function () {
+        return this.getMaterial() !== null;
     }
 });

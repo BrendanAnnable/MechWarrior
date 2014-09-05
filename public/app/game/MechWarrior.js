@@ -9,16 +9,13 @@ Ext.define('MW.game.MechWarrior', {
         'MW.camera.ThirdPersonCamera',
         'MW.control.Mouse',
         'MW.util.Scene',
+        'MW.game.level.Level',
         'MW.game.character.Player',
-        'MW.game.world.World',
         'MW.util.Color'
     ],
 	player: null,
 	renderer: null,
 	camera: null,
-	config: {
-		scene: null        // The scene object to hold models
-	},
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
 	 *
@@ -26,7 +23,12 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	constructor: function (canvas) {
 		// Initialize the scene and the mouse controls
-		this.setScene(Ext.create('MW.util.Scene'));
+        var level = Ext.create('MW.game.level.Level', {
+            name: 'Level 1',
+            width: 300,
+            height: 300,
+            depth: 300
+        });
 		var controls = Ext.create('MW.control.Mouse', {
 			element: canvas,
 			minPitch: Math.PI / 6
@@ -48,22 +50,19 @@ Ext.define('MW.game.MechWarrior', {
             height: canvas.height,
             backgroundColor: backgroundColor
 		}).on('loaded', function () {
-            //		gl = WebGLDebugUtils.makeDebugContext(gl);
-            // get the scene
-            var scene = this.getScene();
+            //gl = WebGLDebugUtils.makeDebugContext(gl);
             // load the player model and add it to the scene
             var player = Ext.create('MW.game.character.Player');
             this.camera.setTarget(player);
             player.load('face.json', function () {
-                scene.addChild(player);
-                scene.addChild(Ext.create('MW.game.world.World', {
-                    name: 'world',
-                    width: 300,
-                    height: 300,
-                    depth: 300
+                level.addPlayer(player);
+                level.addProjectile(Ext.create('MW.game.projectile.Missile', {
+                    width: 5,
+                    height: 5,
+                    depth: 5
                 }));
                 // Start the animation loop
-                this.tick(scene, controls);
+                this.tick(level, controls);
             }, this);
             this.player = player;
         }, this);

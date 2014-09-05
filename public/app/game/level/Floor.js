@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.game.world.Floor', {
+Ext.define('MW.game.level.Floor', {
 	alias: 'Floor',
 	extend: 'MW.object.Mesh',
     requires: [

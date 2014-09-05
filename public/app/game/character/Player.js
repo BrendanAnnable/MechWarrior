@@ -10,6 +10,9 @@ Ext.define('MW.game.character.Player', {
         'MW.material.Phong',
         'MW.util.Color'
     ],
+    config: {
+        health: 1000
+    },
     load: function (url, callback, thisArg) {
         Ext.create('MW.loader.Model').load(url, function (mesh) {
             this.setName(mesh.name);

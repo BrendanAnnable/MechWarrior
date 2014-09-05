@@ -21,5 +21,13 @@ Ext.define('MW.material.Material', {
                 b: 1
             }));
         }
+    },
+    /**
+     * Checks whether the material contains a texture.
+     *
+     * @returns {*|boolean}
+     */
+    hasTexture: function () {
+        return this.hasConfig('texture') && this.getTexture() !== null;
     }
 });

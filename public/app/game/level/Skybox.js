@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.game.world.Skybox', {
+Ext.define('MW.game.level.Skybox', {
 	alias: 'Skybox',
 	extend: 'MW.object.Mesh',
     requires: [
