@@ -5,7 +5,9 @@ Ext.define('MW.control.Mouse', {
 	pitch: 0,
 	yaw: 0,
 	matrix: null,
+	matrixInverse: null,
 	matrixDirty: true,
+	matrixInverseDirty: true,
 	locked: false,
 	config: {
 		sensitivity: 0.01,
@@ -25,8 +27,6 @@ Ext.define('MW.control.Mouse', {
 		element.on({
 			mousemove: this.onMouseMove,
 			click: this.onMouseClick,
-			//pointerlockerror: null,
-			pointerlockchange: this.onPointerLockChange,
 			scope: this
 		});
 
@@ -34,8 +34,15 @@ Ext.define('MW.control.Mouse', {
 			element.dom.requestPointerLock();
 		});
 
+		var me = this;
+		window.document.addEventListener('pointerlockchange', function () {
+			var element = me.getElement();
+			me.locked = window.document.pointerLockElement === element.dom;
+		});
+
 		this.setElement(element);
 		this.matrix = mat4.create();
+		this.matrixInverse = mat4.create();
 	},
 	getPosition: function () {
 		var matrix = this.matrix;
@@ -46,6 +53,13 @@ Ext.define('MW.control.Mouse', {
 			this.matrixDirty = false;
 		}
 		return matrix;
+	},
+	getPositionInverse: function () {
+		var position = this.getPosition();
+		if (this.matrixInverseDirty) {
+			mat4.othoNormalInvert(this.matrixInverse, position);
+		}
+		return this.matrixInverse;
 	},
 	getYaw: function () {
 		return this.yaw;
@@ -72,6 +86,7 @@ Ext.define('MW.control.Mouse', {
 			this.yaw -= diffX * sensitivity;
 
 			this.matrixDirty = true;
+			this.matrixInverseDirty = true;
 		}
 	}
 });

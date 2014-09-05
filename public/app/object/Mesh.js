@@ -10,5 +10,6 @@ Ext.define('MW.object.Mesh', {
     },
     constructor: function (config) {
         this.callParent(config);
+		this.setRenderable(true);
     }
 });

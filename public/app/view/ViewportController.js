@@ -4,9 +4,9 @@
 Ext.define('MW.view.ViewportController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.ViewportController',
+	game: null,
 	config: {
-		canvas: null,       // The HTML canvas used for drawing on
-		mechWarrior: null   // The mech warrior game
+		canvas: null       // The HTML canvas used for drawing on
 	},
 	/**
 	 * Callback that is run when the window is resized
@@ -16,13 +16,10 @@ Ext.define('MW.view.ViewportController', {
 	 * @param height The new height of the container
 	 */
 	onResize: function (container, width, height) {
-		// Resize the WebGL viewport based on the new size
 		var canvas = this.getCanvas();
-		var gl = this.getMechWarrior().getGl();
 		canvas.width = width;
 		canvas.height = height;
-		gl.viewportWidth = width;
-		gl.viewportHeight = height;
+		this.game.onResize(width, height);
 	},
 	/**
 	 * Callback that is run after the DOM has been rendered.
@@ -32,7 +29,7 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
-		this.setMechWarrior(Ext.create('MW.game.MechWarrior', canvas));
+		this.game = Ext.create('MW.game.MechWarrior', canvas);
 	}
 });
 

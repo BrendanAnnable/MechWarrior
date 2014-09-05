@@ -4,6 +4,9 @@
  */
 Ext.define('MW.game.MechWarrior', {
 	alias: 'MechWarrior',
+	player: null,
+	renderer: null,
+	camera: null,
 	config: {
 		gl: null,               // The WebGL context
 		shaderProgram: null,    // The shader program containing the vertex and fragment shader
@@ -27,11 +30,16 @@ Ext.define('MW.game.MechWarrior', {
 		this.setControls(controls);
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+		this.renderer = Ext.create('MW.renderer.WebGLRenderer', {
+			gl: gl,
+			width: canvas.width,
+			height: canvas.height
+		});
 //		gl = WebGLDebugUtils.makeDebugContext(gl);
-		gl.viewportWidth = canvas.width;
-		gl.viewportHeight = canvas.height;
 		this.setGl(gl);
-		this.setGl(gl);
+		this.camera = Ext.create('MW.camera.ThirdPersonCamera', {
+			fov: canvas.width / canvas.height
+		});
 		// Initialize the shaderProgram
 		this.initShaderProgram(gl, function (shaderProgram) {
 			this.setShaderProgram(shaderProgram);
@@ -39,41 +47,27 @@ Ext.define('MW.game.MechWarrior', {
 			var scene = this.getScene();
 			// load the player model and add it to the scene
 			var player = Ext.create('MW.game.character.Player');
+			this.camera.setTarget(player);
             player.load('face.json', function () {
-				this.createObject(gl, scene, player, player.getName());
+				scene.addChild(player);
 				// Set the background color
 				gl.clearColor(0, 0, 0, 1);
 				// Enable depth testing
 				gl.enable(gl.DEPTH_TEST);
 				var world = Ext.create('MW.game.world.World', gl, 300, 300, 300);
-				this.createObject(gl, scene, world, world.getName());
+				scene.addChild(world);
 				// Start the animation loop
 				this.tick(gl, shaderProgram, scene, controls);
 			}, this);
+
+			this.player = player;
 		});
 	},
-	/**
-	 * Creates an object for the scene.
-	 *
-	 * @param gl The WebGL context
-	 * @param scene The scene being rendered to
-	 * @param object The object being added to the scene
-	 * @param name The name of the object
-	 */
-	createObject: function (gl, scene, object, name) {
-		// create the WebGL buffers for the vertices, normals, faces and textures
-        var children = object.getChildren();
-        var objects = children.length === 0 ? object : children;
-		Ext.each(objects, function (obj) {
-			var geometry = obj.getGeometry();
-			// attach the buffers to the current child object
-			obj.vertexBuffer = Ext.create('MW.buffer.Vertex', gl, geometry).getBuffer();
-			obj.normalBuffer = Ext.create('MW.buffer.Normal', gl, geometry).getBuffer();
-			obj.faceBuffer = Ext.create('MW.buffer.Face', gl, geometry).getBuffer();
-			obj.textureBuffer = Ext.create('MW.buffer.Texture', gl, obj).getBuffer();
-		});
-		// add the object to the scene
-		scene.addObject(object, name);
+	onResize: function (width, height) {
+		this.camera.setRatio(width / height);
+		this.camera.update();
+		this.renderer.setWidth(width);
+		this.renderer.setHeight(height);
 	},
 	/**
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible.
@@ -84,7 +78,14 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param controls The mouse controls
 	 */
 	tick: function (gl, shaderProgram, scene, controls) {
-		scene.renderScene(gl, shaderProgram, controls);
+
+		/*var position = this.player.getPosition();
+		var period = 20000;
+		var x = 80 * Math.sin(2 * Math.PI * Date.now() / period);
+		var translateVector = mat4.translateVector(position);
+		translateVector[0] = x;*/
+
+		this.renderer.render(scene, this.camera, shaderProgram);
 		requestAnimationFrame(Ext.bind(this.tick, this, [gl, shaderProgram, scene, controls]));
 	},
 	/**
