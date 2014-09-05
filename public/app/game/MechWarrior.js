@@ -17,9 +17,7 @@ Ext.define('MW.game.MechWarrior', {
 	renderer: null,
 	camera: null,
 	config: {
-		scene: null,        // The scene object to hold models
-		zenithAngle: 0,     // Spherical coordinates angle for pitch
-		azimuthAngle: 0     // Spherical coordinates angle for yaw
+		scene: null        // The scene object to hold models
 	},
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
@@ -67,7 +65,6 @@ Ext.define('MW.game.MechWarrior', {
                 // Start the animation loop
                 this.tick(scene, controls);
             }, this);
-
             this.player = player;
         }, this);
 	},

@@ -11,5 +11,8 @@ Ext.define('MW.util.Color', {
     },
     constructor: function (config) {
         this.initConfig(config);
+    },
+    getArray: function () {
+        return [this.getR(), this.getG(), this.getB(), this.getA()];
     }
 });

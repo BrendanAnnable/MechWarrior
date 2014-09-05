@@ -26,11 +26,14 @@ Ext.define('MW.game.world.Skybox', {
 		});
 		geometry.negateNormals();
 		// create and load the texture from the specified source
-		var texture = Ext.create('MW.loader.Texture', {
-            url: "/resources/image/texture.png"
+		var material = Ext.create('MW.material.Phong', {
+            texture: Ext.create('MW.loader.Texture', {
+                url: "/resources/image/texture.png"
+            }),
+            useLighting: false
         });
-		// create the mesh with the newly created geometry and texture
+		// create the mesh with the newly created geometry and material
 		this.setGeometry(geometry);
-		this.setTexture(texture);
+		this.setMaterial(material);
 	}
 });

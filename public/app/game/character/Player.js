@@ -6,12 +6,21 @@ Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
     requires: [
-        'MW.loader.Model'
+        'MW.loader.Model',
+        'MW.material.Phong',
+        'MW.util.Color'
     ],
     load: function (url, callback, thisArg) {
         Ext.create('MW.loader.Model').load(url, function (mesh) {
             this.setName(mesh.name);
             this.setGeometry(mesh.geometry);
+            this.setMaterial(Ext.create('MW.material.Phong', {
+                color: Ext.create('MW.util.Color', {
+                    r: 0,
+                    g: 1,
+                    b: 0
+                })
+            }));
             callback.call(thisArg);
         }, this);
     }

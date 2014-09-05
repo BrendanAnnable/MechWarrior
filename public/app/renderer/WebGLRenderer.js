@@ -62,8 +62,8 @@ Ext.define('MW.renderer.WebGLRenderer', {
             shaderProgram.textureCoordAttribute = gl.getAttribLocation(shaderProgram, "aTextureCoord");
             gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 
-//			shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
-//			gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
+			//shaderProgram.vertexColorAttribute = gl.getAttribLocation(shaderProgram, "aVertexColor");
+			//gl.enableVertexAttribArray(shaderProgram.vertexColorAttribute);
 
             // Setup the uniforms
             shaderProgram.pMatrixUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
@@ -74,6 +74,8 @@ Ext.define('MW.renderer.WebGLRenderer', {
 
             shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
             shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
+
+            shaderProgram.uDiffuseColor = gl.getUniformLocation(shaderProgram, "uDiffuseColor");
             this.setShaderProgram(shaderProgram);
             this.fireEvent('loaded');
         });
@@ -131,20 +133,27 @@ Ext.define('MW.renderer.WebGLRenderer', {
 		if (object.isRenderable()) {
 			this.bindBuffers(gl, object, shaderProgram);
 			var useTexture = object.textureBuffer !== null;
-            var texture = object.getTexture();
+            var material = object.getMaterial();
 
-            if (useTexture && texture.isLoaded() && object.textureBuffer.texture === undefined) {
-                this.loadTexture(gl, object, texture);
+            gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
+
+            if (useTexture) {
+                var texture = material.getTexture();
+                if (texture.isLoaded() && object.textureBuffer.texture === undefined) {
+                    this.loadTexture(gl, object, texture);
+                }
             }
 
-			if (useTexture ) {//&& texture.isLoaded()) {
+			if (useTexture && texture.isLoaded()) {
                 this.applyTexture(gl, object, shaderProgram);
                 gl.uniform1i(shaderProgram.useTextureUniform, 1);
 			} else {
                 gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
-				gl.uniform1i(shaderProgram.useLightingUniform, 1);
                 gl.uniform1i(shaderProgram.useTextureUniform, 0);
 			}
+
+            gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
+
 			// Update the WebGL uniforms and then draw the object on the screen
 			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
 			gl.drawElements(gl.TRIANGLES, object.faceBuffer.numItems * object.faceBuffer.itemSize, gl.UNSIGNED_SHORT, 0);
@@ -208,8 +217,6 @@ Ext.define('MW.renderer.WebGLRenderer', {
         gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
 
-        // TODO: fix mee!!
-        gl.uniform1i(shaderProgram.useLightingUniform, 0);
     },
     /**
      * Loads a texture into WebGL

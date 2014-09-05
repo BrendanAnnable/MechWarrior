@@ -9,7 +9,7 @@ Ext.define('MW.object.Mesh', {
     ],
     config: {
         geometry: null,
-        texture: null
+        material: null
     },
     constructor: function () {
         this.callParent(arguments);

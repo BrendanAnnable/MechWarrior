@@ -6,6 +6,7 @@ Ext.define('MW.game.world.Floor', {
 	extend: 'MW.object.Mesh',
     requires: [
         'MW.geometry.PlaneGeometry',
+        'MW.util.Color',
         'MW.loader.Texture'
     ],
     config: {
@@ -24,10 +25,17 @@ Ext.define('MW.game.world.Floor', {
 		});
 		geometry.rotateX(Math.PI * 0.5);
 		// create the mesh containing the geometry
-		var texture = Ext.create('MW.loader.Texture', {
-            url: "/resources/image/metal.jpg"
+        var material = Ext.create('MW.material.Phong', {
+            texture: Ext.create('MW.loader.Texture', {
+                url: "/resources/image/metal.jpg"
+            }),
+            color: Ext.create('MW.util.Color', {
+                r: 1,
+                g: 1,
+                b: 1
+            })
         });
 		this.setGeometry(geometry);
-		this.setTexture(texture);
+		this.setMaterial(material);
 	}
 });
