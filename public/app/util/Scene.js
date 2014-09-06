@@ -81,17 +81,22 @@ Ext.define('MW.util.Scene', {
 //			translateVector[0] = x;
 //			mat4.multiply(cursor, cursor, position);
 
-           // TODO: fix this. it was saying the keyboard controls are undefined, possibly because the element differs..
+           // TODO: fix this.
+           // can only translate one step in each direction (assumedly from initial),
+           // but cant keep translating in same direction..
+           // need to translate from updated position instead of initial..
+
 //            Translate player position from keyboard controls
             var translateVector = mat4.translateVector(position);
-            var tX = keyboardControls.getTransX();
-            translateVector[0] = tX;
+            translateVector[0] = keyboardControls.getTransX();
             translateVector[1] = keyboardControls.getTransY();
             translateVector[2] = keyboardControls.getTransZ();
+
             mat4.multiply(cursor, cursor, position);
 
             this.renderWorld(gl, shaders, cursor, periodNominator);
-		}
+            this.saveCursor();
+        }
 		this.setLastTime(now);
 	},
     /**
