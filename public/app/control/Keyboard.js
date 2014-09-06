@@ -9,14 +9,14 @@ The keyboard class returns keyboard events recorded from the user.
 
 Ext.define('MW.control.Keyboard', {
     // private vars
-
+    transX:0,
+    transY:0,
+    transZ:0,
     // public vars. (getters/setters are created automatically by ext.js)
     config: {
-        element: null,
+        element: null
 //        translation: null
-        transX:0,
-        transY:0,
-        transZ:0
+
 
 
     },

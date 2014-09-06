@@ -85,7 +85,7 @@ Ext.define('MW.view.ViewportController', {
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible
 	 */
 	tick: function () {
-		this.getScene().render(this.getGl(), this.getShaders(), this.getControls());
+		this.getScene().render(this.getGl(), this.getShaders(), this.getControls(), this.getKeyboardControls());
 		requestAnimationFrame(Ext.bind(this.tick, this));
 	},
 	/**

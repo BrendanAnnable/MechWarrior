@@ -75,20 +75,20 @@ Ext.define('MW.util.Scene', {
 			// player position
 			// Simulate player moving backwards and forwards
 			var position = this.getPlayerPosition();
-			var period = 20000;
-			var x = 80 * Math.sin(2 * Math.PI * Date.now() / period);
-			var translateVector = mat4.translateVector(position);
-			translateVector[0] = x;
-			mat4.multiply(cursor, cursor, position);
+//			var period = 20000;
+//			var x = 80 * Math.sin(2 * Math.PI * Date.now() / period);
+//			var translateVector = mat4.translateVector(position);
+//			translateVector[0] = x;
+//			mat4.multiply(cursor, cursor, position);
 
            // TODO: fix this. it was saying the keyboard controls are undefined, possibly because the element differs..
-            // Translate player position from keyboard controls
-//            var translateVector = mat4.translateVector(position);
-//            var tX = keyboardControls.getTransX();
-//            translateVector[0] = tX;
-////            translateVector[1] = keyboardControls.getTransY();
-////            translateVector[2] = keyboardControls.getTransZ();
-//            mat4.multiply(cursor, cursor, position);
+//            Translate player position from keyboard controls
+            var translateVector = mat4.translateVector(position);
+            var tX = keyboardControls.getTransX();
+            translateVector[0] = tX;
+            translateVector[1] = keyboardControls.getTransY();
+            translateVector[2] = keyboardControls.getTransZ();
+            mat4.multiply(cursor, cursor, position);
 
             this.renderWorld(gl, shaders, cursor, periodNominator);
 		}
