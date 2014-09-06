@@ -117,6 +117,18 @@ vec3.findNormal = function (out, a) {
     return out;
 };
 
+vec3.directionCosineX = function (a) {
+	return a[0] / vec3.length(a);
+};
+
+vec3.directionCosineY = function (a) {
+	return a[1] / vec3.length(a);
+};
+
+vec3.directionCosineZ = function (a) {
+	return a[2] / vec3.length(a);
+};
+
 mat4.othoNormalInvert = function(out, a){
 	var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
 		a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
@@ -166,5 +178,12 @@ mat4.getRotationSubMatrix = function (out, a) {
 	out[7] = a21;
 	out[8] = a22;
 
+	return out;
+};
+
+mat4.getTranslationSubMatrix = function (out, a) {
+	out[0] = a[12];
+	out[1] = a[13];
+	out[2] = a[14];
 	return out;
 };

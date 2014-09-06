@@ -56,11 +56,17 @@ Ext.define('MW.game.MechWarrior', {
             this.camera.setTarget(player);
             player.load('face.json', function () {
                 level.addPlayer(player);
-                level.addProjectile(Ext.create('MW.game.projectile.Missile', {
-                    width: 5,
-                    height: 5,
-                    depth: 5
-                }));
+	            var position = mat4.create();
+	            mat4.translate(position, position, vec3.fromValues(-20, 0, 40));
+                var projectile = Ext.create('MW.game.projectile.Missile', {
+                    width: 1,
+                    height: 1,
+                    depth: 1,
+	                velocity: 10,
+	                position: position,
+	                target: vec3.fromValues(200, 0, 50)
+                });
+	            level.addProjectile(projectile);
                 // Start the animation loop
                 this.tick(level, controls);
             }, this);
