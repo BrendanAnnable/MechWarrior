@@ -8,7 +8,7 @@ Ext.define('MW.camera.PerspectiveCamera', {
 		fov: 45,
 		ratio: 1,
 		near: 0.1,
-		far: 2000
+		far: 10000
 	},
 	constructor: function () {
 		this.callParent(arguments);

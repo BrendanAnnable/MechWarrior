@@ -5,17 +5,21 @@
  * The keyboard class returns keyboard events recorded from the user.
  */
 Ext.define('MW.control.Keyboard', {
-    // public vars. (getters/setters are created automatically by ext.js)
-	forward: 0,
-	right: 0,
-	up: 0,
+	keyMap: null,
+	translation: null,
+	needsUpdate: true,
     config: {
+		speed: 1,
         element: null,
-        translation: null
+		forwardKey: 'W'.charCodeAt(0),
+		leftKey: 'A'.charCodeAt(0),
+		backwardKey: 'S'.charCodeAt(0),
+		rightKey: 'D'.charCodeAt(0)
     },
     constructor: function (config) {
         this.initConfig(config);
-        this.setTranslation(vec3.fromValues(0, 0, 0));
+        this.translation = vec3.fromValues(0, 0, 0);
+		this.keyMap = {};
 
         var element = this.getElement();
         element = Ext.get(element);
@@ -27,56 +31,45 @@ Ext.define('MW.control.Keyboard', {
         this.setElement(element);
     },
     onKeyDown: function (event){
-		var interesting = true;
-		switch (event.keyCode) {
-			case event.A:
-				// if A key is pressed, translate left
-				this.right = -1;
-				break;
-			case event.D:
-				// if D key is pressed, translate right
-				this.right = 1;
-				break;
-			case event.W:
-				// if W key is pressed, translate forward
-				this.forward = -1;
-				break;
-			case event.S:
-					// if S key is pressed, translate backward
-				this.forward = 1;
-				break;
-			default:
-				interesting = false;
-		}
-		if (interesting) {
-			event.preventDefault();
-			this.update();
-		}
-
+		// register key as down
+		this.keyMap[event.keyCode] = Date.now();
+		this.needsUpdate = true;
     },
-	onKeyUp: function (event){
-		var interesting = true;
-		switch (event.keyCode) {
-			case event.A:
-			case event.D:
-				this.right = 0;
-				break;
-			case event.S:
-			case event.W:
-				this.forward = 0;
-				break;
-			default:
-				interesting = false;
-		}
-		if (interesting) {
-			event.preventDefault();
-			this.update();
-		}
+	onKeyUp: function (event) {
+		// unregister key as down
+		delete this.keyMap[event.keyCode];
+		this.needsUpdate = true;
 	},
-	update: function () {
-		var translation = this.getTranslation();
-		vec3.set(translation, this.right, this.up, this.forward);
-		vec3.normalize(translation, translation);
+	isKeyDown: function (key) {
+		return this.keyMap.hasOwnProperty(key);
+	},
+	getTranslation: function () {
+		var translation = this.translation;
+		if (this.needsUpdate) {
+			var x = 0;
+			var y = 0;
+			var z = 0;
+
+			if (this.isKeyDown(this.getForwardKey())) {
+				z = -1;
+			}
+			else if (this.isKeyDown(this.getBackwardKey())) {
+				z = 1;
+			}
+
+			if (this.isKeyDown(this.getRightKey())) {
+				x = 1;
+			}
+			else if (this.isKeyDown(this.getLeftKey())) {
+				x = -1;
+			}
+
+			vec3.set(translation, x, y, z);
+			vec3.normalize(translation, translation);
+			vec3.scale(translation, translation, this.getSpeed());
+			this.needsUpdate = false;
+		}
+		return translation;
 	}
 });
 //# sourceURL=Keyboard.js
