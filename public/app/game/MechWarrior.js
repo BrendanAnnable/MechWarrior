@@ -7,7 +7,8 @@ Ext.define('MW.game.MechWarrior', {
     requires: [
         'MW.renderer.WebGLRenderer',
         'MW.camera.ThirdPersonCamera',
-        'MW.control.Mouse',
+        'MW.control.Keyboard',
+		'MW.control.Mouse',
         'MW.util.Scene',
         'MW.game.level.Level',
         'MW.game.character.Player',
@@ -29,10 +30,16 @@ Ext.define('MW.game.MechWarrior', {
             height: 300,
             depth: 300
         });
-		var controls = Ext.create('MW.control.Mouse', {
+
+		var keyboardControls = Ext.create('MW.control.Keyboard', {
+			element: document
+		});
+
+		var mouseControls = Ext.create('MW.control.Mouse', {
 			element: canvas,
 			minPitch: Math.PI / 16
 		});
+
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
         this.camera = Ext.create('MW.camera.ThirdPersonCamera', {
@@ -68,7 +75,7 @@ Ext.define('MW.game.MechWarrior', {
                 });
 	            level.addProjectile(projectile);
                 // Start the animation loop
-                this.tick(level, controls);
+                this.tick(level, keyboardControls, mouseControls);
             }, this);
             this.player = player;
         }, this);
@@ -83,19 +90,17 @@ Ext.define('MW.game.MechWarrior', {
 	 * Animation tick, uses requestAnimationFrame to run as fast as possible.
 	 *
 	 * @param scene The scene to draw objects in
-	 * @param controls The mouse controls
+	 * @param keyboardControls
+	 * @param mouseControls
 	 */
-	tick: function (scene, controls) {
+	tick: function (scene, keyboardControls, mouseControls) {
 
 		var position = this.player.getPosition();
-		var period = 20000;
-		var x = 50 * Math.sin(2 * Math.PI * Date.now() / period);
-		var translateVector = mat4.translateVector(position);
-		translateVector[0] = x;
+		mat4.translate(position, position, keyboardControls.getTranslation());
 
-		this.camera.setRotation(mat4.clone(controls.getPosition()));
+		this.camera.setRotation(mat4.clone(mouseControls.getPosition()));
 
 		this.renderer.render(scene, this.camera);
-		requestAnimationFrame(Ext.bind(this.tick, this, [scene, controls]));
+		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
 	}
 });
