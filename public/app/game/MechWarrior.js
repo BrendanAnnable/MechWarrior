@@ -87,11 +87,13 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	tick: function (scene, controls) {
 
-		/*var position = this.player.getPosition();
+		var position = this.player.getPosition();
 		var period = 20000;
-		var x = 80 * Math.sin(2 * Math.PI * Date.now() / period);
+		var x = 50 * Math.sin(2 * Math.PI * Date.now() / period);
 		var translateVector = mat4.translateVector(position);
-		translateVector[0] = x;*/
+		translateVector[0] = x;
+
+		this.camera.setRotation(mat4.clone(controls.getPosition()));
 
 		this.renderer.render(scene, this.camera);
 		requestAnimationFrame(Ext.bind(this.tick, this, [scene, controls]));

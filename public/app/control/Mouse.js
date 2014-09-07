@@ -24,25 +24,31 @@ Ext.define('MW.control.Mouse', {
 
 		var element = this.getElement();
 		element = Ext.get(element);
+		var dom = element.dom;
+
 		element.on({
 			mousemove: this.onMouseMove,
 			click: this.onMouseClick,
 			scope: this
 		});
 
-		element.dom.addEventListener('click', function () {
-			element.dom.requestPointerLock();
-		});
-
-		var me = this;
-		window.document.addEventListener('pointerlockchange', function () {
-			var element = me.getElement();
-			me.locked = window.document.pointerLockElement === element.dom;
-		});
+		dom.addEventListener('click', Ext.bind(this.onMouseClick, this));
+		document.addEventListener('pointerlockchange', Ext.bind(this.pointerLockChange, this), false);
+		document.addEventListener('mozpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
+		document.addEventListener('webkitpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
 
 		this.setElement(element);
 		this.matrix = mat4.create();
 		this.matrixInverse = mat4.create();
+	},
+	pointerLockChange: function () {
+		var element = this.getElement();
+		var dom = element.dom;
+		this.locked = (
+			document.pointerLockElement === dom ||
+			document.mozPointerLockElement === dom ||
+			document.webkitPointerLockElement === dom
+		);
 	},
 	getPosition: function () {
 		var matrix = this.matrix;
@@ -64,29 +70,31 @@ Ext.define('MW.control.Mouse', {
 	getYaw: function () {
 		return this.yaw;
 	},
-	onPointerLockChange: function (event, dom) {
-		debugger;
-		//this.locked ==
+	getPitch: function () {
+		return this.pitch;
 	},
 	onMouseClick: function (event, dom) {
 		if (!this.locked) {
+			var element = this.getElement();
+			var dom = element.dom;
 			dom.requestPointerLock = dom.requestPointerLock || dom.mozRequestPointerLock || dom.webkitRequestPointerLock;
 			dom.requestPointerLock();
-			this.locked = true;
 		}
 	},
 	onMouseMove: function (event) {
 		if (this.locked) {
-			var diffX = event.event.movementX;
-			var diffY = event.event.movementY;
+			var e = event.event;
+			var movementX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+			var movementY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
 			var sensitivity = this.getSensitivity();
 
-			this.pitch -= diffY * sensitivity;
+			this.pitch -= movementY * sensitivity;
 			this.pitch = Math.max(Math.min(this.pitch, this.getMinPitch()), this.getMaxPitch());
-			this.yaw -= diffX * sensitivity;
+			this.yaw -= movementX * sensitivity;
 
 			this.matrixDirty = true;
 			this.matrixInverseDirty = true;
 		}
 	}
 });
+//# sourceURL=Mouse.js
