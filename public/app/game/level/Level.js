@@ -28,7 +28,7 @@ Ext.define('MW.game.level.Level', {
             width: width,
             height: height
         });
-        floor.translate(0, -20, 0);
+        floor.translate(0, -40, 0);
         var skybox = Ext.create('MW.game.level.Skybox', {
             name: 'skybox',
             width: width,

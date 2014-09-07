@@ -26,9 +26,9 @@ Ext.define('MW.game.MechWarrior', {
 		// Initialize the scene and the mouse controls
         var level = Ext.create('MW.game.level.Level', {
             name: 'Level 1',
-            width: 300,
-            height: 300,
-            depth: 300
+            width: 1000,
+            height: 1000,
+            depth: 1000
         });
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
@@ -104,6 +104,10 @@ Ext.define('MW.game.MechWarrior', {
 		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
 		// move player according to keyboard input
 		mat4.translate(position, position, keyboardControls.getTranslation());
+
+
+		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
+		mat4.copyTranslation(scene.getSkybox().getPosition(), this.player.getPosition());
 
 		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
