@@ -6,7 +6,8 @@ Ext.define('MW.loader.Texture', {
     extend: 'MW.loader.Loader',
     config: {
         url: null,
-        image: null
+        image: null,
+	    repeatable: false
     },
     constructor: function () {
         this.callParent(arguments);
@@ -16,5 +17,8 @@ Ext.define('MW.loader.Texture', {
             this.setLoaded(true);
         }, this);
         this.setImage(image);
+	},
+	isRepeatable: function () {
+		return this.getRepeatable();
 	}
 });

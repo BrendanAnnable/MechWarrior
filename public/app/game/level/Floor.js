@@ -27,7 +27,8 @@ Ext.define('MW.game.level.Floor', {
 		// create the mesh containing the geometry
         var material = Ext.create('MW.material.Phong', {
             texture: Ext.create('MW.loader.Texture', {
-                url: "/resources/image/metal.jpg"
+                url: "/resources/image/ground.png",
+	            repeatable: true
             }),
             color: Ext.create('MW.util.Color', {
                 r: 1,

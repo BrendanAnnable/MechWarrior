@@ -26,9 +26,9 @@ Ext.define('MW.game.MechWarrior', {
 		// Initialize the scene and the mouse controls
         var level = Ext.create('MW.game.level.Level', {
             name: 'Level 1',
-            width: 300,
-            height: 300,
-            depth: 300
+            width: 1000,
+            height: 1000,
+            depth: 1000
         });
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
@@ -71,7 +71,7 @@ Ext.define('MW.game.MechWarrior', {
                     depth: 1,
 	                velocity: 10,
 	                position: position,
-	                target: vec3.fromValues(200, 0, 50)
+	                target: vec3.fromValues(0, 10, 50)
                 });
 	            level.addProjectile(projectile);
                 // Start the animation loop
@@ -97,7 +97,6 @@ Ext.define('MW.game.MechWarrior', {
 
 		// rotate camera around target
 		this.camera.setRotation(mat4.clone(mouseControls.getPosition()));
-
 		var position = this.player.getPosition();
 		// rotate player to face camera
 		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));

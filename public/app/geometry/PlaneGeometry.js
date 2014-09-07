@@ -13,9 +13,9 @@ Ext.define('MW.geometry.PlaneGeometry', { //define: makes class, create: makes i
 
 		var width = this.getWidth();
 		var height = this.getHeight();
-		this.calcPoints(width, height);
+		this.calculatePoints(width, height);
 	},
-	calcPoints: function (width, height) {
+	calculatePoints: function (width, height) {
 		var halfWidth = width / 2;
 		var halfHeight = height / 2;
 		this.setVertices([
@@ -34,5 +34,9 @@ Ext.define('MW.geometry.PlaneGeometry', { //define: makes class, create: makes i
 			vec3.fromValues(0, 1, 2),
 			vec3.fromValues(0, 2, 3)
 		]);
+	},
+	getFlattenedTextureCoordinates: function () {
+		var scale = 10; // todo find better scale
+		return new Float32Array([scale, scale, -scale, scale, -scale, -scale, scale, -scale]);
 	}
 });

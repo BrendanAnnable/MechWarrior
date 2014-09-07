@@ -78,5 +78,13 @@ Ext.define('MW.geometry.CubeGeometry', {
 			vec3.fromValues(20, 21, 22),   // left
 			vec3.fromValues(20, 22, 23)    // left
         ]);
-    }
+    },
+	getFlattenedTextureCoordinates: function () {
+		var tArray = [];
+		var faces = this.getFaces();
+		for (var i = 0; i < faces.length * 0.5; i++) {
+			tArray.push(0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0);
+		}
+		return new Float32Array(tArray);
+	}
 });

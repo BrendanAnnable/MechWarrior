@@ -96,14 +96,6 @@ Ext.define('MW.geometry.Geometry', {
 		}
 		return new Uint16Array(fArray);
 	},
-	getFlattenedTextureCoordinates: function () {
-		var tArray = [];
-		var faces = this.getFaces();
-		for (var i = 0; i < faces.length * 0.5; i++) {
-			tArray.push(0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0);
-		}
-		return new Float32Array(tArray);
-	},
     rotateX: function (rad) {
         var vertices = this.getVertices();
         var normals = this.getNormals();
