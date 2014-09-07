@@ -31,7 +31,7 @@ Ext.define('MW.game.MechWarrior', {
         });
 		var controls = Ext.create('MW.control.Mouse', {
 			element: canvas,
-			minPitch: Math.PI / 6
+			minPitch: Math.PI / 16
 		});
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
