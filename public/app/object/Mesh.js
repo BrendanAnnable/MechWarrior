@@ -1,10 +1,21 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('MW.object.Mesh', {
     alias: 'Mesh',
+	extend: 'MW.object.Object',
+    requires: [
+        'MW.geometry.Geometry'
+    ],
     config: {
         geometry: null,
-        texture: null
+        material: null
     },
-    constructor: function (config) {
-        this.initConfig(config);
+    constructor: function () {
+        this.callParent(arguments);
+		this.setRenderable(true);
+    },
+    hasMaterial: function () {
+        return this.getMaterial() !== null;
     }
 });

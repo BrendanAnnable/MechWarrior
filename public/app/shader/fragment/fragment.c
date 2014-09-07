@@ -4,6 +4,7 @@ precision mediump float;
 uniform vec4 uLightPos;
 // The color of the point light, passed in by JavaScript
 uniform vec3 uLightColor;
+uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 uniform bool useLighting;
 
@@ -30,8 +31,8 @@ void main(void) {
 	vec3 ambientLighting = vec3(0.1, 0.0, 0.0);
 
 	// Directional light color and direction
-	vec3 directionalLightColor = vec3(0.2, 0.0, 0.0);
-	vec3 directionLightVector = vec3(1, 0, 0.5);
+	vec3 directionalLightColor = vec3(0.5, 0.4, 0.0);
+	vec3 directionLightVector = vec3(3.14 / 2.0, 3.14 / 2.0, 0);
 //	vec3 directionLightVector = vec3(0, 0, 0);
 
 
@@ -57,11 +58,11 @@ void main(void) {
     }
 
     if (useLighting) {
-		gl_FragColor = gl_FragColor * vec4(
-			ambientLighting
-			+ uLightColor * diffuseLightWeight
-			+ directionalLightColor * directionalLightWeight,
-		1);
+        gl_FragColor = gl_FragColor * vec4(
+            ambientLighting
+            + uLightColor * diffuseLightWeight
+            + directionalLightColor * directionalLightWeight,
+        1);
     }
 //		gl_FragColor = vec4(vNormal, 1);
 }

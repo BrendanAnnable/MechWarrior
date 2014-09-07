@@ -1,85 +1,74 @@
 /**
- * @Author Julius Sky on 3/09/2014.
+ * @author Julius Sky
+ * @author Brendan Annable
+ *
+ * The keyboard class returns keyboard events recorded from the user.
  */
-
-/*
-The keyboard class returns keyboard events recorded from the user.
- */
-
-
 Ext.define('MW.control.Keyboard', {
-    // private vars
-    transX:0,
-    transY:0,
-    transZ:0,
     // public vars. (getters/setters are created automatically by ext.js)
+	forward: 0,
+	right: 0,
+	up: 0,
     config: {
-        element: null
-//        translation: null
-
-
-
+        element: null,
+        translation: null
     },
     constructor: function (config) {
         this.initConfig(config);
-//        this.setTranslation(vec3.fromValues(0, 0, 0));
+        this.setTranslation(vec3.fromValues(0, 0, 0));
 
-        this.transX =0;
-        this.transY=0;
-        this.transZ=0;
         var element = this.getElement();
         element = Ext.get(element);
         element.on({
             keydown: this.onKeyDown,
+			keyup: this.onKeyUp,
             scope: this
         });
         this.setElement(element);
     },
-
     onKeyDown: function (event){
         // if A key is pressed, translate left
         if(event.keyCode == event.A){
-            this.transX = -10;
+            this.right = -1;
         }
         // if D key is pressed, translate right
         else if(event.keyCode == event.D){
-            this.transX = 10;
+            this.right = 1;
         }
         // if W key is pressed, translate forward
         else if(event.keyCode == event.W){
-            this.transZ = -10;
+            this.forward = -1;
         }
         // if S key is pressed, translate backward
         else if(event.keyCode == event.S){
-            this.transZ = 10;
+            this.forward = 1;
         }
-//        else if(event.keyCode == 32){
-//            console.log("spacebar pressed. jump robot jump!");
-//        }
-        else{console.log("keypressed: "+String.fromCharCode(event.keyCode))
-        }
-//        this.setTranslation(vec3.fromValues(this.transX, this.transY, this.transZ));
-
-
+		var translation = this.getTranslation();
+		translation[0] = this.right;
+		translation[1] = this.up;
+		translation[2] = this.forward;
     },
-
-    getTransX:function(){
-        return this.transX;
-    },
-
-    getTransY:function(){
-        return this.transY;
-    },
-    getTransZ:function(){
-        return this.transZ;
-    }
-
-    //TODO: fix this. i kept getting a cannot read property of undefined error, i think now that its to do with the element..?
-//    getTranslation: function(){
-//        /*
-//        * returns a vec3 from x, y z
-//        */
-
-//        return vec3.fromValues(transX, transY, transZ);
-//    }
+	onKeyUp: function (event){
+		// if A key is pressed, translate left
+		if(event.keyCode == event.A){
+			this.right = 0;
+		}
+		// if D key is pressed, translate right
+		else if(event.keyCode == event.D){
+			this.right = 0;
+		}
+		// if W key is pressed, translate forward
+		else if(event.keyCode == event.W){
+			this.forward = 0;
+		}
+		// if S key is pressed, translate backward
+		else if(event.keyCode == event.S){
+			this.forward = 0;
+		}
+		var translation = this.getTranslation();
+		translation[0] = this.right;
+		translation[1] = this.up;
+		translation[2] = this.forward;
+	}
 });
+//# sourceURL=Keyboard.js

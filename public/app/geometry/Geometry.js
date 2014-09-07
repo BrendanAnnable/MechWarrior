@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.geometry.Geometry', {
 	alias: 'Geometry',
 	config: {
@@ -5,8 +8,7 @@ Ext.define('MW.geometry.Geometry', {
 		normals: null,
 		colors: null,
 		faces: null,
-		boundingBox: null,
-		textures: null
+		boundingBox: null
 	},
 	constructor: function (config) {
 		this.initConfig(config);
