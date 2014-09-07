@@ -12,7 +12,8 @@ Ext.define('MW.game.MechWarrior', {
         'MW.util.Scene',
         'MW.game.level.Level',
         'MW.game.character.Player',
-        'MW.util.Color'
+        'MW.util.Color',
+		'MW.game.projectile.Missile'
     ],
 	player: null,
 	renderer: null,

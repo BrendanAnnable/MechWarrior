@@ -2,8 +2,11 @@
  * @author Monica Olejniczak
  */
 Ext.define('MW.game.projectile.Missile', {
-    alias: 'Projectile',
+    alias: 'Missile',
     extend: 'MW.game.projectile.Projectile',
+	requires: [
+		'MW.material.Basic',
+	],
     config: {
         width: 0,
         height: 0,
