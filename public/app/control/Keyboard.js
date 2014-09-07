@@ -10,6 +10,7 @@ Ext.define('MW.control.Keyboard', {
 	right: 0,
 	up: 0,
     config: {
+		speed: 1,
         element: null,
         translation: null
     },
@@ -77,6 +78,7 @@ Ext.define('MW.control.Keyboard', {
 		var translation = this.getTranslation();
 		vec3.set(translation, this.right, this.up, this.forward);
 		vec3.normalize(translation, translation);
+		vec3.scale(translation, translation, this.getSpeed());
 	}
 });
 //# sourceURL=Keyboard.js

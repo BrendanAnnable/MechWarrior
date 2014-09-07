@@ -32,7 +32,8 @@ Ext.define('MW.game.MechWarrior', {
         });
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
-			element: document
+			element: document,
+			speed: 2
 		});
 
 		var mouseControls = Ext.create('MW.control.Mouse', {
