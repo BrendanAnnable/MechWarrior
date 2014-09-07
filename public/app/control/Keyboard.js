@@ -27,48 +27,43 @@ Ext.define('MW.control.Keyboard', {
         this.setElement(element);
     },
     onKeyDown: function (event){
-        // if A key is pressed, translate left
-        if(event.keyCode == event.A){
-            this.right = -1;
-        }
-        // if D key is pressed, translate right
-        else if(event.keyCode == event.D){
-            this.right = 1;
-        }
-        // if W key is pressed, translate forward
-        else if(event.keyCode == event.W){
-            this.forward = -1;
-        }
-        // if S key is pressed, translate backward
-        else if(event.keyCode == event.S) {
-			this.forward = 1;
+		switch (event.keyCode) {
+			case event.A:
+				// if A key is pressed, translate left
+				this.right = -1;
+				break;
+			case event.D:
+				// if D key is pressed, translate right
+				this.right = 1;
+				break;
+			case event.W:
+				// if W key is pressed, translate forward
+				this.forward = -1;
+				break;
+			case event.S:
+					// if S key is pressed, translate backward
+				this.forward = 1;
+				break;
 		}
 		this.update();
     },
 	onKeyUp: function (event){
 		// if A key is pressed, translate left
-		if(event.keyCode == event.A){
-			this.right = 0;
-		}
-		// if D key is pressed, translate right
-		else if(event.keyCode == event.D){
-			this.right = 0;
-		}
-		// if W key is pressed, translate forward
-		else if(event.keyCode == event.W){
-			this.forward = 0;
-		}
-		// if S key is pressed, translate backward
-		else if(event.keyCode == event.S){
-			this.forward = 0;
+		switch (event.keyCode) {
+			case event.A:
+			case event.D:
+				this.right = 0;
+				break;
+			case event.S:
+			case event.W:
+				this.forward = 0;
+				break;
 		}
 		this.update();
 	},
 	update: function () {
 		var translation = this.getTranslation();
-		translation[0] = this.right;
-		translation[1] = this.up;
-		translation[2] = this.forward;
+		vec3.set(translation, this.right, this.up, this.forward);
 		vec3.normalize(translation, translation);
 	}
 });
