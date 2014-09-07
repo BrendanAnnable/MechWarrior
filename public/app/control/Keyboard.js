@@ -40,13 +40,10 @@ Ext.define('MW.control.Keyboard', {
             this.forward = -1;
         }
         // if S key is pressed, translate backward
-        else if(event.keyCode == event.S){
-            this.forward = 1;
-        }
-		var translation = this.getTranslation();
-		translation[0] = this.right;
-		translation[1] = this.up;
-		translation[2] = this.forward;
+        else if(event.keyCode == event.S) {
+			this.forward = 1;
+		}
+		this.update();
     },
 	onKeyUp: function (event){
 		// if A key is pressed, translate left
@@ -65,10 +62,14 @@ Ext.define('MW.control.Keyboard', {
 		else if(event.keyCode == event.S){
 			this.forward = 0;
 		}
+		this.update();
+	},
+	update: function () {
 		var translation = this.getTranslation();
 		translation[0] = this.right;
 		translation[1] = this.up;
 		translation[2] = this.forward;
+		vec3.normalize(translation, translation);
 	}
 });
 //# sourceURL=Keyboard.js
