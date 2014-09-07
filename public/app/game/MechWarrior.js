@@ -95,12 +95,19 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	tick: function (scene, keyboardControls, mouseControls) {
 
-		var position = this.player.getPosition();
-		mat4.translate(position, position, keyboardControls.getTranslation());
-
+		// rotate camera around target
 		this.camera.setRotation(mat4.clone(mouseControls.getPosition()));
 
+		var position = this.player.getPosition();
+		// rotate player to face camera
+		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
+		// move player according to keyboard input
+		mat4.translate(position, position, keyboardControls.getTranslation());
+
+		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
+
+		// request to render the next frame
 		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
 	}
 });

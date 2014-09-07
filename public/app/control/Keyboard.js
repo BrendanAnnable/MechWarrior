@@ -27,6 +27,7 @@ Ext.define('MW.control.Keyboard', {
         this.setElement(element);
     },
     onKeyDown: function (event){
+		var interesting = true;
 		switch (event.keyCode) {
 			case event.A:
 				// if A key is pressed, translate left
@@ -44,11 +45,17 @@ Ext.define('MW.control.Keyboard', {
 					// if S key is pressed, translate backward
 				this.forward = 1;
 				break;
+			default:
+				interesting = false;
 		}
-		this.update();
+		if (interesting) {
+			event.preventDefault();
+			this.update();
+		}
+
     },
 	onKeyUp: function (event){
-		// if A key is pressed, translate left
+		var interesting = true;
 		switch (event.keyCode) {
 			case event.A:
 			case event.D:
@@ -58,8 +65,13 @@ Ext.define('MW.control.Keyboard', {
 			case event.W:
 				this.forward = 0;
 				break;
+			default:
+				interesting = false;
 		}
-		this.update();
+		if (interesting) {
+			event.preventDefault();
+			this.update();
+		}
 	},
 	update: function () {
 		var translation = this.getTranslation();

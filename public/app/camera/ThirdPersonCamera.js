@@ -6,7 +6,7 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 	extend: 'MW.camera.PerspectiveCamera',
 	config: {
 		target: null,
-		distance: 70,
+		distance: 50,
 		rotation: null
 	},
 	constructor: function (config) {
@@ -20,15 +20,11 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 		// translate to target's position, ignoring it's rotation
 		mat4.copyTranslation(position, target.getPosition());
 
+		// rotate camera around target
 		mat4.multiply(position, position, this.getRotation());
-		mat4.translate(position, position, [0, 0, this.getDistance()]);
 
-//		var lookAt = mat4.create();
-//		var eye = vec4.fromMat4(position).subarray(0, 3);
-//		var center = vec4.fromMat4(target.getPositionInverse()).subarray(0, 3);
-//		mat4.lookAt(lookAt, eye, center, [0, 1, 0]);
-//		mat4.othoNormalInvert(lookAt, lookAt);
-//		mat4.multiply(position, position, lookAt);
+		// translate 'distance' away from target
+		mat4.translate(position, position, [0, 0, this.getDistance()]);
 
 		return position;
 	}
