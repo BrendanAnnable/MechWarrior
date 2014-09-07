@@ -1,14 +1,22 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.control.Mouse', {
-	lastX: null,
-	lastY: null,
+	pitch: 0,
+	yaw: 0,
+	matrix: null,
+	matrixInverse: null,
+	matrixDirty: true,
+	matrixInverseDirty: true,
+	locked: false,
 	config: {
 		sensitivity: 0.01,
 		element: null,
 		rotation: null,
 		pitch: 0,
 		yaw: 0,
-		maxPitch: Math.PI / 2 - 0.01,
-		minPitch: -Math.PI / 2 + 0.01
+		maxPitch: -Math.PI / 2 - 0.01,
+		minPitch: Math.PI / 2 + 0.01
 	},
 	constructor: function (config) {
 		this.initConfig(config);
@@ -16,42 +24,77 @@ Ext.define('MW.control.Mouse', {
 
 		var element = this.getElement();
 		element = Ext.get(element);
+		var dom = element.dom;
+
 		element.on({
 			mousemove: this.onMouseMove,
+			click: this.onMouseClick,
 			scope: this
 		});
+
+		dom.addEventListener('click', Ext.bind(this.onMouseClick, this));
+		document.addEventListener('pointerlockchange', Ext.bind(this.pointerLockChange, this), false);
+		document.addEventListener('mozpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
+		document.addEventListener('webkitpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
+
 		this.setElement(element);
+		this.matrix = mat4.create();
+		this.matrixInverse = mat4.create();
 	},
-	getYawRotation: function () {
-		return mat4.createRotateY(this.getYaw());
+	pointerLockChange: function () {
+		var element = this.getElement();
+		var dom = element.dom;
+		this.locked = (
+			document.pointerLockElement === dom ||
+			document.mozPointerLockElement === dom ||
+			document.webkitPointerLockElement === dom
+		);
 	},
-	getPitchRotation: function () {
-		return mat4.createRotateX(this.getPitch());
+	getPosition: function () {
+		var matrix = this.matrix;
+		if (this.matrixDirty) {
+			mat4.identity(matrix);
+			mat4.rotateY(matrix, matrix, this.yaw);
+			mat4.rotateX(matrix, matrix, this.pitch);
+			this.matrixDirty = false;
+		}
+		return matrix;
+	},
+	getPositionInverse: function () {
+		var position = this.getPosition();
+		if (this.matrixInverseDirty) {
+			mat4.othoNormalInvert(this.matrixInverse, position);
+		}
+		return this.matrixInverse;
+	},
+	getYaw: function () {
+		return this.yaw;
+	},
+	getPitch: function () {
+		return this.pitch;
+	},
+	onMouseClick: function (event, dom) {
+		if (!this.locked) {
+			var element = this.getElement();
+			var dom = element.dom;
+			dom.requestPointerLock = dom.requestPointerLock || dom.mozRequestPointerLock || dom.webkitRequestPointerLock;
+			dom.requestPointerLock();
+		}
 	},
 	onMouseMove: function (event) {
-		var x = event.getX();
-		var y = event.getY();
+		if (this.locked) {
+			var e = event.event;
+			var movementX = e.movementX || e.mozMovementX || e.webkitMovementX || 0;
+			var movementY = e.movementY || e.mozMovementY || e.webkitMovementY || 0;
+			var sensitivity = this.getSensitivity();
 
-		if (this.lastX === null) {
-			this.lastX = x;
+			this.pitch -= movementY * sensitivity;
+			this.pitch = Math.max(Math.min(this.pitch, this.getMinPitch()), this.getMaxPitch());
+			this.yaw -= movementX * sensitivity;
+
+			this.matrixDirty = true;
+			this.matrixInverseDirty = true;
 		}
-		if (this.lastY === null) {
-			this.lastY = y;
-		}
-
-		var diffX = this.lastX - x;
-		var diffY = this.lastY - y;
-		var pitch = this.getPitch();
-		var yaw = this.getYaw();
-		var sensitivity = this.getSensitivity();
-
-		pitch -= diffY * sensitivity;
-		pitch = Math.min(Math.max(pitch, this.getMinPitch()), this.getMaxPitch());
-		yaw -= diffX * sensitivity;
-
-		this.setYaw(yaw);
-		this.setPitch(pitch);
-		this.lastX = x;
-		this.lastY = y;
 	}
 });
+//# sourceURL=Mouse.js

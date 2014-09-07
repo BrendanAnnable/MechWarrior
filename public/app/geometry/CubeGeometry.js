@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('MW.geometry.CubeGeometry', {
     extend: 'MW.geometry.Geometry',
     alias: 'CubeGeometry',

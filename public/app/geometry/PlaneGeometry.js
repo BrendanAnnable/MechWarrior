@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.geometry.PlaneGeometry', { //define: makes class, create: makes instance
 	extend: 'MW.geometry.Geometry',
 	alias: 'PlaneGeometry',
