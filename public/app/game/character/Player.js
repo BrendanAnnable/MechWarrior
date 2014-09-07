@@ -5,14 +5,25 @@
 Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
+	mixins: {
+		physics: 'MW.mixin.DynamicObject'
+	},
     requires: [
         'MW.loader.Model',
         'MW.material.Phong',
         'MW.util.Color'
     ],
     config: {
-        health: 1000
+        health: 1000,
+		mass: 40
     },
+	constructor: function (config) {
+		this.callParent(arguments);
+		this.mixins.physics.constructor.call(this, config);
+	},
+	getPosition: function () {
+		return this.getDynamicPosition();
+	},
     load: function (url, callback, thisArg) {
         Ext.create('MW.loader.Model').load(url, function (mesh) {
             this.setName(mesh.name);

@@ -5,6 +5,9 @@
  * The keyboard class returns keyboard events recorded from the user.
  */
 Ext.define('MW.control.Keyboard', {
+	mixins: {
+		observable: 'Ext.util.Observable'
+	},
 	keyMap: null,
 	translation: null,
 	needsUpdate: true,
@@ -14,10 +17,12 @@ Ext.define('MW.control.Keyboard', {
 		forwardKey: 'W'.charCodeAt(0),
 		leftKey: 'A'.charCodeAt(0),
 		backwardKey: 'S'.charCodeAt(0),
-		rightKey: 'D'.charCodeAt(0)
+		rightKey: 'D'.charCodeAt(0),
+		jumpKey: ' '.charCodeAt(0)
     },
     constructor: function (config) {
         this.initConfig(config);
+		this.mixins.observable.constructor.call(this, config);
         this.translation = vec3.fromValues(0, 0, 0);
 		this.keyMap = {};
 
@@ -33,6 +38,9 @@ Ext.define('MW.control.Keyboard', {
     onKeyDown: function (event){
 		// register key as down
 		this.keyMap[event.keyCode] = Date.now();
+		if (event.keyCode === this.getJumpKey()) {
+			this.fireEvent('jump');
+		}
 		this.needsUpdate = true;
     },
 	onKeyUp: function (event) {

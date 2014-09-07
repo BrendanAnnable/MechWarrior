@@ -75,6 +75,12 @@ Ext.define('MW.game.MechWarrior', {
 	                target: vec3.fromValues(0, 10, 50)
                 });
 	            level.addProjectile(projectile);
+
+				keyboardControls.on('jump', function () {
+					var velocity = player.getVelocity();
+					velocity[1] = 200;
+				});
+
                 // Start the animation loop
                 this.tick(level, keyboardControls, mouseControls);
             }, this);
