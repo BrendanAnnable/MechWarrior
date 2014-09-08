@@ -14,7 +14,7 @@ Ext.define('MW.buffer.Texture', {
     constructor: function (gl, mesh) {
         if (mesh.hasMaterial()) {
             var material = mesh.getMaterial();
-            if (material.hasTexture()) {
+            if (material.hasTexture() || material.hasEnvironmentMap()) {
                 var textureBuffer = gl.createBuffer();
                 gl.bindBuffer(gl.ARRAY_BUFFER, textureBuffer);
                 var textureCoordinates = mesh.getGeometry().getFlattenedTextureCoordinates();

@@ -29,5 +29,13 @@ Ext.define('MW.material.Material', {
      */
     hasTexture: function () {
         return this.hasConfig('texture') && this.getTexture() !== null;
-    }
+    },
+	/**
+	 * Checks whether the material contains an environment map.
+	 *
+	 * @returns {*|boolean}
+	 */
+	hasEnvironmentMap: function () {
+		return this.hasConfig('environmentMap') && this.getEnvironmentMap() !== null;
+	}
 });

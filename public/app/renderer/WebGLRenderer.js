@@ -139,12 +139,22 @@ Ext.define('MW.renderer.WebGLRenderer', {
 
             if (useTexture) {
                 var texture = material.getTexture();
-                if (texture.isLoaded() && object.textureBuffer.texture === undefined) {
+                if (texture !== null && texture.isLoaded() && object.textureBuffer.texture === undefined) {
                     this.loadTexture(gl, object, texture);
                 }
             }
 
-			if (useTexture && texture.isLoaded()) {
+			if (material.hasEnvironmentMap()) {
+				var environmentMap = material.getEnvironmentMap();
+				if (!environmentMap.isLoaded()) {
+					this.loadEnvironmentMap(gl, object, environmentMap);
+					environmentMap.setLoaded(true);
+				}
+				this.applyEnvironmentMap(gl, object, shaderProgram);
+				gl.uniform1i(shaderProgram.useTextureUniform, 1);
+			}
+
+			if (useTexture && texture !== null && texture.isLoaded()) {
                 this.applyTexture(gl, object, shaderProgram);
                 gl.uniform1i(shaderProgram.useTextureUniform, 1);
 			} else {
@@ -216,7 +226,6 @@ Ext.define('MW.renderer.WebGLRenderer', {
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, textureBuffer.texture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
-
     },
     /**
      * Loads a texture into WebGL
@@ -244,6 +253,62 @@ Ext.define('MW.renderer.WebGLRenderer', {
         gl.bindTexture(gl.TEXTURE_2D, null);
         object.textureBuffer.texture = glTexture;
     },
+	/**
+	 * Applies an environment map to an object.
+	 *
+	 * @param gl The WebGL context
+	 * @param object The object to render
+	 * @param shaderProgram The WebGL shader program
+	 */
+	applyEnvironmentMap: function (gl, object, shaderProgram) { // todo too tired to fix dis
+		var texture = object.texture;
+		var faces = object.faces;
+		for (var i = 0; i < faces.length; i++) {
+			var face = faces[i][1];
+			var image = new Image();
+			image.onload = function (texture, face, image) {
+				return function () {
+					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+					gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+					gl.uniform1i(shaderProgram.samplerUniform, 0);
+				}
+			} (texture, face, image);
+		}
+	},
+	/**
+	 * Loads an environment map into WebGL.
+	 *
+	 * @param gl The WebGL context
+	 * @param object The object to load the environment map for
+	 * @param map The map to be loaded
+	 */
+	loadEnvironmentMap: function (gl, object, map) {
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		object.faces = [[map.getRightUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+			[map.getLeftUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+			[map.getTopUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+			[map.getBottomUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+			[map.getBackUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+			[map.getFrontUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]];
+		/*for (var i = 0; i < faces.length; i++) {
+			var face = faces[i][1];
+			var image = new Image();
+			image.onload = function (texture, face, image) {
+				return function () {
+					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+					gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+				}
+			} (texture, face, image);
+		} */
+		object.texture = texture;
+	},
 	/**
 	 * Updates the uniform constants given to WebGL
 	 *
