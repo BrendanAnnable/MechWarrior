@@ -6,7 +6,11 @@ Ext.define('MW.buffer.Buffer', {
     config: {
         buffer: null
     },
-    constructor: function (config) {
+	statics: {
+		VERTEX_DIMENSION: 3,
+		TEXTURE_DIMENSION: 2
+	},
+	constructor: function (config) {
         this.initConfig(config);
     }
 });

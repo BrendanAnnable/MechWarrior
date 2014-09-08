@@ -10,7 +10,8 @@ Ext.define('MW.renderer.WebGLRenderer', {
         'MW.buffer.Vertex',
         'MW.buffer.Normal',
         'MW.buffer.Face',
-        'MW.buffer.Texture'
+        'MW.buffer.Texture',
+	    'MW.buffer.Environment'
     ],
 	config: {
 		gl: null,
@@ -133,18 +134,19 @@ Ext.define('MW.renderer.WebGLRenderer', {
 		if (object.isRenderable()) {
 			this.bindBuffers(gl, object, shaderProgram);
 			var useTexture = object.textureBuffer !== null;
+			var useEnvironmentMap = object.environmentMapBuffer !== null;
             var material = object.getMaterial();
 
             gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
 
             if (useTexture) {
-                var texture = material.getTexture();
-                if (texture !== null && texture.isLoaded() && object.textureBuffer.texture === undefined) {
-                    this.loadTexture(gl, object, texture);
-                }
+	            var texture = material.getTexture();
+	            if (texture !== null && texture.isLoaded() && object.textureBuffer.texture === undefined) {
+		            object.textureBuffer.texture = this.loadTexture(gl, object, texture);
+	            }
             }
 
-			if (material.hasEnvironmentMap()) {
+			if (useEnvironmentMap) {
 				var environmentMap = material.getEnvironmentMap();
 				if (!environmentMap.isLoaded()) {
 					this.loadEnvironmentMap(gl, object, environmentMap);
@@ -204,10 +206,11 @@ Ext.define('MW.renderer.WebGLRenderer', {
         if (object.vertexBuffer === undefined) {
             // attach the buffers to the current child object
             var geometry = object.getGeometry();
-            object.vertexBuffer = Ext.create('MW.buffer.Vertex', gl, geometry).getBuffer();
-            object.normalBuffer = Ext.create('MW.buffer.Normal', gl, geometry).getBuffer();
-            object.faceBuffer = Ext.create('MW.buffer.Face', gl, geometry).getBuffer();
-            object.textureBuffer = Ext.create('MW.buffer.Texture', gl, object).getBuffer();
+            object.vertexBuffer = Ext.create('MW.buffer.Vertex').load(gl, geometry);
+            object.normalBuffer = Ext.create('MW.buffer.Normal').load(gl, geometry);
+            object.faceBuffer = Ext.create('MW.buffer.Face').load(gl, geometry);
+            object.textureBuffer = Ext.create('MW.buffer.Texture').load(gl, object);
+	        object.environmentMapBuffer = Ext.create('MW.buffer.Environment').load(gl, object);
         }
     },
     /**
@@ -240,18 +243,16 @@ Ext.define('MW.renderer.WebGLRenderer', {
         gl.bindTexture(gl.TEXTURE_2D, glTexture);
         gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glTexture.image);
-	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-	    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 	    if (texture.isRepeatable()) {
 		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
 		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
 	    } else {
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 	    }
 	    gl.generateMipmap(gl.TEXTURE_2D);
         gl.bindTexture(gl.TEXTURE_2D, null);
-        object.textureBuffer.texture = glTexture;
+        return glTexture;
     },
 	/**
 	 * Applies an environment map to an object.
