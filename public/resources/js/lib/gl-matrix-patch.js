@@ -162,6 +162,8 @@ mat4.othoNormalInvert = function(out, a){
 	out[13] = -tInv[1];
 	out[14] = -tInv[2];
 	out[15] = a33;
+
+	return out;
 };
 
 mat4.getRotationSubMatrix = function (out, a) {

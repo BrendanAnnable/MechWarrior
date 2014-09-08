@@ -66,12 +66,12 @@ Ext.define('MW.game.MechWarrior', {
             player.load('face.json', function () {
                 level.addPlayer(player);
 	            var position = mat4.create();
-	            mat4.translate(position, position, vec3.fromValues(-20, 0, 40));
+	            mat4.translate(position, position, vec3.fromValues(-30, -10, -40));
                 var projectile = Ext.create('MW.game.projectile.Missile', {
                     width: 1,
                     height: 1,
                     depth: 1,
-	                velocity: 10,
+	                velocity: 2,
 	                position: position,
 	                target: vec3.fromValues(0, 10, 50)
                 });

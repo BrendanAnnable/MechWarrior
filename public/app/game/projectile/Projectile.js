@@ -9,9 +9,6 @@ Ext.define('MW.game.projectile.Projectile', {
 	vz: 0,                      // The z component of the initial velocity
 	position: null,             // The initial position of the projectile
 	direction: null,            // The direction vector of the projectile
-	directionCosineX: null,     // The x component of the directional cosine
-	directionCosineY: null,     // The y component of the directional cosine
-	directionCosineZ: null,     // The z component of the directional cosine
 	config: {
 		target: null,           // The target point derived from the mouse coordinates
 		acceleration: null,     // The rate at which the velocity of an object changes over time
@@ -28,18 +25,16 @@ Ext.define('MW.game.projectile.Projectile', {
 		var position = this.config.position;                            // get the position from the config
 		var a = this.getTarget();                                       // get the target point for the projectile
 		var b = mat4.getTranslationSubMatrix(vec3.create(), position);  // get the translation from the position
-		var direction = vec3.subtract(vec3.create(), a, b);             // calculate the direction vector
-		var directionCosineX = vec3.directionCosineX(direction);        // calculate the x direction cosine component
-		var directionCosineY = vec3.directionCosineY(direction);        // calculate the y direction cosine component
-		var directionCosineZ = vec3.directionCosineZ(direction);        // calculate the z direction cosine component
-		this.vx = velocity * directionCosineX;                          // calculate the x component in velocity
-		this.vy = velocity * directionCosineY;                          // calculate the y component in velocity
-		this.vz = velocity * directionCosineZ;                          // calculate the z component in velocity
+
+		this.vx = velocity * Math.cos(45 * Math.PI / 180);                          // calculate the x component in velocity
+		this.vy = velocity * Math.sin(45 * Math.PI / 180);                          // calculate the y component in velocity
+		this.vz = 0;//velocity * directionCosineZ;                          // calculate the z component in velocity
+
 		this.position = position;                                       // assign the private position variable
-		this.direction = direction;                                     // assign the direction variable
-		this.directionCosineX = directionCosineX;                       // assign the direction cosine x variable
-		this.directionCosineY = directionCosineY;                       // assign the direction cosine y variable
-		this.directionCosineZ = directionCosineZ;                       // assign the direction cosine z variable
+		var direction = vec3.fromValues(-1, 0, -1);
+		var angle = Math.atan2(direction[2], direction[0]);
+		var rot = mat4.othoNormalInvert(mat4.create(), mat4.createRotateY(angle));
+		mat4.multiply(this.position, this.position, rot);
 	},
 	/**
 	 * Override the getPosition accessor method for a projectile object
@@ -73,7 +68,8 @@ Ext.define('MW.game.projectile.Projectile', {
 	 * @returns {number}
 	 */
 	getYComponent: function (t, g) {
-		return (this.vy * t) + (0.5 * g * t * t);
+		debugger;
+		return this.vy * t + 0.5 * g * t * t;
 	},
 	/**
 	 * Calculates and returns the z component of the projectile at time t.
