@@ -18,7 +18,7 @@ Ext.define('MW.control.Keyboard', {
 		leftKey: 'A'.charCodeAt(0),
 		backwardKey: 'S'.charCodeAt(0),
 		rightKey: 'D'.charCodeAt(0),
-		jumpKey: ' '.charCodeAt(0)
+		spaceKey: ' '.charCodeAt(0)
     },
     constructor: function (config) {
         this.initConfig(config);
@@ -38,8 +38,8 @@ Ext.define('MW.control.Keyboard', {
     onKeyDown: function (event){
 		// register key as down
 		this.keyMap[event.keyCode] = Date.now();
-		if (event.keyCode === this.getJumpKey()) {
-			this.fireEvent('jump');
+		if (event.keyCode === this.getSpaceKey()) {
+			this.fireEvent('space');
 		}
 		this.needsUpdate = true;
     },

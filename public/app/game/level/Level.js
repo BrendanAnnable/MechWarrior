@@ -29,11 +29,12 @@ Ext.define('MW.game.level.Level', {
             height: height
         });
         floor.translate(0, -40, 0);
+	    var scale = 2;
         var skybox = Ext.create('MW.game.level.Skybox', {
             name: 'skybox',
-            width: width,
-            height: height,
-            depth: depth
+            width: width * scale,
+            height: height * scale,
+            depth: depth * scale
         });
         this.setSkybox(skybox);
         this.setFloor(floor);
