@@ -6,6 +6,7 @@ Ext.define('MW.material.Phong', {
     extend: 'MW.material.Material',
     config: {
         texture: null,
+        environmentMap: null,
         ambient: null,          // todo support
         specular: null,         // todo support
         shininess: null,        // todo support

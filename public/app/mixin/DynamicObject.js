@@ -25,12 +25,8 @@ Ext.define('MW.mixin.DynamicObject', {
 		var time = (now - this.lastTime) / 1000;
 
 		var lastAcceleration = vec3.clone(acceleration);
-
-		var a = vec3.create();
-		vec3.scale(a, lastAcceleration, (time * time) / 2);
-
-		var b = vec3.create();
-		vec3.scale(b, velocity, time);
+		var a = vec3.scale(vec3.create(), lastAcceleration, (time * time) / 2);
+		var b = vec3.scale(vec3.create(), velocity, time);
 
 		vec3.add(a, a, b);
 		mat4.translate(position, position, a);
@@ -41,13 +37,9 @@ Ext.define('MW.mixin.DynamicObject', {
 		}
 
 		vec3.scale(acceleration, force, mass);
-
-		var avg = vec3.create();
-		vec3.add(avg, lastAcceleration, acceleration);
+        var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
 		vec3.scale(avg, avg, 1 / 2);
-
-		var c = vec3.create();
-		vec3.scale(c, avg, time);
+		var c = vec3.scale(vec3.create(), avg, time);
 		vec3.add(velocity, velocity, c);
 
 		this.lastTime = now;
