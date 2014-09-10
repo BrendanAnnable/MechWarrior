@@ -24,7 +24,7 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 		mat4.multiply(position, position, this.getRotation());
 
 		// translate 'distance' away from target
-		mat4.translate(position, position, [0, 0, this.getDistance()]);
+		mat4.translate(position, position, [15, 0, this.getDistance()]);
 
 		return position;
 	}
