@@ -36,7 +36,7 @@ Ext.define('MW.geometry.PlaneGeometry', { //define: makes class, create: makes i
 		]);
 	},
 	getFlattenedTextureCoordinates: function () {
-		var scale = 10; // todo find better scale
+		var scale = 5; // todo find better scale
 		return new Float32Array([scale, scale, -scale, scale, -scale, -scale, scale, -scale]);
 	}
 });

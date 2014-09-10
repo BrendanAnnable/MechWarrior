@@ -133,8 +133,8 @@ Ext.define('MW.renderer.WebGLRenderer', {
 
 		if (object.isRenderable()) {
 			this.bindBuffers(gl, object, shaderProgram);
-			var useTexture = object.textureBuffer !== null;
-			var useEnvironmentMap = object.environmentMapBuffer !== null;
+			var useTexture = object.textureBuffer !== undefined;
+			var useEnvironmentMap = object.environmentMapBuffer !== undefined;
             var material = object.getMaterial();
 
             gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
@@ -148,15 +148,15 @@ Ext.define('MW.renderer.WebGLRenderer', {
 
 			if (useEnvironmentMap) {
 				var environmentMap = material.getEnvironmentMap();
-				if (!environmentMap.isLoaded()) {
-					this.loadEnvironmentMap(gl, object, environmentMap);
-					environmentMap.setLoaded(true);
+				if (environmentMap.isLoaded()) {
+					if (object.texture === undefined) {
+						this.loadEnvironmentMap(gl, object, environmentMap);
+					}
+					this.applyEnvironmentMap(gl, object, shaderProgram);
+					gl.uniform1i(shaderProgram.useTextureUniform, 1);
 				}
-				this.applyEnvironmentMap(gl, object, shaderProgram);
-				gl.uniform1i(shaderProgram.useTextureUniform, 1);
 			}
-
-			if (useTexture && texture !== null && texture.isLoaded()) {
+			else if (useTexture && texture !== null && texture.isLoaded()) {
                 this.applyTexture(gl, object, shaderProgram);
                 gl.uniform1i(shaderProgram.useTextureUniform, 1);
 			} else {
@@ -209,8 +209,15 @@ Ext.define('MW.renderer.WebGLRenderer', {
             object.vertexBuffer = Ext.create('MW.buffer.Vertex').load(gl, geometry);
             object.normalBuffer = Ext.create('MW.buffer.Normal').load(gl, geometry);
             object.faceBuffer = Ext.create('MW.buffer.Face').load(gl, geometry);
-            object.textureBuffer = Ext.create('MW.buffer.Texture').load(gl, object);
-	        object.environmentMapBuffer = Ext.create('MW.buffer.Environment').load(gl, object);
+			if (object.hasMaterial()) {
+				var material = object.getMaterial();
+				if (material.hasTexture()) {
+					object.textureBuffer = Ext.create('MW.buffer.Texture').load(gl, object);
+				}
+				if (material.hasEnvironmentMap()) {
+					object.environmentMapBuffer = Ext.create('MW.buffer.Environment').load(gl, object);
+				}
+			}
         }
     },
     /**
@@ -262,20 +269,7 @@ Ext.define('MW.renderer.WebGLRenderer', {
 	 * @param shaderProgram The WebGL shader program
 	 */
 	applyEnvironmentMap: function (gl, object, shaderProgram) { // todo too tired to fix dis
-		var texture = object.texture;
-		var faces = object.faces;
-		for (var i = 0; i < faces.length; i++) {
-			var face = faces[i][1];
-			var image = new Image();
-			image.onload = function (texture, face, image) {
-				return function () {
-					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-					gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-					gl.uniform1i(shaderProgram.samplerUniform, 0);
-				}
-			} (texture, face, image);
-		}
+		gl.uniform1i(shaderProgram.samplerUniform, 0); // ??
 	},
 	/**
 	 * Loads an environment map into WebGL.
@@ -291,24 +285,26 @@ Ext.define('MW.renderer.WebGLRenderer', {
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		object.faces = [[map.getRightUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_X],
-			[map.getLeftUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-			[map.getTopUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-			[map.getBottomUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
-			[map.getBackUrl(), gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
-			[map.getFrontUrl(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]];
-		/*for (var i = 0; i < faces.length; i++) {
-			var face = faces[i][1];
-			var image = new Image();
-			image.onload = function (texture, face, image) {
-				return function () {
-					gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-					gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-					gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-				}
-			} (texture, face, image);
-		} */
+
+		object.faces = [
+			[map.getRightImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_X],
+			[map.getLeftImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
+			[map.getTopImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+			[map.getBottomImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+			[map.getBackImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
+			[map.getFrontImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
+		];
 		object.texture = texture;
+
+		var faces = object.faces;
+		for (var i = 0; i < faces.length; i++) {
+			var image = faces[i][0];
+			var face = faces[i][1];
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+			gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+		}
 	},
 	/**
 	 * Updates the uniform constants given to WebGL
