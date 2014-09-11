@@ -38,8 +38,8 @@ Ext.define('MW.game.MechWarrior', {
 		});
 
 		var mouseControls = Ext.create('MW.control.Mouse', {
-			element: canvas,
-			minPitch: Math.PI / 16
+			element: canvas
+//			minPitch: Math.PI / 16
 		});
 
 		// Setup WebGL
@@ -53,13 +53,13 @@ Ext.define('MW.game.MechWarrior', {
             b: 0,
             a: 1
         });
+//		gl = WebGLDebugUtils.makeDebugContext(gl);
 		this.renderer = Ext.create('MW.renderer.WebGLRenderer', {
             gl: gl,
             width: canvas.width,
             height: canvas.height,
             backgroundColor: backgroundColor
 		}).on('loaded', function () {
-            //gl = WebGLDebugUtils.makeDebugContext(gl);
             // load the player model and add it to the scene
             var player = Ext.create('MW.game.character.Player');
             this.camera.setTarget(player);

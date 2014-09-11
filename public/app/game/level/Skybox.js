@@ -6,7 +6,7 @@ Ext.define('MW.game.level.Skybox', {
 	extend: 'MW.object.Mesh',
     requires: [
         'MW.geometry.CubeGeometry',
-        'MW.loader.Texture'
+        'MW.loader.CubeMap'
     ],
     config: {
         width: 0,
@@ -18,6 +18,7 @@ Ext.define('MW.game.level.Skybox', {
 	 */
 	constructor: function (config) {
 		this.callParent(arguments);
+
 		// create the cube mesh and negate its normals so the texture can be applied to the interior of the cube
 		var geometry = Ext.create('MW.geometry.CubeGeometry', {
 			width: this.getWidth(),
@@ -25,13 +26,24 @@ Ext.define('MW.game.level.Skybox', {
 			depth: this.getDepth()
 		});
 		geometry.negateNormals();
-		// create and load the texture from the specified source
+		var material = Ext.create('MW.material.Phong', {
+			environmentMap: Ext.create('MW.loader.CubeMap', {
+				topUrl: "/resources/image/skybox/top.png",
+				rightUrl: "/resources/image/skybox/right.png",
+				bottomUrl: "/resources/image/skybox/bottom.png",
+				leftUrl: "/resources/image/skybox/left.png",
+				frontUrl: "/resources/image/skybox/front.png",
+				backUrl: "/resources/image/skybox/back.png"
+			}),
+			useLighting: false
+		});
+		/*// create and load the texture from the specified source
 		var material = Ext.create('MW.material.Phong', {
             texture: Ext.create('MW.loader.Texture', {
                 url: "/resources/image/texture.png"
             }),
             useLighting: false
-        });
+        });*/
 		// create the mesh with the newly created geometry and material
 		this.setGeometry(geometry);
 		this.setMaterial(material);

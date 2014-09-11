@@ -12,7 +12,8 @@ uniform bool useTexture;
 
 // Varying variables which are linearly interpolated and given to the fragment shader
 //varying vec4 vColor;
-varying vec3 vPosition;
+varying vec3 vRawPosition;
+varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 varying highp vec2 vTextureCoord;
@@ -21,16 +22,17 @@ void main(void) {
  //	vColor = aVertexColor;
 
  	// Convert position to eye-space
- 	vPosition = vec3(uMVMatrix * vec4(aVertexPosition, 1.0));
+ 	vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
+ 	vRawPosition = aVertexPosition;
 
  	// Convert normal to eye-space
- 	vNormal = vec3(uMVMatrix * vec4(aVertexNormal, 0.0));
+ 	vNormal = uNMatrix * aVertexNormal;
 
  	// Default color to white
  	vColor = vec4(1, 1, 1, 1);
 
  	// Convert position to clip-space
- 	gl_Position = uPMatrix * vec4(vPosition, 1.0);
+ 	gl_Position = uPMatrix * vPosition;
     if (useTexture) {
         vTextureCoord = aTextureCoord;
     }
