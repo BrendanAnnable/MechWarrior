@@ -15,7 +15,7 @@ Ext.define('MW.game.character.Player', {
     ],
     config: {
         health: 1000,
-		mass: 40
+		mass: 50
     },
 	constructor: function (config) {
 		this.callParent(arguments);

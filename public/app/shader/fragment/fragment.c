@@ -7,6 +7,7 @@ uniform vec3 uLightColor;
 uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 uniform bool useLighting;
+uniform bool useEnvironmentMap;
 
 // The linearly interpolated values from the vertex shader
 varying vec3 vPosition;
@@ -16,16 +17,17 @@ varying vec4 vColor;
 // textures
 varying highp vec2 vTextureCoord;
 uniform sampler2D uSampler;
+uniform samplerCube uEnvironmentMap;
 
 void main(void) {
 	// normalize the normal as the interpolated value may not be of unit length
 	vec3 normal = normalize(vNormal);
 
-	if (!gl_FrontFacing) {
+	/*if (!gl_FrontFacing) {
 		// flip the normal if we're lighting the back of the surface
 		// Note: This will likely be disabled once we get non-hollow objects
 		normal = -normal;
-	}
+	}*/
 
 	// Ambient lighting colour and intensity
 	vec3 ambientLighting = vec3(0.1, 0.0, 0.0);
@@ -51,7 +53,9 @@ void main(void) {
 	float directionalLightWeight = max(dot(normal, normalize(directionLightVector)), 0.0);
 
     // Colour the pixel based on the original colour and the various lighting factors
-	if (useTexture) {
+    if (useEnvironmentMap) {
+        gl_FragColor = textureCube(uEnvironmentMap, normalize(vPosition));
+    } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     } else {
     	gl_FragColor = vColor;
@@ -61,8 +65,9 @@ void main(void) {
         gl_FragColor = gl_FragColor * vec4(
             ambientLighting
             + uLightColor * diffuseLightWeight
-            + directionalLightColor * directionalLightWeight,
-        1);
+            + directionalLightColor * directionalLightWeight
+        , 1);
     }
-//		gl_FragColor = vec4(vNormal, 1);
+
+//	gl_FragColor = vec4(vNormal, 1);
 }

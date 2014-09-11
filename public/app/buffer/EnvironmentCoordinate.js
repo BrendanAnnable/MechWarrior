@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.buffer.Environment', {
+Ext.define('MW.buffer.EnvironmentCoordinate', {
 	extend: 'MW.buffer.Buffer',
 	constructor: function () {
 		this.callParent(arguments);
@@ -18,11 +18,11 @@ Ext.define('MW.buffer.Environment', {
 			var material = mesh.getMaterial();
 			if (material.hasEnvironmentMap()) {
 				var environmentBuffer = gl.createBuffer();
-				var vertices = mesh.getGeometry().getVertices();
 				gl.bindBuffer(gl.ARRAY_BUFFER, environmentBuffer);
-				gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
-				environmentBuffer.itemSize = this.superclass.self.VERTEX_DIMENSION;
-				environmentBuffer.numItems = vertices.length / environmentBuffer.itemSize;
+				var textureCoordinates = mesh.getGeometry().getFlattenedTextureCoordinates();
+				gl.bufferData(gl.ARRAY_BUFFER, textureCoordinates, gl.STATIC_DRAW);
+				environmentBuffer.itemSize = this.superclass.self.TEXTURE_DIMENSION;
+				environmentBuffer.numItems = textureCoordinates.length / environmentBuffer.itemSize;
 				this.setBuffer(environmentBuffer);
 				return environmentBuffer;
 			}

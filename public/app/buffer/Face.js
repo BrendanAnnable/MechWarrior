@@ -20,7 +20,7 @@ Ext.define('MW.buffer.Face', {
         var faces = geometry.getFlattenedFaces();
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, faces, gl.STATIC_DRAW);
         faceBuffer.itemSize = this.superclass.self.VERTEX_DIMENSION;
-        faceBuffer.numItems = faces.length / faceBuffer.itemSize;
+        faceBuffer.numItems = faces.length;
         this.setBuffer(faceBuffer);
 		return faceBuffer;
     }

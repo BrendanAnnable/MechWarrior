@@ -2,7 +2,7 @@
  * @author Brendan Annable
  * @author Monica Olejniczak
  */
-Ext.define('MW.buffer.Texture', {
+Ext.define('MW.buffer.TextureCoordinate', {
     extend: 'MW.buffer.Buffer',
 	constructor: function () {
 		this.callParent(arguments);

@@ -40,7 +40,8 @@ Ext.define('MW.game.level.Level', {
         this.setPlayers([]);
         this.setObstacles([]);
         this.setProjectiles([]);
-        this.setChildren([floor, skybox]);
+		this.addChild(floor);
+		this.addChild(skybox);
     },
     /**
      * Adds a player to the level.
