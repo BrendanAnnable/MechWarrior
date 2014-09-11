@@ -10,7 +10,8 @@ uniform bool useLighting;
 uniform bool useEnvironmentMap;
 
 // The linearly interpolated values from the vertex shader
-varying vec3 vPosition;
+varying vec3 vRawPosition;
+varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 
@@ -41,7 +42,7 @@ void main(void) {
 	// Point light
 
 	// Calculate the intensity of the point light per-pixel
-	vec3 pointLightDirection = normalize(uLightPos.xyz - vPosition);
+	vec3 pointLightDirection = normalize(uLightPos.xyz - vPosition.xyz);
 	// Based on the angle of the normal of the point and the direction of the light source
 	float diffuseLightWeight = max(dot(normal, pointLightDirection), 0.0);
 
@@ -54,9 +55,10 @@ void main(void) {
 
     // Colour the pixel based on the original colour and the various lighting factors
     if (useEnvironmentMap) {
-        gl_FragColor = textureCube(uEnvironmentMap, normalize(vPosition));
+        gl_FragColor = textureCube(uEnvironmentMap, vRawPosition);
     } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+        gl_FragColor = textureCube(uEnvironmentMap, );
     } else {
     	gl_FragColor = vColor;
     }

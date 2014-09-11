@@ -38,8 +38,8 @@ Ext.define('MW.game.MechWarrior', {
 		});
 
 		var mouseControls = Ext.create('MW.control.Mouse', {
-			element: canvas,
-			minPitch: Math.PI / 16
+			element: canvas
+//			minPitch: Math.PI / 16
 		});
 
 		// Setup WebGL
