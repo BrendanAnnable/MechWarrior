@@ -24,12 +24,12 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param canvas the HTML5 canvas
 	 */
 	constructor: function (canvas) {
-		// Initialize the scene and the mouse controls
+		// Initialize the scene and the keyboard and mouse controls
         var level = Ext.create('MW.game.level.Level', {
             name: 'Level 1',
-            width: 1000,
-            height: 1000,
-            depth: 1000
+            width: 2000,
+            height: 2000,
+            depth: 2000
         });
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
@@ -64,24 +64,16 @@ Ext.define('MW.game.MechWarrior', {
             var player = Ext.create('MW.game.character.Player');
             this.camera.setTarget(player);
             player.load('face.json', function () {
-                level.addPlayer(player);
-	            var position = mat4.create();
-	            mat4.translate(position, position, vec3.fromValues(-20, 0, 40));
-                var projectile = Ext.create('MW.game.projectile.Missile', {
-                    width: 1,
-                    height: 1,
-                    depth: 1,
-	                velocity: 10,
-	                position: position,
-	                target: vec3.fromValues(0, 10, 50)
-                });
-	            level.addProjectile(projectile);
-
-				keyboardControls.on('jump', function () {
-					var velocity = player.getVelocity();
-					velocity[1] = 200;
-				});
-
+                // add the player to the level
+	            // listen for space key events
+	            // listen for mouse click events
+	            level.addPlayer(player);
+				keyboardControls.on('space', this.jump, this, player);
+	            mouseControls.on('click', this.addProjectile, this, {
+		            level: level,
+		            player: player,
+		            camera: this.camera
+	            });
                 // Start the animation loop
                 this.tick(level, keyboardControls, mouseControls);
             }, this);
@@ -111,7 +103,6 @@ Ext.define('MW.game.MechWarrior', {
 		// move player according to keyboard input
 		mat4.translate(position, position, keyboardControls.getTranslation());
 
-
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
 		mat4.copyTranslation(scene.getSkybox().getPosition(), this.player.getPosition());
 
@@ -120,5 +111,33 @@ Ext.define('MW.game.MechWarrior', {
 
 		// request to render the next frame
 		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
+	},
+	/**
+	 * Adds velocity to the specified player when the user presses the space bar.
+	 *
+	 * @param player The player that jumped
+	 */
+	jump: function (player) {
+		var velocity = player.getVelocity();
+		velocity[1] = 200;
+	},
+	/**
+	 * Adds a projectile to the scene when the user clicks the left mouse button.
+	 *
+	 * @param mouseControl The mouse controls that were yielded at the time of the event fire
+	 * @param options The level to add the projectile to, the player that fired the projectile and the camera
+	 */
+	addProjectile: function (mouseControl, options) {
+		var level = options.level;
+		var player = options.player;
+		var distance = options.camera.getDistance();
+		level.addProjectile(Ext.create('MW.game.projectile.Missile', {
+			width: 1,
+			height: 1,
+			depth: 1,
+			initialVelocity: 50,
+			position: mat4.translate(mat4.create(), player.getPosition(), vec3.fromValues(5, 10, 0)),
+			pitch: mouseControl.getPitch()
+		}));
 	}
 });

@@ -2,6 +2,9 @@
  * @author Brendan Annable
  */
 Ext.define('MW.control.Mouse', {
+	mixins: {
+		observable: 'Ext.util.Observable'
+	},
 	pitch: 0,
 	yaw: 0,
 	matrix: null,
@@ -20,6 +23,7 @@ Ext.define('MW.control.Mouse', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
+		this.mixins.observable.constructor.call(this, config);
 		this.setRotation(mat4.create());
 
 		var element = this.getElement();
@@ -79,6 +83,8 @@ Ext.define('MW.control.Mouse', {
 			var dom = element.dom;
 			dom.requestPointerLock = dom.requestPointerLock || dom.mozRequestPointerLock || dom.webkitRequestPointerLock;
 			dom.requestPointerLock();
+		} else {
+			this.fireEvent('click', this);
 		}
 	},
 	onMouseMove: function (event) {
