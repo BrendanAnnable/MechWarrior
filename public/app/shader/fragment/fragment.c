@@ -31,7 +31,7 @@ void main(void) {
 	}*/
 
 	// Ambient lighting colour and intensity
-	vec3 ambientLighting = vec3(0.5, 0.0, 0.0);
+	vec3 ambientLighting = vec3(0.0, 0.0, 0.5);
 
 	// Directional light color and direction
 	vec3 directionalLightColor = vec3(0.5, 0.4, 0.0);

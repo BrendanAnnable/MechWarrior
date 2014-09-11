@@ -13,7 +13,7 @@ Ext.define('MW.geometry.CubeGeometry', {
         this.callParent(arguments);
         var width = this.getWidth();
         var height = this.getHeight();
-        var depth = this.getHeight();
+        var depth = this.getDepth();
         this.calculatePoints(width, height, depth);
     },
 	calculatePoints: function (width, height, depth) {

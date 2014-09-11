@@ -306,8 +306,8 @@ Ext.define('MW.renderer.WebGLRenderer', {
 		object.faces = [
 			[map.getRightImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_X],
 			[map.getLeftImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_X],
-			[map.getTopImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
-			[map.getBottomImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
+			[map.getUpImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_Y],
+			[map.getDownImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Y],
 			[map.getBackImage(), gl.TEXTURE_CUBE_MAP_POSITIVE_Z],
 			[map.getFrontImage(), gl.TEXTURE_CUBE_MAP_NEGATIVE_Z]
 		];

@@ -54,7 +54,7 @@ Ext.define('MW.loader.Model', {
                     geometry.setFaces(jMesh.faces);
 
                     // Move the model's pivot point to the center of the model
-                    geometry.center();
+//                    geometry.center();
                     this.setLoaded(true);
                     callback.call(thisArg, {
                         name: modelName,

@@ -28,12 +28,12 @@ Ext.define('MW.game.level.Skybox', {
 		geometry.negateNormals();
 		var material = Ext.create('MW.material.Phong', {
 			environmentMap: Ext.create('MW.loader.CubeMap', {
-				topUrl: "/resources/image/skybox/top.png",
-				rightUrl: "/resources/image/skybox/right.png",
-				bottomUrl: "/resources/image/skybox/bottom.png",
-				leftUrl: "/resources/image/skybox/left.png",
-				frontUrl: "/resources/image/skybox/front.png",
-				backUrl: "/resources/image/skybox/back.png"
+				upUrl: "/resources/image/skybox/urban/up.png",
+				rightUrl: "/resources/image/skybox/urban/right.png",
+				downUrl: "/resources/image/skybox/urban/down.png",
+				leftUrl: "/resources/image/skybox/urban/left.png",
+				frontUrl: "/resources/image/skybox/urban/front.png",
+				backUrl: "/resources/image/skybox/urban/back.png"
 			}),
 			useLighting: false
 		});

@@ -5,16 +5,16 @@ Ext.define('MW.loader.CubeMap', {
     alias: 'CubeMap',
     extend: 'MW.loader.Loader',
     config: {
-        topUrl: null,
+        upUrl: null,
         rightUrl: null,
-        bottomUrl: null,
+        downUrl: null,
 	    leftUrl: null,
         frontUrl: null,
         backUrl: null,
 
-		topImage: null,
+		upImage: null,
 		rightImage: null,
-		bottomImage: null,
+		downImage: null,
 		leftImage: null,
 		frontImage: null,
 		backImage: null
@@ -22,9 +22,9 @@ Ext.define('MW.loader.CubeMap', {
     constructor: function () {
         this.callParent(arguments);
 	    var paths = [
-			{url: this.getTopUrl(), setter: this.setTopImage},
+			{url: this.getUpUrl(), setter: this.setUpImage},
 			{url: this.getRightUrl(), setter: this.setRightImage},
-			{url: this.getBottomUrl(), setter: this.setBottomImage},
+			{url: this.getDownUrl(), setter: this.setDownImage},
 			{url: this.getLeftUrl(), setter: this.setLeftImage},
 			{url: this.getFrontUrl(), setter: this.setFrontImage},
 			{url: this.getBackUrl(), setter: this.setBackImage}

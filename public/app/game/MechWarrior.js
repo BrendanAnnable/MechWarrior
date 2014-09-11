@@ -27,14 +27,14 @@ Ext.define('MW.game.MechWarrior', {
 		// Initialize the scene and the keyboard and mouse controls
         var level = Ext.create('MW.game.level.Level', {
             name: 'Level 1',
-            width: 2000,
-            height: 2000,
-            depth: 2000
+            width: 200,
+            height: 200,
+            depth: 50
         });
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
 			element: document,
-			speed: 2
+			speed: 0.5
 		});
 
 		var mouseControls = Ext.create('MW.control.Mouse', {
@@ -63,7 +63,7 @@ Ext.define('MW.game.MechWarrior', {
             // load the player model and add it to the scene
             var player = Ext.create('MW.game.character.Player');
             this.camera.setTarget(player);
-            player.load('face.json', function () {
+            player.load('mech.json', function () {
                 // add the player to the level
 	            // listen for space key events
 	            // listen for mouse click events
@@ -96,7 +96,8 @@ Ext.define('MW.game.MechWarrior', {
 	tick: function (scene, keyboardControls, mouseControls) {
 
 		// rotate camera around target
-		this.camera.setRotation(mat4.clone(mouseControls.getPosition()));
+		this.camera.setPitch(mouseControls.getPitch());
+		this.camera.setYaw(mouseControls.getYaw());
 		var position = this.player.getPosition();
 		// rotate player to face camera
 		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
@@ -119,7 +120,7 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	jump: function (player) {
 		var velocity = player.getVelocity();
-		velocity[1] = 200;
+		velocity[1] = 30;
 	},
 	/**
 	 * Adds a projectile to the scene when the user clicks the left mouse button.
@@ -130,13 +131,12 @@ Ext.define('MW.game.MechWarrior', {
 	addProjectile: function (mouseControl, options) {
 		var level = options.level;
 		var player = options.player;
-		var distance = options.camera.getDistance();
 		level.addProjectile(Ext.create('MW.game.projectile.Missile', {
-			width: 1,
-			height: 1,
-			depth: 1,
-			initialVelocity: 50,
-			position: mat4.translate(mat4.create(), player.getPosition(), vec3.fromValues(5, 10, 0)),
+			width: 0.1,
+			height: 0.1,
+			depth: 0.1,
+			initialVelocity: 20,
+			position: mat4.translate(mat4.create(), mat4.clone(player.getPosition()), vec3.fromValues(0, 2, 0)),
 			pitch: mouseControl.getPitch()
 		}));
 	}
