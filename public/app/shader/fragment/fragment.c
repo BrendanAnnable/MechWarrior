@@ -31,7 +31,7 @@ void main(void) {
 	}*/
 
 	// Ambient lighting colour and intensity
-	vec3 ambientLighting = vec3(0.1, 0.0, 0.0);
+	vec3 ambientLighting = vec3(0.5, 0.0, 0.0);
 
 	// Directional light color and direction
 	vec3 directionalLightColor = vec3(0.5, 0.4, 0.0);
@@ -58,7 +58,6 @@ void main(void) {
         gl_FragColor = textureCube(uEnvironmentMap, vRawPosition);
     } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-        gl_FragColor = textureCube(uEnvironmentMap, );
     } else {
     	gl_FragColor = vColor;
     }
