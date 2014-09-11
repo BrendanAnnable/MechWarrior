@@ -55,7 +55,7 @@ void main(void) {
 
     // Colour the pixel based on the original colour and the various lighting factors
     if (useEnvironmentMap) {
-        gl_FragColor = textureCube(uEnvironmentMap, vRawPosition);
+        gl_FragColor = textureCube(uEnvironmentMap, normalize(vRawPosition));
     } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     } else {
