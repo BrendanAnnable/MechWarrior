@@ -13,8 +13,12 @@ Ext.define('MW.object.Object', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
-		this.setPosition(mat4.create());
-		this.setChildren([]);
+        if (this.config.position === null) {
+            this.setPosition(mat4.create());
+        }
+        if (this.config.children === null) {
+            this.setChildren([]);
+        }
 		this.positionInverse = mat4.create();
 	},
 	getPositionInverse: function () {

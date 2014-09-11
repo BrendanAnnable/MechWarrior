@@ -8,9 +8,13 @@ Ext.define('MW.mixin.DynamicObject', {
 		velocity: null
 	},
 	constructor: function (config) {
-		this.initConfig(config);
-		this.setForce(vec3.fromValues(0, -9.8, 0));
-		this.setVelocity(vec3.create());
+        this.initConfig(config);
+		if (this.config.force === null) {
+            this.setForce(vec3.fromValues(0, -9.8, 0));
+        }
+        if (this.config.velocity === null) {
+            this.setVelocity(vec3.create());
+        }
 		this.acceleration = vec3.create();
 		this.lastTime = Date.now();
 	},

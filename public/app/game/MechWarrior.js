@@ -135,9 +135,11 @@ Ext.define('MW.game.MechWarrior', {
 			width: 0.1,
 			height: 0.1,
 			depth: 0.1,
-			initialVelocity: 20,
-			position: mat4.translate(mat4.create(), mat4.clone(player.getPosition()), vec3.fromValues(0, 2, 0)),
-			pitch: mouseControl.getPitch()
+			initialVelocity: 40,
+            mass: 0.5,
+			position: mat4.translate(mat4.create(), mat4.copyTranslation(mat4.create(), player.getPosition()), vec3.fromValues(0, 2, 0)),
+			pitch: mouseControl.getPitch() - Math.PI / 2,
+            yaw: mouseControl.getYaw() - Math.PI / 2
 		}));
 	}
 });
