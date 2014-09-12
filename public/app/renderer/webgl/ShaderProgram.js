@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.renderer.webgl.ShaderProgram', {
 	attributes: null,
 	config: {
