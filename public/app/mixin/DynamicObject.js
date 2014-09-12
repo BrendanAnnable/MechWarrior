@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('MW.mixin.DynamicObject', {
 	alias: 'DynamicObject',
 	acceleration: null,

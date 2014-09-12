@@ -1,4 +1,5 @@
 /**
+ * @author Brendan Annable
  * @author Monica Olejniczak
  */
 Ext.define('MW.buffer.EnvironmentCoordinate', {

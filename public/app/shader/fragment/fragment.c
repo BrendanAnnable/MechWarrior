@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 precision mediump float;
 
 // The position of the point light, passed in by JavaScript
