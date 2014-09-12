@@ -1,3 +1,6 @@
+/**
+ * @autbor Brendan Annable
+ */
 Ext.define('MW.util.HermiteSpline', {
 	geometry: null,
 	coefficients: null,

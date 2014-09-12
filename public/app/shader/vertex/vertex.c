@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 // Per-vertex variables that are passed in by JavaScript
 attribute vec3 aVertexPosition;
 attribute vec3 aVertexNormal;

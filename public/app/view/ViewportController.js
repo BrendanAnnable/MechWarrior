@@ -12,6 +12,16 @@ Ext.define('MW.view.ViewportController', {
 		canvas: null       // The HTML canvas used for drawing on
 	},
 	/**
+	 * Callback that is run after the DOM has been rendered.
+	 *
+	 * @param container The container that has been rendered
+	 */
+	onAfterRender: function (container) {
+		var canvas = container.getEl().dom;
+		this.setCanvas(canvas);
+		this.game = Ext.create('MW.game.MechWarrior', canvas);
+	},
+	/**
 	 * Callback that is run when the window is resized
 	 *
 	 * @param container The container object that was resized
@@ -23,16 +33,6 @@ Ext.define('MW.view.ViewportController', {
 		canvas.width = width;
 		canvas.height = height;
 		this.game.onResize(width, height);
-	},
-	/**
-	 * Callback that is run after the DOM has been rendered.
-	 *
-	 * @param container The container that has been rendered
-	 */
-	onAfterRender: function (container) {
-		var canvas = container.getEl().dom;
-		this.setCanvas(canvas);
-		this.game = Ext.create('MW.game.MechWarrior', canvas);
 	}
 });
 

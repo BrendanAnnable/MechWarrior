@@ -1,3 +1,6 @@
+/**
+ * @author Monica Olejniczak
+ */
 Ext.define('MW.shader.Shader', {
 	config: {
 		path: null
