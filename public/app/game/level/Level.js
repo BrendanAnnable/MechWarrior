@@ -79,15 +79,31 @@ Ext.define('MW.game.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-    /**
-     * Adds a projectile to the level.
-     *
-     * @param projectile The projectile to add
-     */
-    addProjectile: function (projectile) {
-        this.getProjectiles().push(projectile);
-        this.addChild(projectile);
-    },
+	/**
+	 * Adds a projectile to the level when the user clicks the left mouse button.
+	 *
+	 * @param mouseControl The mouse controls that were yielded at the time of the event fire
+	 * @param options The level to add the projectile to, the player that fired the projectile and the camera
+	 */
+	addProjectile: function (mouseControl, options) {
+		var level = options.level;
+		var player = options.player;
+		var projectile = Ext.create('MW.game.projectile.Missile', {
+			width: 0.1,
+			height: 0.1,
+			depth: 0.1,
+			initialVelocity: 40,
+			mass: 0.5,
+			position: mat4.translate(mat4.create(), mat4.copyTranslation(mat4.create(), player.getPosition()), vec3.fromValues(0, 2, 0)),
+			pitch: mouseControl.getPitch() - Math.PI / 2,
+			yaw: mouseControl.getYaw() - Math.PI / 2
+		});
+		this.getProjectiles().push(projectile);
+		this.addChild(projectile);
+		projectile.on('collision', function () {
+			this.removeProjectile(projectile);
+		}, this);
+	},
     /**
      * Removes a projectile from the level.
      *

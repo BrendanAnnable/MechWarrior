@@ -4,17 +4,17 @@
  */
 Ext.define('MW.game.MechWarrior', {
 	alias: 'MechWarrior',
-    requires: [
-        'MW.renderer.WebGLRenderer',
-        'MW.camera.ThirdPersonCamera',
-        'MW.control.Keyboard',
+	requires: [
+		'MW.renderer.WebGLRenderer',
+		'MW.camera.ThirdPersonCamera',
+		'MW.control.Keyboard',
 		'MW.control.Mouse',
-        'MW.util.Scene',
-        'MW.game.level.Level',
-        'MW.game.character.Player',
-        'MW.util.Color',
+		'MW.util.Scene',
+		'MW.game.level.Level',
+		'MW.game.character.Player',
+		'MW.util.Color',
 		'MW.game.projectile.Missile'
-    ],
+	],
 	player: null,
 	renderer: null,
 	camera: null,
@@ -25,12 +25,12 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	constructor: function (canvas) {
 		// Initialize the scene and the keyboard and mouse controls
-        var level = Ext.create('MW.game.level.Level', {
-            name: 'Level 1',
-            width: 200,
-            height: 200,
-            depth: 50
-        });
+		var level = Ext.create('MW.game.level.Level', {
+			name: 'Level 1',
+			width: 200,
+			height: 200,
+			depth: 50
+		});
 
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
 			element: document,
@@ -44,44 +44,50 @@ Ext.define('MW.game.MechWarrior', {
 
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-        this.camera = Ext.create('MW.camera.ThirdPersonCamera', {
-            ratio: canvas.width / canvas.height
-        });
-        var backgroundColor = Ext.create('MW.util.Color', {
-            r: 0,
-            g: 0,
-            b: 0,
-            a: 1
-        });
+		this.camera = Ext.create('MW.camera.ThirdPersonCamera', {
+			ratio: canvas.width / canvas.height
+		});
+		var backgroundColor = Ext.create('MW.util.Color', {
+			r: 0,
+			g: 0,
+			b: 0,
+			a: 1
+		});
 //		gl = WebGLDebugUtils.makeDebugContext(gl);
 		this.renderer = Ext.create('MW.renderer.WebGLRenderer', {
-            gl: gl,
-            width: canvas.width,
-            height: canvas.height,
-            backgroundColor: backgroundColor
+			gl: gl,
+			width: canvas.width,
+			height: canvas.height,
+			backgroundColor: backgroundColor
 		}).on('loaded', function () {
-            // load the player model and add it to the scene
-            var player = Ext.create('MW.game.character.Player');
-            this.camera.setTarget(player);
-            player.load('mech.json', function () {
-                // add the player to the level
-	            // listen for space key events
-	            // listen for mouse click events
-	            level.addPlayer(player);
+			// create the asset manager and load all the assets for the game
+			var assetManager = Ext.create('MW.util.AssetManager');
+			this.loadAssets(assetManager).then(function () {
+				// create the player model and add it to the scene
+				var playerAsset = assetManager.getAsset('player');
+				var player = Ext.create('MW.game.character.Player', {
+					name: playerAsset.name,
+					geometry: playerAsset.geometry,
+					material: playerAsset.material
+				});
+				this.camera.setTarget(player);
+				// add the player to the level
+				// listen for space key events
+				// listen for mouse click events
+				level.addPlayer(player);
 				keyboardControls.on('space', this.jump, this, player);
-	            mouseControls.on('click', this.addProjectile, this, {
-		            level: level,
-		            player: player,
-		            camera: this.camera
-	            });
-                // Start the animation loop
-                this.tick(level, keyboardControls, mouseControls);
-            }, this);
-            this.player = player;
-        }, this);
+				mouseControls.on('click', level.addProjectile, level, {
+					player: player,
+					camera: this.camera
+				});
+				this.player = player;
+				// Start the animation loop
+				this.tick(level, keyboardControls, mouseControls);
+			});
+		}, this);
 	},
 	onResize: function (width, height) {
-        this.camera.setRatio(width / height);
+		this.camera.setRatio(width / height);
 		this.camera.update();
 		this.renderer.setWidth(width);
 		this.renderer.setHeight(height);
@@ -94,7 +100,6 @@ Ext.define('MW.game.MechWarrior', {
 	 * @param mouseControls
 	 */
 	tick: function (scene, keyboardControls, mouseControls) {
-
 		// rotate camera around target
 		this.camera.setPitch(mouseControls.getPitch());
 		this.camera.setYaw(mouseControls.getYaw());
@@ -113,6 +118,36 @@ Ext.define('MW.game.MechWarrior', {
 		// request to render the next frame
 		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
 	},
+	loadAssets: function (assetManager) {
+		function getPath (modelName) {
+			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
+		}
+		var assets = [];
+		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
+			assetManager.addAsset('player', player);
+		}));
+		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
+			assetManager.addAsset('player2', player);
+		}));
+		return Promise.all(assets).bind(this);
+	},
+	loadPlayerAsset: function (url) {
+		return new Promise(function (resolve) {
+			Ext.create('MW.loader.Model').load(url).then(function (geometry) {
+				resolve ({
+					name: 'Player',
+					geometry: geometry,
+					material: Ext.create('MW.material.Phong', {
+						color: Ext.create('MW.util.Color', {
+							r: 0,
+							g: 1,
+							b: 0
+						})
+					})
+				});
+			});
+		});
+	},
 	/**
 	 * Adds velocity to the specified player when the user presses the space bar.
 	 *
@@ -121,29 +156,5 @@ Ext.define('MW.game.MechWarrior', {
 	jump: function (player) {
 		var velocity = player.getVelocity();
 		velocity[1] = 30;
-	},
-	/**
-	 * Adds a projectile to the scene when the user clicks the left mouse button.
-	 *
-	 * @param mouseControl The mouse controls that were yielded at the time of the event fire
-	 * @param options The level to add the projectile to, the player that fired the projectile and the camera
-	 */
-	addProjectile: function (mouseControl, options) {
-		var level = options.level;
-		var player = options.player;
-		var projectile = Ext.create('MW.game.projectile.Missile', {
-			width: 0.1,
-			height: 0.1,
-			depth: 0.1,
-			initialVelocity: 40,
-            mass: 0.5,
-			position: mat4.translate(mat4.create(), mat4.copyTranslation(mat4.create(), player.getPosition()), vec3.fromValues(0, 2, 0)),
-			pitch: mouseControl.getPitch() - Math.PI / 2,
-            yaw: mouseControl.getYaw() - Math.PI / 2
-		});
-		level.addProjectile(projectile);
-		projectile.on('collision', function () {
-			level.removeProjectile(projectile);
-		})
 	}
 });

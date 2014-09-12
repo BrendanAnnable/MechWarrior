@@ -23,21 +23,7 @@ Ext.define('MW.game.character.Player', {
 	},
 	getPosition: function () {
 		return this.getDynamicPosition();
-	},
-    load: function (url, callback, thisArg) {
-        Ext.create('MW.loader.Model').load(url, function (mesh) {
-            this.setName(mesh.name);
-            this.setGeometry(mesh.geometry);
-            this.setMaterial(Ext.create('MW.material.Phong', {
-                color: Ext.create('MW.util.Color', {
-                    r: 0,
-                    g: 1,
-                    b: 0
-                })
-            }));
-            callback.call(thisArg);
-        }, this);
-    }
+	}
 	/**
 	 * Renders the player model in the scene.
 	 *
