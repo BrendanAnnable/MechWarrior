@@ -21,8 +21,18 @@ Ext.define('MW.game.character.Player', {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
 	},
+	/**
+	 * Overrides the player's position by returning its dynamic position from the physics mixin.
+	 * @returns {*}
+	 */
 	getPosition: function () {
 		return this.getDynamicPosition();
+	},
+	/**
+	 * Adds velocity to the player when the user presses the space bar.
+	 */
+	jump: function () {
+		this.getVelocity()[1] = 30;
 	}
 	/**
 	 * Renders the player model in the scene.

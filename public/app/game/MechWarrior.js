@@ -10,6 +10,8 @@ Ext.define('MW.game.MechWarrior', {
 		'MW.control.Keyboard',
 		'MW.control.Mouse',
 		'MW.util.Scene',
+		'MW.util.AssetManager',
+		'MW.game.scene.Assets',
 		'MW.game.level.Level',
 		'MW.game.character.Player',
 		'MW.util.Color',
@@ -62,7 +64,7 @@ Ext.define('MW.game.MechWarrior', {
 		}).on('loaded', function () {
 			// create the asset manager and load all the assets for the game
 			var assetManager = Ext.create('MW.util.AssetManager');
-			this.loadAssets(assetManager).then(function () {
+			Ext.create('MW.game.scene.Assets').load(assetManager, this).then(function () {
 				// create the player model and add it to the scene
 				var playerAsset = assetManager.getAsset('player');
 				var player = Ext.create('MW.game.character.Player', {
@@ -70,19 +72,15 @@ Ext.define('MW.game.MechWarrior', {
 					geometry: playerAsset.geometry,
 					material: playerAsset.material
 				});
-				this.camera.setTarget(player);
-				// add the player to the level
-				// listen for space key events
-				// listen for mouse click events
-				level.addPlayer(player);
-				keyboardControls.on('space', this.jump, this, player);
-				mouseControls.on('click', level.addProjectile, level, {
+				this.camera.setTarget(player);                              // set the target of the camera to the player
+				level.addPlayer(player);                                    // add the player to the level
+				keyboardControls.on('space', player.jump, player);          // listen for space key events
+				mouseControls.on('click', level.addProjectile, level, {     // listen for mouse click events
 					player: player,
 					camera: this.camera
 				});
-				this.player = player;
-				// Start the animation loop
-				this.tick(level, keyboardControls, mouseControls);
+				this.player = player;                                       // assign the player to the private variable
+				this.tick(level, keyboardControls, mouseControls);          // start the animation loop
 			});
 		}, this);
 	},
@@ -117,44 +115,5 @@ Ext.define('MW.game.MechWarrior', {
 
 		// request to render the next frame
 		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
-	},
-	loadAssets: function (assetManager) {
-		function getPath (modelName) {
-			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
-		}
-		var assets = [];
-		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
-			assetManager.addAsset('player', player);
-		}));
-		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
-			assetManager.addAsset('player2', player);
-		}));
-		return Promise.all(assets).bind(this);
-	},
-	loadPlayerAsset: function (url) {
-		return new Promise(function (resolve) {
-			Ext.create('MW.loader.Model').load(url).then(function (geometry) {
-				resolve ({
-					name: 'Player',
-					geometry: geometry,
-					material: Ext.create('MW.material.Phong', {
-						color: Ext.create('MW.util.Color', {
-							r: 0,
-							g: 1,
-							b: 0
-						})
-					})
-				});
-			});
-		});
-	},
-	/**
-	 * Adds velocity to the specified player when the user presses the space bar.
-	 *
-	 * @param player The player that jumped
-	 */
-	jump: function (player) {
-		var velocity = player.getVelocity();
-		velocity[1] = 30;
 	}
 });
