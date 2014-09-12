@@ -6055,7 +6055,7 @@ var Ext = Ext || { }; Ext.manifest = {
       "idx": 621
     },
     {
-      "path": "src/sparkline/Box.js",
+      "path": "src/sparkline/CubeGeometry.js",
       "requires": [
         85,
         618
