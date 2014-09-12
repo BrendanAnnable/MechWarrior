@@ -10,7 +10,7 @@ Ext.define('MW.game.scene.Assets', {
 	 * @param thisArg
 	 * @returns {*}
 	 */
-	load: function (assetManager, thisArg) {
+	load: function (assetManager) {
 		function getPath (modelName) {
 			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
 		}
@@ -21,7 +21,7 @@ Ext.define('MW.game.scene.Assets', {
 		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
 			assetManager.addAsset('player2', player);
 		}));
-		return Promise.all(assets).bind(thisArg);
+		return Promise.all(assets);
 	},
 	/**
 	 * Loads the player model and returns it as a promise once it has finished loading.
@@ -44,6 +44,6 @@ Ext.define('MW.game.scene.Assets', {
 					})
 				});
 			});
-		}).bind(this);
+		});
 	}
 });

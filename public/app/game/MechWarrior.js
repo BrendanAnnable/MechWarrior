@@ -64,7 +64,7 @@ Ext.define('MW.game.MechWarrior', {
 		}).on('loaded', function () {
 			// create the asset manager and load all the assets for the game
 			var assetManager = Ext.create('MW.util.AssetManager');
-			Ext.create('MW.game.scene.Assets').load(assetManager, this).then(function () {
+			Ext.create('MW.game.scene.Assets').load(assetManager).bind(this).then(function () {
 				// create the player model and add it to the scene
 				var playerAsset = assetManager.getAsset('player');
 				var player = Ext.create('MW.game.character.Player', {
