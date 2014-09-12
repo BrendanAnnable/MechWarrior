@@ -95,7 +95,7 @@ Ext.define('MW.game.level.Level', {
      */
     removeProjectile: function (projectile) {
         Ext.Array.remove(this.getProjectiles(), projectile);
-        this.removeChild(obstacle);
+        this.removeChild(projectile);
     }
 
 });

@@ -131,7 +131,7 @@ Ext.define('MW.game.MechWarrior', {
 	addProjectile: function (mouseControl, options) {
 		var level = options.level;
 		var player = options.player;
-		level.addProjectile(Ext.create('MW.game.projectile.Missile', {
+		var projectile = Ext.create('MW.game.projectile.Missile', {
 			width: 0.1,
 			height: 0.1,
 			depth: 0.1,
@@ -140,6 +140,10 @@ Ext.define('MW.game.MechWarrior', {
 			position: mat4.translate(mat4.create(), mat4.copyTranslation(mat4.create(), player.getPosition()), vec3.fromValues(0, 2, 0)),
 			pitch: mouseControl.getPitch() - Math.PI / 2,
             yaw: mouseControl.getYaw() - Math.PI / 2
-		}));
+		});
+		level.addProjectile(projectile);
+		projectile.on('collision', function () {
+			level.removeProjectile(projectile);
+		})
 	}
 });

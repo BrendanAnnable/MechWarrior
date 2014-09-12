@@ -259,3 +259,44 @@ vec4.fromMat4 = function (a) {
 	vec4.transformMat4(point, point, a);
 	return point;
 };
+
+mat4.fromVec4Cols = function (v1, v2, v3, v4) {
+	var out = mat4.zeros();
+	out[0] = v1[0];
+	out[1] = v1[1];
+	out[2] = v1[2];
+	out[3] = v1[3];
+
+	out[4] = v2[0];
+	out[5] = v2[1];
+	out[6] = v2[2];
+	out[7] = v2[3];
+
+	out[8] = v3[0];
+	out[9] = v3[1];
+	out[10] = v3[2];
+	out[11] = v3[3];
+
+	out[12] = v4[0];
+	out[13] = v4[1];
+	out[14] = v4[2];
+	out[15] = v4[3];
+
+	return out;
+};
+
+glMatrix.getMat = function (n) {
+	var mat = window["mat" + n];
+	if (mat === undefined) {
+		throw new Error("Matrix of size " + n + " not supported");
+	}
+	return mat;
+};
+
+glMatrix.getVec = function (n) {
+	var vec = window["vec" + n];
+	if (vec === undefined) {
+		throw new Error("Vector of size " + n + " not supported");
+	}
+	return vec;
+};

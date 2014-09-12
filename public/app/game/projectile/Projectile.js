@@ -5,6 +5,7 @@ Ext.define('MW.game.projectile.Projectile', {
 	alias: 'Projectile',
 	extend: 'MW.object.Mesh',
     mixins: {
+		observable: 'Ext.util.Observable',
         physics: 'MW.mixin.DynamicObject'
     },
 	config: {
@@ -16,6 +17,7 @@ Ext.define('MW.game.projectile.Projectile', {
 	},
 	constructor: function (config) {
 		this.callParent(arguments);
+		this.mixins.observable.constructor.call(this, config);
         this.mixins.physics.constructor.call(this, config);
 		var velocity = this.getInitialVelocity();           // get the velocity of the projectile
 
@@ -33,6 +35,10 @@ Ext.define('MW.game.projectile.Projectile', {
 	 * @returns {null}
 	 */
 	getPosition: function () {
-        return this.getDynamicPosition();
+        var position = this.getDynamicPosition();
+		if (position[13] === 0) {
+			this.fireEvent('collision');
+		}
+		return position;
 	}
 });
