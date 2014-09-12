@@ -18,8 +18,8 @@ Ext.define('MW.control.Mouse', {
 		rotation: null,
 		pitch: 0,
 		yaw: 0,
-		maxPitch: -Math.PI / 2 - 0.01,
-		minPitch: Math.PI / 2 + 0.01
+		maxPitch: -Math.PI / 2 - 0.0001,
+		minPitch: Math.PI / 2 + 0.0001
 	},
 	constructor: function (config) {
 		this.initConfig(config);
