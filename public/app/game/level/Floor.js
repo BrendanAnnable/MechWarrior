@@ -5,7 +5,7 @@ Ext.define('MW.game.level.Floor', {
 	alias: 'Floor',
 	extend: 'MW.object.Mesh',
     mixins: {
-        physics: 'MW.mixin.DynamicObject'
+        physics: 'MW.game.physics.DynamicObject'
     },
     requires: [
         'MW.geometry.PlaneGeometry',

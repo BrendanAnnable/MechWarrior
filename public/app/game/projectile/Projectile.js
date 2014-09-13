@@ -5,7 +5,7 @@ Ext.define('MW.game.projectile.Projectile', {
 	alias: 'Projectile',
 	extend: 'MW.object.Mesh',
     mixins: {
-        physics: 'MW.mixin.DynamicObject'
+        physics: 'MW.game.physics.DynamicObject'
     },
 	config: {
 		pitch: 25,              // The angle to fire the projectile from

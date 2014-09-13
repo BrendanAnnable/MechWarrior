@@ -13,7 +13,7 @@ Ext.define('MW.game.MechWarrior', {
 		'MW.util.AssetManager',
 		'MW.game.scene.Assets',
 		'MW.game.level.Level',
-        'MW.game.physics.CollisionDetector',
+        'MW.game.physics.PhysicsEngine',
 		'MW.game.character.Player',
 		'MW.util.Color',
 		'MW.game.projectile.Missile'
@@ -37,7 +37,7 @@ Ext.define('MW.game.MechWarrior', {
 			height: 200,
 			depth: 50
 		});
-        this.physics = Ext.create('MW.game.physics.CollisionDetector', {
+        this.physics = Ext.create('MW.game.physics.PhysicsEngine', {
             scene: level
         });
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
@@ -111,7 +111,7 @@ Ext.define('MW.game.MechWarrior', {
 		mat4.translate(position, position, keyboardControls.getTranslation());
 
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
-		mat4.copyTranslation(scene.getSkybox().getPosition(), this.player.getPosition());
+		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
         // run the physics engine update
         this.physics.update();
 		// render the scene from the given camera

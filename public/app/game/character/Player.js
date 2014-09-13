@@ -6,7 +6,7 @@ Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
 	mixins: {
-		physics: 'MW.mixin.DynamicObject'
+		physics: 'MW.game.physics.DynamicObject'
 	},
     requires: [
         'MW.loader.Model',
