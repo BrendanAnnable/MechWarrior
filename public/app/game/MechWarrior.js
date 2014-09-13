@@ -76,8 +76,10 @@ Ext.define('MW.game.MechWarrior', {
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
 				keyboardControls.on('space', player.jump, player);          // listen for space key events
-				mouseControls.on('click', level.addProjectile, level, {     // listen for mouse click events
-					player: player,
+				mouseControls.on('click', this.createBullet, this, {     // listen for mouse click events
+					assetManager: assetManager,
+                    level: level,
+                    player: player,
 					camera: this.camera
 				});
 				this.player = player;                                       // assign the player to the private variable
@@ -131,5 +133,23 @@ Ext.define('MW.game.MechWarrior', {
             geometry: playerAsset.geometry,
             material: playerAsset.material
         });
+	},
+    createBullet: function (mouseControls, options) {
+        var bullet = options.assetManager.getAsset('bullet');
+        var level = options.level;
+        var player = options.player;
+        var position = mat4.create();
+        mat4.copyTranslation(position, player.getPosition());
+        mat4.translate(position, position, vec3.fromValues(0, 2, 0));
+        level.addProjectile(Ext.create('MW.game.projectile.Bullet', {
+            name: bullet.name,
+            geometry: bullet.geometry,
+            material: bullet.material,
+            initialVelocity: 40,
+            mass: 0.5,
+            position: position,
+            pitch: mouseControls.getPitch() - Math.PI / 2,
+            yaw: mouseControls.getYaw() - Math.PI / 2
+        }));
     }
 });
