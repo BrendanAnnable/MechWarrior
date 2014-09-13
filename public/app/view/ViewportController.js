@@ -19,7 +19,9 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
-		this.game = Ext.create('MW.game.MechWarrior', canvas);
+		this.game = Ext.create('MW.game.MechWarrior', {
+            canvas: canvas
+        });
 	},
 	/**
 	 * Callback that is run when the window is resized

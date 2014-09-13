@@ -86,7 +86,6 @@ Ext.define('MW.game.level.Level', {
 	 * @param options The level to add the projectile to, the player that fired the projectile and the camera
 	 */
 	addProjectile: function (mouseControl, options) {
-		var level = options.level;
 		var player = options.player;
 		var projectile = Ext.create('MW.game.projectile.Missile', {
 			width: 0.1,

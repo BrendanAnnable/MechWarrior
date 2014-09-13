@@ -13,6 +13,7 @@ Ext.define('MW.game.MechWarrior', {
 		'MW.util.AssetManager',
 		'MW.game.scene.Assets',
 		'MW.game.level.Level',
+        'MW.game.physics.CollisionDetector',
 		'MW.game.character.Player',
 		'MW.util.Color',
 		'MW.game.projectile.Missile'
@@ -20,25 +21,30 @@ Ext.define('MW.game.MechWarrior', {
 	player: null,
 	renderer: null,
 	camera: null,
+    physics: null,
+    config: {
+        canvas: null
+    },
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
-	 *
-	 * @param canvas the HTML5 canvas
 	 */
-	constructor: function (canvas) {
-		// Initialize the scene and the keyboard and mouse controls
+	constructor: function (config) {
+        this.initConfig(config);
+		// initialize the scene and the keyboard and mouse controls
 		var level = Ext.create('MW.game.level.Level', {
 			name: 'Level 1',
 			width: 200,
 			height: 200,
 			depth: 50
 		});
-
+        this.physics = Ext.create('MW.game.physics.CollisionDetector', {
+            scene: level
+        });
 		var keyboardControls = Ext.create('MW.control.Keyboard', {
 			element: document,
 			speed: 0.5
 		});
-
+        var canvas = this.getCanvas();
 		var mouseControls = Ext.create('MW.control.Mouse', {
 			element: canvas
 //			minPitch: Math.PI / 16
@@ -66,12 +72,7 @@ Ext.define('MW.game.MechWarrior', {
 			var assetManager = Ext.create('MW.util.AssetManager');
 			Ext.create('MW.game.scene.Assets').load(assetManager).bind(this).then(function () {
 				// create the player model and add it to the scene
-				var playerAsset = assetManager.getAsset('player');
-				var player = Ext.create('MW.game.character.Player', {
-					name: playerAsset.name,
-					geometry: playerAsset.geometry,
-					material: playerAsset.material
-				});
+				var player = this.createPlayer(assetManager);
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
 				keyboardControls.on('space', player.jump, player);          // listen for space key events
@@ -80,7 +81,7 @@ Ext.define('MW.game.MechWarrior', {
 					camera: this.camera
 				});
 				this.player = player;                                       // assign the player to the private variable
-				this.tick(level, keyboardControls, mouseControls);          // start the animation loop
+				this.update(level, keyboardControls, mouseControls);        // start the animation loop
 			});
 		}, this);
 	},
@@ -91,13 +92,13 @@ Ext.define('MW.game.MechWarrior', {
 		this.renderer.setHeight(height);
 	},
 	/**
-	 * Animation tick, uses requestAnimationFrame to run as fast as possible.
+	 * Animation update, uses requestAnimationFrame to run as fast as possible.
 	 *
 	 * @param scene The scene to draw objects in
 	 * @param keyboardControls
 	 * @param mouseControls
 	 */
-	tick: function (scene, keyboardControls, mouseControls) {
+	update: function (scene, keyboardControls, mouseControls) {
 		// rotate camera around target
 		this.camera.setPitch(mouseControls.getPitch());
 		this.camera.setYaw(mouseControls.getYaw());
@@ -109,11 +110,26 @@ Ext.define('MW.game.MechWarrior', {
 
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
 		mat4.copyTranslation(scene.getSkybox().getPosition(), this.player.getPosition());
-
+        // run the physics engine update
+        this.physics.update();
 		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
 
 		// request to render the next frame
-		requestAnimationFrame(Ext.bind(this.tick, this, [scene, keyboardControls, mouseControls]));
-	}
+		requestAnimationFrame(Ext.bind(this.update, this, [scene, keyboardControls, mouseControls]));
+	},
+    /**
+     * Creates a player using the asset manager.
+     *
+     * @param assetManager The asset manager that loads in the models and other assets.
+     * @returns {MW.game.character.Player}
+     */
+    createPlayer: function (assetManager) {
+        var playerAsset = assetManager.getAsset('player');
+        return Ext.create('MW.game.character.Player', {
+            name: playerAsset.name,
+            geometry: playerAsset.geometry,
+            material: playerAsset.material
+        });
+    }
 });
