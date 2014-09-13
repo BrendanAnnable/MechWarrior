@@ -7,21 +7,20 @@ Ext.define('MW.game.scene.Assets', {
 	 * Loads the models and other assets required for the game to begin.
 	 *
 	 * @param assetManager The asset manager to add assets to.
-	 * @param thisArg
 	 * @returns {*}
 	 */
 	load: function (assetManager) {
 		function getPath (modelName) {
 			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
 		}
-		var assets = [];
-		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
-			assetManager.addAsset('player', player);
-		}));
-		assets.push(this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
-			assetManager.addAsset('player2', player);
-		}));
-		return Promise.all(assets);
+        return Promise.all([
+            this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
+			    assetManager.addAsset('player', player);
+		    }),
+		    this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
+			    assetManager.addAsset('player2', player);
+		    })
+        ]);
 	},
 	/**
 	 * Loads the player model and returns it as a promise once it has finished loading.

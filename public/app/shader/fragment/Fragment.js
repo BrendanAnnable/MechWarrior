@@ -12,24 +12,23 @@ Ext.define('MW.shader.fragment.Fragment', {
      * Load the given fragment shader
      *
      * @param gl The WebGL context
-     * @param callback Callback that is called once the shader has loaded
-     * @param thisArg
      */
-	load: function (gl, callback, thisArg) {
-		var url = this.getPath();
-		Ext.Ajax.request({
-			url: url,
-			scope: thisArg,
-			success: function (response) {
-				// Use the ajax response to create and compile the shader
-				var shader = gl.createShader(gl.FRAGMENT_SHADER);
-				gl.shaderSource(shader, response.responseText);
-				gl.compileShader(shader);
-				if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-					console.error(gl.getShaderInfoLog(shader));
-				}
-				callback.call(this, shader);
-			}
-		});
+	load: function (gl) {
+        var url = this.getPath();
+        return new Promise(function (resolve) {
+            Ext.Ajax.request({
+                url: url,
+                success: function (response) {
+                    // Use the ajax response to create and compile the shaderProgram
+                    var shaderProgram = gl.createShader(gl.FRAGMENT_SHADER);
+                    gl.shaderSource(shaderProgram, response.responseText);
+                    gl.compileShader(shaderProgram);
+                    if (!gl.getShaderParameter(shaderProgram, gl.COMPILE_STATUS)) {
+                        console.error(gl.getShaderInfoLog(shaderProgram));
+                    }
+                    resolve(shaderProgram);
+                }
+            });
+        });
 	}
 });

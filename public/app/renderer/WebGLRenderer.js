@@ -40,7 +40,7 @@ Ext.define('MW.renderer.WebGLRenderer', {
      */
     initShaderProgram: function (gl) {
         // Initialize the shaderProgram
-        this.loadShaderProgram(gl, function (vertexShader, fragmentShader) {
+        this.loadShaderProgram(gl).bind(this).spread(function (vertexShader, fragmentShader) {
             // Create a WebGL shader program
             var shaderProgram = gl.createProgram();
             gl.attachShader(shaderProgram, vertexShader);
@@ -88,16 +88,12 @@ Ext.define('MW.renderer.WebGLRenderer', {
     /**
      * Load the regular vertex and fragment shaderProgram
      * @param gl The WebGL context
-     * @param callback Callback that is called once the shaderProgram have been loaded with
-     * the first parameter as the vertex shader and the second as the fragment shader
      */
-    loadShaderProgram: function (gl, callback) {
-        // Load the vertex and fragment shader
-        Ext.create('MW.shader.vertex.Vertex').load(gl, function (vertexShader) {
-            Ext.create('MW.shader.fragment.Fragment').load(gl, function (fragmentShader) {
-                callback.call(this, vertexShader, fragmentShader);
-            }, this);
-        }, this);
+    loadShaderProgram: function (gl) {
+        return Promise.all([
+            Ext.create('MW.shader.vertex.Vertex').load(gl),
+            Ext.create('MW.shader.fragment.Fragment').load(gl)
+        ]);
     },
     /**
      * This method renders the scene and all of its children
