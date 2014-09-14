@@ -10,6 +10,7 @@ Ext.define('MW.game.projectile.Projectile', {
 	config: {
 		pitch: 25,              // The angle to fire the projectile from
         yaw: 0,
+		align: true,			// whether to rotate projectile to align with the velocity direction
 		initialVelocity: 0,     // The initial speed of the projectile
 		damage: 0,              // The damage the projectile impacts upon collision
 		timeSpawned: 0          // The time that the projectile was created
@@ -23,6 +24,13 @@ Ext.define('MW.game.projectile.Projectile', {
         var yaw = this.getYaw();                                // get the angle the projectile is firing towards
 
         // convert form spherical to cartesian coordinates, accounting for -Z equaling +Y
+
+		if (this.getAlign()) {
+			var position = this.getPosition();
+			// align object to point in direction of velocity
+			mat4.rotateY(position, position, yaw);
+			mat4.rotateX(position, position, pitch + Math.PI / 2);
+		}
 
 		var vx = velocity * Math.sin(pitch) * Math.cos(-yaw);   // calculate the x component in velocity
 		var vy = velocity * Math.cos(pitch);               	    // calculate the y component in velocity
