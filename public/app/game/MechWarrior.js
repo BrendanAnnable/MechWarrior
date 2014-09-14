@@ -7,10 +7,10 @@ Ext.define('MW.game.MechWarrior', {
 	requires: [
 		'MW.renderer.WebGLRenderer',
 		'MW.camera.ThirdPersonCamera',
-		'MW.game.control.Keyboard',
-		'MW.control.Mouse',
 		'MW.util.Scene',
 		'MW.util.AssetManager',
+		'MW.control.Mouse',
+		'MW.game.control.Keyboard',
 		'MW.game.scene.Assets',
 		'MW.game.level.Level',
         'MW.game.physics.PhysicsEngine',

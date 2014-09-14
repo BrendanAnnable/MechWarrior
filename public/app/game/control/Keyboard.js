@@ -1,3 +1,7 @@
+/**
+ * @author Brendan Annable
+ *
+ */
 Ext.define('MW.game.control.Keyboard', {
 	extend: 'MW.control.Keyboard',
 	ctrl: false,

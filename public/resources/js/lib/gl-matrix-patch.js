@@ -300,3 +300,20 @@ glMatrix.getVec = function (n) {
 	}
 	return vec;
 };
+
+mat4.print = function (a, n) {
+	if (n === undefined) {
+		n = 4;
+	}
+	var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+		a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+		a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+		a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+
+	console.log(
+		  a00.toFixed(n) + ", " + a10.toFixed(n) + ", " + a20.toFixed(n) + ", " + a30.toFixed(n) + "\n"
+		+ a01.toFixed(n) + ", " + a11.toFixed(n) + ", " + a21.toFixed(n) + ", " + a31.toFixed(n) + "\n"
+		+ a02.toFixed(n) + ", " + a12.toFixed(n) + ", " + a22.toFixed(n) + ", " + a32.toFixed(n) + "\n"
+		+ a03.toFixed(n) + ", " + a13.toFixed(n) + ", " + a23.toFixed(n) + ", " + a33.toFixed(n)
+	);
+};

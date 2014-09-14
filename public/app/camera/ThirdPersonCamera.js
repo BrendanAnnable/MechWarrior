@@ -1,11 +1,12 @@
 /**
- * @autbor Brendan Annable
+ * @author Brendan Annable
  */
 Ext.define('MW.camera.ThirdPersonCamera', {
 	alias: 'ThirdPersonCamera',
 	extend: 'MW.camera.PerspectiveCamera',
 	requires: [
-		'MW.util.HermiteSpline'
+		'MW.util.math.HermiteCurve',
+		'MW.util.math.BezierCurve'
 	],
 	spline: null,
 	config: {
@@ -18,14 +19,14 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 	},
 	constructor: function (config) {
 		this.callParent(arguments);
-		this.spline = Ext.create('MW.util.HermiteSpline', {
-			startPoint: vec4.fromValues(0, this.getDistance(), 0, 0),
-			startTangent: vec4.fromValues(0, 0, 0, 0),
-			endPoint: vec4.fromValues(Math.PI / 2, this.getMinDistance(), 0, 0),
-			endTangent: vec4.fromValues(500, 0, 0, 0),
+		this.spline = Ext.create('MW.util.math.HermiteCurve', {
+			startPoint: vec2.fromValues(0, this.getDistance()),
+			startTangent: vec2.fromValues(0, 0),
+			endPoint: vec2.fromValues(Math.PI / 2, this.getMinDistance()),
+			endTangent: vec2.fromValues(500, 0),
 			dimensions: 2
 		});
-},
+	},
 	getPosition: function () {
 		var position = mat4.create();
 		var target = this.getTarget();
