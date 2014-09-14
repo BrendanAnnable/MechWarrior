@@ -9,10 +9,14 @@ Ext.define('MW.control.Keyboard', {
 		observable: 'Ext.util.Observable'
 	},
 	keyMap: null,
+	ctrl: false,
+	shift: false,
+	alt: false,
 	translation: null,
 	needsUpdate: true,
     config: {
 		speed: 1,
+		altSpeedMultiplier: 2,
         element: null,
 		forwardKey: 'W'.charCodeAt(0),
 		leftKey: 'A'.charCodeAt(0),
@@ -41,11 +45,17 @@ Ext.define('MW.control.Keyboard', {
 		if (event.keyCode === this.getSpaceKey()) {
 			this.fireEvent('space');
 		}
+		this.shift = event.shiftKey;
+		this.ctrl = event.ctrlKey;
+		this.alt = event.altKey;
 		this.needsUpdate = true;
     },
 	onKeyUp: function (event) {
 		// unregister key as down
 		delete this.keyMap[event.keyCode];
+		this.shift = event.shiftKey;
+		this.ctrl = event.ctrlKey;
+		this.alt = event.altKey;
 		this.needsUpdate = true;
 	},
 	isKeyDown: function (key) {
@@ -74,7 +84,7 @@ Ext.define('MW.control.Keyboard', {
 
 			vec3.set(translation, x, y, z);
 			vec3.normalize(translation, translation);
-			vec3.scale(translation, translation, this.getSpeed());
+			vec3.scale(translation, translation, (this.shift ? this.getAltSpeedMultiplier() : 1) * this.getSpeed());
 			this.needsUpdate = false;
 		}
 		return translation;
