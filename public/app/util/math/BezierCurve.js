@@ -22,6 +22,8 @@ Ext.define('MW.util.math.BezierCurve', {
 		this.updateGeometry();
 	},
 	updateCoefficients: function () {
+		// See http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B.C3.A9zier_curves
+		// These represent the coefficients given by the bezier curve definition
 		var m = this.coefficients;
 		m[0] = -1; m[4] =  3; m[8] = -3; m[12] = 1;
 		m[1] =  3; m[5] = -6; m[9] =  3; m[13] = 0;
@@ -29,6 +31,8 @@ Ext.define('MW.util.math.BezierCurve', {
 		m[3] =  1; m[7] =  0; m[11] = 0; m[15] = 0;
 	},
 	updateDerivativeCoefficients: function () {
+		// See http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B.C3.A9zier_curves
+		// These represent the derivative coefficients of the bezier curve definition
 		var m = this.derivativeCoefficients;
 		m[0] =  0; m[4] =  0; m[8] =  0; m[12] = 0;
 		m[1] =  0; m[5] =  3; m[9] = -6; m[13] = 3;
@@ -70,18 +74,31 @@ Ext.define('MW.util.math.BezierCurve', {
 	},
 	getTime: function (x) {
 		// See: http://greweb.me/2012/02/bezier-curve-based-easing-functions-from-concept-to-implementation/
-		var tGuess = x;
+		// TODO: use binary search under certain conditions, see https://github.com/gre/bezier-easing/blob/master/index.js
+
+		// Use newton's method to solve the cubic for time given X
+		// Note: This assumes the the curve is injective. This is always the case if the control points are within
+		// the bounding box of the start and end points
+		var time = x;
 		var precision = 1E-3;
 		var count = 0;
 		do {
-			var derivative = this.getDerivative4(tGuess)[0];
+			// find dx/dt
+			var derivative = this.getDerivative4(time)[0];
+			// slope is too flat
 			if (Math.abs(derivative) <= precision) {
 				break;
 			}
-			var point = this.getPoint4(tGuess)[0] - x;
-			tGuess -= point / derivative;
+			// get the x coordinate given time
+			// subtract x from coordinate to account for solving for the given x
+			var point = this.getPoint4(time)[0] - x;
+			// solve for when the tangent intersects the time axis
+			time -= point / derivative;
+			// loop until the point is close enough to zero (and a root has been found)
 		} while (Math.abs(point) > precision && ++count < 10);
-		return tGuess;
+
+		// return the time for the point that has the corresponding x
+		return time;
 	},
 	getBlendingVector: function (time) {
 		// See http://en.wikipedia.org/wiki/Cubic_Hermite_spline#Representations
