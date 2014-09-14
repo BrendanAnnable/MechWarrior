@@ -23,7 +23,8 @@ Ext.define('MW.game.MechWarrior', {
 	camera: null,
     physics: null,
     config: {
-        canvas: null
+        canvas: null,
+		sound: true
     },
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
@@ -79,6 +80,9 @@ Ext.define('MW.game.MechWarrior', {
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
 				keyboardControls.on('jump', player.jump, player);          // listen for space key events
+				keyboardControls.on('n', function (event) {
+					this.setSound(!this.getSound());
+				}, this);
 				mouseControls.on('click', this.createBullet, this, {     // listen for mouse click events
 					assetManager: assetManager,
 					level: level,
@@ -157,6 +161,8 @@ Ext.define('MW.game.MechWarrior', {
             pitch: mouseControls.getPitch() - Math.PI / 2,
             yaw: mouseControls.getYaw() - Math.PI / 2
         }));
-	    sound.play();
+		if (this.getSound()) {
+			sound.play();
+		}
     }
 });

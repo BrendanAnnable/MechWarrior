@@ -28,6 +28,7 @@ Ext.define('MW.game.control.Keyboard', {
 		if (event.keyCode === this.getJumpKey()) {
 			this.fireEvent('jump');
 		}
+		this.fireEvent(String.fromCharCode(event.keyCode), event);
 		this.shift = event.shiftKey;
 		this.ctrl = event.ctrlKey;
 		this.alt = event.altKey;
