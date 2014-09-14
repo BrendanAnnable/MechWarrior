@@ -3,6 +3,11 @@
  */
 Ext.define('MW.game.scene.Assets', {
 	alias: 'Assets',
+	constructor: function () {
+		soundManager.setup({
+			multiShot: true
+		});
+	},
 	/**
 	 * Loads the models and other assets required for the game to begin.
 	 *
@@ -83,10 +88,8 @@ Ext.define('MW.game.scene.Assets', {
 	 * @returns {Promise}
 	 */
 	loadSoundAsset: function (url) {
-		return new Promise(function (resolve) {
-			resolve(soundManager.createSound({
-				url: url
-			}));
-		});
+		return Promise.resolve(soundManager.createSound({
+			url: url
+		}));
 	}
 });
