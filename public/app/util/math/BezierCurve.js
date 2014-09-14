@@ -51,15 +51,37 @@ Ext.define('MW.util.math.BezierCurve', {
 		}
 	},
 	getPoint: function (time) {
+		return new Float32Array(this.getPoint4(time).subarray(0, this.getDimensions()));
+	},
+	getPoint4: function (time) {
 		var blendingVector = this.getBlendingVector(time);
-		return new Float32Array(vec4.transformMat4(
-			vec4.create(),
-			blendingVector,
-			this.geometry
-		).subarray(0, this.getDimensions()));
+		return vec4.transformMat4(vec4.create(), blendingVector, this.geometry);
+	},
+	getDerivative: function (time) {
+		return new Float32Array(this.getDerivative4(time).subarray(0, this.getDimensions() - 1));
+	},
+	getDerivative4: function (time) {
+		var blendingVector = this.getDerivativeBlendingVector(time);
+		return vec4.transformMat4(vec4.create(), blendingVector, this.geometry);
 	},
 	getY: function (x) {
-		// TODO
+		var time = this.getTime(x);
+		return this.getPoint(time)[1];
+	},
+	getTime: function (x) {
+		// See: http://greweb.me/2012/02/bezier-curve-based-easing-functions-from-concept-to-implementation/
+		var tGuess = x;
+		var precision = 1E-3;
+		var count = 0;
+		do {
+			var derivative = this.getDerivative4(tGuess)[0];
+			if (Math.abs(derivative) <= precision) {
+				break;
+			}
+			var point = this.getPoint4(tGuess)[0] - x;
+			tGuess -= point / derivative;
+		} while (Math.abs(point) > precision && ++count < 10);
+		return tGuess;
 	},
 	getBlendingVector: function (time) {
 		// See http://en.wikipedia.org/wiki/Cubic_Hermite_spline#Representations
@@ -67,5 +89,11 @@ Ext.define('MW.util.math.BezierCurve', {
 		var timecube = timesqr * time;
 		var v = vec4.fromValues(timecube, timesqr, time, 1);
 		return vec4.transformMat4(v, v, this.coefficients);
+	},
+	getDerivativeBlendingVector: function (time) {
+		// See http://en.wikipedia.org/wiki/Cubic_Hermite_spline#Representations
+		var timesqr = time * time;
+		var v = vec4.fromValues(0, timesqr, time, 1);
+		return vec4.transformMat4(v, v, this.derivativeCoefficients);
 	}
 });

@@ -103,4 +103,27 @@ describe("BezierCurve", function () {
 			});
 		});
 	});
+
+	describe("Solving X for a given time", function () {
+		var startPoint = vec2.fromValues(0, 0);
+		var startControlPoint = vec2.fromValues(1, 0);
+		var endPoint = vec2.fromValues(1, 1);
+		var endControlPoint = vec2.fromValues(0, 1);
+
+		var curve = Ext.create('MW.util.math.BezierCurve', {
+			startPoint: startPoint,
+			startControlPoint: startControlPoint,
+			endPoint: endPoint,
+			endControlPoint: endControlPoint,
+			dimensions: 2
+		});
+
+		[0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1].forEach(function (x) {
+			it("should have an x value close to " + x + " for a given x of " + x, function () {
+				var time = curve.getTime(x);
+				var point = curve.getPoint(time);
+				expect(point[0]).toBeCloseTo(x);
+			});
+		});
+	});
 });

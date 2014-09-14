@@ -5,10 +5,9 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 	alias: 'ThirdPersonCamera',
 	extend: 'MW.camera.PerspectiveCamera',
 	requires: [
-		'MW.util.math.HermiteCurve',
 		'MW.util.math.BezierCurve'
 	],
-	spline: null,
+	curve: null,
 	config: {
 		target: null,
 		distance: 7,
@@ -19,11 +18,11 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 	},
 	constructor: function (config) {
 		this.callParent(arguments);
-		this.spline = Ext.create('MW.util.math.HermiteCurve', {
-			startPoint: vec2.fromValues(0, this.getDistance()),
-			startTangent: vec2.fromValues(0, 0),
-			endPoint: vec2.fromValues(Math.PI / 2, this.getMinDistance()),
-			endTangent: vec2.fromValues(500, 0),
+		this.curve = Ext.create('MW.util.math.BezierCurve', {
+			startPoint: vec2.fromValues(0, 0),//this.getDistance()),
+			startControlPoint: vec2.fromValues(0, 0.5),
+			endPoint: vec2.fromValues(1, 1), //Math.PI / 2, this.getMinDistance()),
+			endControlPoint: vec2.fromValues(0.5, 1),
 			dimensions: 2
 		});
 	},
@@ -48,10 +47,9 @@ Ext.define('MW.camera.ThirdPersonCamera', {
 			// linear
 //			distance = distance + (minDistance() - distance) * pitch / (Math.PI / 2);
 			// exponential
-			distance = (distance - minDistance) * Math.pow(2, rate * pitch) + minDistance;
-			// hermite spline
-//			var point = this.spline.getPoint(pitch / (Math.PI / 2));
-//			distance = point[1];
+			//distance = (distance - minDistance) * Math.pow(2, rate * pitch) + minDistance;
+			// bezier spline
+			distance = distance + (minDistance - distance) * this.curve.getY(pitch / (Math.PI / 2));
 		}
 		mat4.translate(position, position, [2, 2, distance]);
 
