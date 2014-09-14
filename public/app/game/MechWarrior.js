@@ -7,7 +7,7 @@ Ext.define('MW.game.MechWarrior', {
 	requires: [
 		'MW.renderer.WebGLRenderer',
 		'MW.camera.ThirdPersonCamera',
-		'MW.control.Keyboard',
+		'MW.game.control.Keyboard',
 		'MW.control.Mouse',
 		'MW.util.Scene',
 		'MW.util.AssetManager',
@@ -40,7 +40,7 @@ Ext.define('MW.game.MechWarrior', {
         this.physics = Ext.create('MW.game.physics.PhysicsEngine', {
             scene: level
         });
-		var keyboardControls = Ext.create('MW.control.Keyboard', {
+		var keyboardControls = Ext.create('MW.game.control.Keyboard', {
 			element: document,
 			speed: 0.5
 		});
@@ -75,7 +75,7 @@ Ext.define('MW.game.MechWarrior', {
 				var player = this.createPlayer(assetManager);
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
-				keyboardControls.on('space', player.jump, player);          // listen for space key events
+				keyboardControls.on('jump', player.jump, player);          // listen for space key events
 				mouseControls.on('click', this.createBullet, this, {     // listen for mouse click events
 					assetManager: assetManager,
                     level: level,
