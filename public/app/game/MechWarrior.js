@@ -110,10 +110,12 @@ Ext.define('MW.game.MechWarrior', {
 		// move player according to keyboard input
 		mat4.translate(position, position, keyboardControls.getTranslation());
 
-		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
-		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
         // run the physics engine update
         this.physics.update();
+
+		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
+		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
+
 		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
 
