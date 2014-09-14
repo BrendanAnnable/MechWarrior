@@ -68,6 +68,9 @@ Ext.define('MW.game.MechWarrior', {
 			height: canvas.height,
 			backgroundColor: backgroundColor
 		}).on('loaded', function () {
+			soundManager.setup({
+				url: "/resources/sound/" // where to locate sound files
+			});
 			// create the asset manager and load all the assets for the game
 			var assetManager = Ext.create('MW.util.AssetManager');
 			Ext.create('MW.game.scene.Assets').load(assetManager).bind(this).then(function () {
@@ -78,8 +81,8 @@ Ext.define('MW.game.MechWarrior', {
 				keyboardControls.on('jump', player.jump, player);          // listen for space key events
 				mouseControls.on('click', this.createBullet, this, {     // listen for mouse click events
 					assetManager: assetManager,
-                    level: level,
-                    player: player,
+					level: level,
+					player: player,
 					camera: this.camera
 				});
 				this.player = player;                                       // assign the player to the private variable
@@ -138,6 +141,7 @@ Ext.define('MW.game.MechWarrior', {
 	},
     createBullet: function (mouseControls, options) {
         var bullet = options.assetManager.getAsset('bullet');
+	    var sound = options.assetManager.getAsset('bulletSound');
         var level = options.level;
         var player = options.player;
         var position = mat4.create();
@@ -153,5 +157,6 @@ Ext.define('MW.game.MechWarrior', {
             pitch: mouseControls.getPitch() - Math.PI / 2,
             yaw: mouseControls.getYaw() - Math.PI / 2
         }));
+	    sound.play();
     }
 });
