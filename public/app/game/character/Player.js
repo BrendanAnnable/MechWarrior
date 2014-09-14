@@ -6,7 +6,7 @@ Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
 	mixins: {
-		physics: 'MW.mixin.DynamicObject'
+		physics: 'MW.game.physics.DynamicObject'
 	},
     requires: [
         'MW.loader.Model',
@@ -20,13 +20,6 @@ Ext.define('MW.game.character.Player', {
 	constructor: function (config) {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
-	},
-	/**
-	 * Overrides the player's position by returning its dynamic position from the physics mixin.
-	 * @returns {*}
-	 */
-	getPosition: function () {
-		return this.getDynamicPosition();
 	},
 	/**
 	 * Adds velocity to the player when the user presses the space bar.

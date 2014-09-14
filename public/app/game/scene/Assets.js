@@ -17,8 +17,10 @@ Ext.define('MW.game.scene.Assets', {
             this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player);
 		    }),
-		    this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
-			    assetManager.addAsset('player2', player);
+		    this.loadBulletAsset(getPath('bullet.json')).then(function (bullet) {
+			    assetManager.addAsset('bullet', bullet);
+                bullet.geometry.scale(vec3.fromValues(5, 5, 5));
+                bullet.geometry.rotateY(Math.PI);
 		    })
         ]);
 	},
@@ -44,5 +46,28 @@ Ext.define('MW.game.scene.Assets', {
 				});
 			});
 		});
-	}
+	},
+    /**
+     * Loads the bullet model and returns it as a promise once it has finished loading.
+     *
+     * @param url The path of the bullet model to load.
+     * @returns {Promise}
+     */
+    loadBulletAsset: function (url) {
+        return new Promise(function (resolve) {
+            Ext.create('MW.loader.Model').load(url).then(function (geometry) {
+                resolve ({
+                    name: 'Bullet',
+                    geometry: geometry,
+                    material: Ext.create('MW.material.Phong', {
+                        color: Ext.create('MW.util.Color', {
+                            r: 0,
+                            g: 1,
+                            b: 0
+                        })
+                    })
+                });
+            });
+        });
+    }
 });

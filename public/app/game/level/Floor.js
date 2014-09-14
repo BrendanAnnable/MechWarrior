@@ -4,6 +4,9 @@
 Ext.define('MW.game.level.Floor', {
 	alias: 'Floor',
 	extend: 'MW.object.Mesh',
+    mixins: {
+        physics: 'MW.game.physics.DynamicObject'
+    },
     requires: [
         'MW.geometry.PlaneGeometry',
         'MW.util.Color',
@@ -11,13 +14,15 @@ Ext.define('MW.game.level.Floor', {
     ],
     config: {
         width: 0,
-        height: 0
+        height: 0,
+        dynamic: false
     },
 	/**
 	 * Creates a plane mesh to represent the floor in the scene.
 	 */
-	constructor: function () {
+	constructor: function (config) {
 		this.callParent(arguments);
+        this.mixins.physics.constructor.call(this, config);
 		// create the plane geometry and rotate it so that it is horizontal to the ground
 		var geometry = Ext.create('MW.geometry.PlaneGeometry', {
 			width: this.getWidth(),
