@@ -10,18 +10,24 @@ Ext.define('MW.game.scene.Assets', {
 	 * @returns {*}
 	 */
 	load: function (assetManager) {
-		function getPath (modelName) {
+		function getModelPath (modelName) {
 			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
 		}
+		function getSoundPath (modelName) {
+			return Ext.String.format("/resources/sound/{1}", Ext.Loader.getPath('MW'), modelName);
+		}
         return Promise.all([
-            this.loadPlayerAsset(getPath('mech.json')).then(function (player) {
+            this.loadPlayerAsset(getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player);
 		    }),
-		    this.loadBulletAsset(getPath('bullet.json')).then(function (bullet) {
+		    this.loadBulletAsset(getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
                 bullet.geometry.scale(vec3.fromValues(5, 5, 5));
                 bullet.geometry.rotateY(Math.PI);
-		    })
+		    }),
+	        this.loadSoundAsset(getSoundPath('bullet.mp3')).then(function (sound) {
+		        assetManager.addAsset('bulletSound', sound);
+	        })
         ]);
 	},
 	/**
@@ -69,5 +75,18 @@ Ext.define('MW.game.scene.Assets', {
                 });
             });
         });
-    }
+    },
+	/**
+	 * Loads a sound asset for the game.
+	 *
+	 * @param url The url to load the sound from
+	 * @returns {Promise}
+	 */
+	loadSoundAsset: function (url) {
+		return new Promise(function (resolve) {
+			resolve(soundManager.createSound({
+				url: url
+			}));
+		});
+	}
 });
