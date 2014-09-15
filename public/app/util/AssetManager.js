@@ -3,7 +3,6 @@
  */
 Ext.define('MW.util.AssetManager', {
 	alias: 'AssetManager',
-	//singleton: true,
 	assets: null,
 	constructor: function () {
 		this.assets = {};

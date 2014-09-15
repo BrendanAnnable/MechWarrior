@@ -11,8 +11,8 @@ Ext.define('MW.game.MechWarrior', {
 		'MW.util.AssetManager',
 		'MW.control.Mouse',
 		'MW.game.control.Keyboard',
-		'MW.game.scene.Assets',
-		'MW.game.level.Level',
+		'MW.game.scene.assets.Global',
+		'MW.game.scene.Manager',
         'MW.game.physics.PhysicsEngine',
 		'MW.game.character.Player',
 		'MW.util.Color',
@@ -31,26 +31,20 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	constructor: function (config) {
         this.initConfig(config);
-		// initialize the scene and the keyboard and mouse controls
-		var level = Ext.create('MW.game.level.Level', {
-			name: 'Level 1',
-			width: 200,
-			height: 200,
-			depth: 50
-		});
-        this.physics = Ext.create('MW.game.physics.PhysicsEngine', {
+		var sceneManager = Ext.create('MW.game.scene.Manager');			// initialises the scene manager
+		var level = sceneManager.getActiveScene();						// gets the active scene from the manager
+        this.physics = Ext.create('MW.game.physics.PhysicsEngine', {	// initialise the physics engine with the level
             scene: level
         });
-		var keyboardControls = Ext.create('MW.game.control.Keyboard', {
+		var keyboardControls = Ext.create('MW.game.control.Keyboard', {	// initialise the keyboard controls
 			element: document,
 			speed: 0.5
 		});
-        var canvas = this.getCanvas();
-		var mouseControls = Ext.create('MW.control.Mouse', {
+        var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
+		var mouseControls = Ext.create('MW.control.Mouse', {			// initialise the mouse controls
 			element: canvas
 //			minPitch: Math.PI / 16
 		});
-
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 		this.camera = Ext.create('MW.camera.ThirdPersonCamera', {
@@ -74,23 +68,23 @@ Ext.define('MW.game.MechWarrior', {
 			});
 			// create the asset manager and load all the assets for the game
 			var assetManager = Ext.create('MW.util.AssetManager');
-			Ext.create('MW.game.scene.Assets').load(assetManager).bind(this).then(function () {
+			Ext.create('MW.game.scene.assets.Global').load(assetManager).bind(this).then(function () {
 				// create the player model and add it to the scene
 				var player = this.createPlayer(assetManager);
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
-				keyboardControls.on('jump', player.jump, player);          // listen for space key events
+				keyboardControls.on('jump', player.jump, player);          	// listen for space key events
 				keyboardControls.on('n', function (event) {
 					this.setSound(!this.getSound());
 				}, this);
-				mouseControls.on('click', this.createBullet, this, {     // listen for mouse click events
+				mouseControls.on('click', this.createBullet, this, {     	// listen for mouse click events
 					assetManager: assetManager,
 					level: level,
 					player: player,
 					camera: this.camera
 				});
 				this.player = player;                                       // assign the player to the private variable
-				this.update(level, keyboardControls, mouseControls);        // start the animation loop
+				this.update(sceneManager, keyboardControls, mouseControls); // start the animation loop
 			});
 		}, this);
 	},
@@ -103,11 +97,11 @@ Ext.define('MW.game.MechWarrior', {
 	/**
 	 * Animation update, uses requestAnimationFrame to run as fast as possible.
 	 *
-	 * @param scene The scene to draw objects in
+	 * @param sceneManager The scene manager that contains the scene to draw objects in
 	 * @param keyboardControls
 	 * @param mouseControls
 	 */
-	update: function (scene, keyboardControls, mouseControls) {
+	update: function (sceneManager, keyboardControls, mouseControls) {
 		// rotate camera around target
 		this.camera.setPitch(mouseControls.getPitch());
 		this.camera.setYaw(mouseControls.getYaw());
@@ -120,6 +114,8 @@ Ext.define('MW.game.MechWarrior', {
         // run the physics engine update
         this.physics.update();
 
+		// get the active scene from the manager
+		var scene = sceneManager.getActiveScene();
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
 		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
 
@@ -127,7 +123,7 @@ Ext.define('MW.game.MechWarrior', {
 		this.renderer.render(scene, this.camera);
 
 		// request to render the next frame
-		requestAnimationFrame(Ext.bind(this.update, this, [scene, keyboardControls, mouseControls]));
+		requestAnimationFrame(Ext.bind(this.update, this, [sceneManager, keyboardControls, mouseControls]));
 	},
     /**
      * Creates a player using the asset manager.

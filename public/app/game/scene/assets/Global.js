@@ -1,8 +1,9 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.game.scene.Assets', {
-	alias: 'Assets',
+Ext.define('MW.game.scene.assets.Global', {
+	alias: 'GlobalAssets',
+	extend: 'MW.game.scene.assets.Assets',
 	/**
 	 * Loads the models and other assets required for the game to begin.
 	 *
@@ -10,22 +11,16 @@ Ext.define('MW.game.scene.Assets', {
 	 * @returns {*}
 	 */
 	load: function (assetManager) {
-		function getModelPath (modelName) {
-			return Ext.String.format("{0}/game/scene/model/{1}", Ext.Loader.getPath('MW'), modelName);
-		}
-		function getSoundPath (modelName) {
-			return Ext.String.format("/resources/sound/{1}", Ext.Loader.getPath('MW'), modelName);
-		}
-        return Promise.all([
-            this.loadPlayerAsset(getModelPath('mech.json')).then(function (player) {
+		return Promise.all([
+            this.loadPlayerAsset(this.getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player);
 		    }),
-		    this.loadBulletAsset(getModelPath('bullet.json')).then(function (bullet) {
+		    this.loadBulletAsset(this.getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
                 bullet.geometry.scale(vec3.fromValues(5, 5, 5));
                 bullet.geometry.rotateY(Math.PI);
 		    }),
-	        this.loadSoundAsset(getSoundPath('bullet.mp3')).then(function (sound) {
+	        this.loadSoundAsset(this.getSoundPath('bullet.mp3')).then(function (sound) {
 		        assetManager.addAsset('bulletSound', sound);
 	        })
         ]);
