@@ -1,16 +1,16 @@
 {
 	"name": "MechWarrior",
-	"version": "0.1.0",
+	"version": "0.1.1",
 	"private": true,
 	"scripts": {
 		"start": "node app.js"
 	},
 	"dependencies": {
-		"express": "4.4.3",
-		"compression": "1.0.7",
-		"serve-favicon": "2.0.1",
-		"socket.io": "1.0.5",
-		"bluebird": "2.3.2"
+		"express": "^4.4.3",
+		"compression": "^1.0.7",
+		"serve-favicon": "^2.0.1",
+		"socket.io": "^1.0.5",
+		"bluebird": "^2.3.2"
 	},
 	"devDependencies": {
 		"karma-chrome-launcher": "^0.1.4",
