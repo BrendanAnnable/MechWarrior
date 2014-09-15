@@ -32,7 +32,6 @@ Ext.define('MW.control.Mouse', {
 
 		element.on({
 			mousemove: this.onMouseMove,
-			click: this.onMouseClick,
 			scope: this
 		});
 
