@@ -3,6 +3,7 @@
  */
 Ext.define('MW.util.math.BezierCurve', {
 	geometry: null,
+	derivativeGeometry: null,
 	coefficients: null,
 	derivativeCoefficients: null,
 	config: {
@@ -15,11 +16,13 @@ Ext.define('MW.util.math.BezierCurve', {
 	constructor: function (config) {
 		this.initConfig(config);
 		this.geometry = mat4.zeros();
+		this.derivativeGeometry = mat4.zeros();
 		this.coefficients = mat4.zeros();
 		this.derivativeCoefficients = mat4.zeros();
 		this.updateCoefficients();
 		this.updateDerivativeCoefficients();
 		this.updateGeometry();
+		this.updateDerivativeGeometry();
 	},
 	updateCoefficients: function () {
 		// See http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B.C3.A9zier_curves
@@ -54,6 +57,22 @@ Ext.define('MW.util.math.BezierCurve', {
 			}
 		}
 	},
+	updateDerivativeGeometry: function () {
+		var dimensions = this.getDimensions();
+		var vec = glMatrix.getVec(dimensions);
+		var cols = [
+			vec.create(),
+			vec.subtract(vec.create(), this.getStartControlPoint(), this.getStartPoint()),
+			vec.subtract(vec.create(), this.getEndControlPoint(), this.getStartControlPoint()),
+			vec.subtract(vec.create(), this.getEndPoint(), this.getEndControlPoint())
+		];
+		for (var x = 0; x < cols.length; x++) {
+			var col = cols[x];
+			for (var y = 0; y < dimensions; y++) {
+				this.derivativeGeometry[4 * x + y] = col[y];
+			}
+		}
+	},
 	getPoint: function (time) {
 		return new Float32Array(this.getPoint4(time).subarray(0, this.getDimensions()));
 	},
@@ -66,7 +85,7 @@ Ext.define('MW.util.math.BezierCurve', {
 	},
 	getDerivative4: function (time) {
 		var blendingVector = this.getDerivativeBlendingVector(time);
-		return vec4.transformMat4(vec4.create(), blendingVector, this.geometry);
+		return vec4.transformMat4(vec4.create(), blendingVector, this.derivativeGeometry);
 	},
 	getY: function (x) {
 		var time = this.getTime(x);
