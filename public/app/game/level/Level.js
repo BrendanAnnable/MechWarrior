@@ -79,15 +79,18 @@ Ext.define('MW.game.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-    /**
-     * Adds a projectile to the level.
-     *
-     * @param projectile The projectile to add
-     */
-    addProjectile: function (projectile) {
-        this.getProjectiles().push(projectile);
-        this.addChild(projectile);
-    },
+	/**
+	 * Adds a projectile to the level when the user clicks the left mouse button.
+	 *
+	 * @param projectile The projectile to be added to the level.
+	 */
+	addProjectile: function (projectile) {
+		this.getProjectiles().push(projectile);
+		this.addChild(projectile);
+		projectile.on('collision', function () {
+			this.removeProjectile(projectile);
+		}, this);
+	},
     /**
      * Removes a projectile from the level.
      *

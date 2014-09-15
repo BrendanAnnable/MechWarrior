@@ -6,7 +6,7 @@ Ext.define('MW.game.character.Player', {
 	alias: 'Player',
 	extend: 'MW.object.Mesh',
 	mixins: {
-		physics: 'MW.mixin.DynamicObject'
+		physics: 'MW.game.physics.DynamicObject'
 	},
     requires: [
         'MW.loader.Model',
@@ -21,23 +21,12 @@ Ext.define('MW.game.character.Player', {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
 	},
-	getPosition: function () {
-		return this.getDynamicPosition();
-	},
-    load: function (url, callback, thisArg) {
-        Ext.create('MW.loader.Model').load(url, function (mesh) {
-            this.setName(mesh.name);
-            this.setGeometry(mesh.geometry);
-            this.setMaterial(Ext.create('MW.material.Phong', {
-                color: Ext.create('MW.util.Color', {
-                    r: 0,
-                    g: 1,
-                    b: 0
-                })
-            }));
-            callback.call(thisArg);
-        }, this);
-    }
+	/**
+	 * Adds velocity to the player when the user presses the space bar.
+	 */
+	jump: function () {
+		this.getVelocity()[1] = 30;
+	}
 	/**
 	 * Renders the player model in the scene.
 	 *

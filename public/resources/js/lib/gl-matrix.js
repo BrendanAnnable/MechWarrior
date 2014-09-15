@@ -33,7 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
   var shim = {};
   if (typeof(exports) === 'undefined') {
-    if(typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
+    if(false && typeof define == 'function' && typeof define.amd == 'object' && define.amd) {
       shim.exports = {};
       define(function() {
         return shim.exports;

@@ -123,6 +123,12 @@ Ext.define('MW.geometry.Geometry', {
             vec3.findNormal(normals[i], normals[i]);
         }
     },
+    scale: function (scale) {
+        var vertices = this.getVertices();
+        for (var i = 0; i < vertices.length; i++) {
+            vec3.multiply(vertices[i], vertices[i], scale);
+        }
+    },
 	negateNormals: function () {
 		var normals = this.getNormals();
 		for (var i = 0; i < normals.length; i++) {

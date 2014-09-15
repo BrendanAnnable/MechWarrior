@@ -18,6 +18,7 @@ server.listen(app.get('port'), function () {
 
 });
 
+var Promise = require("bluebird");
 io = require('socket.io').listen(server);
 
 var mechWarrior = new MechWarrior(io);

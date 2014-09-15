@@ -23,7 +23,9 @@ Ext.define('MW.object.Object', {
 	},
 	getPositionInverse: function () {
 		var position = this.getPosition();
-		mat4.othoNormalInvert(this.positionInverse, position);
+		// TODO: find out when I can use each of the below
+		//mat4.othoNormalInvert(this.positionInverse, position);
+		mat4.invert(this.positionInverse, position);
 		return this.positionInverse;
 	},
 	translate: function (x, y, z) {
