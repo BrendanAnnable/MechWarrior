@@ -8,11 +8,12 @@ Ext.define('MW.game.MechWarrior', {
 		'MW.renderer.WebGLRenderer',
 		'MW.camera.ThirdPersonCamera',
 		'MW.util.Scene',
-		'MW.util.AssetManager',
+		'MW.util.manager.Asset',
 		'MW.control.Mouse',
 		'MW.game.control.Keyboard',
 		'MW.game.scene.assets.Global',
-		'MW.game.scene.Manager',
+		'MW.game.manager.Level',
+		'MW.game.level.genesis.Genesis',
         'MW.game.physics.PhysicsEngine',
 		'MW.game.character.Player',
 		'MW.util.Color',
@@ -31,8 +32,16 @@ Ext.define('MW.game.MechWarrior', {
 	 */
 	constructor: function (config) {
         this.initConfig(config);
-		var sceneManager = Ext.create('MW.game.scene.Manager');			// initialises the scene manager
-		var level = sceneManager.getActiveScene();						// gets the active scene from the manager
+		var sceneManager = Ext.create('MW.game.manager.Level');			// initialises the scene manager
+		var name = 'Genesis';											// set the name of the first level
+		var level = Ext.create('MW.game.level.genesis.Genesis', {		// create the genesis level
+			name: name,
+			width: 200,
+			height: 200,
+			depth: 50
+		});
+		sceneManager.addScene(name, level);								// add the level to the manager
+		sceneManager.setActiveScene(level);								// set the active scene to the level
         this.physics = Ext.create('MW.game.physics.PhysicsEngine', {	// initialise the physics engine with the level
             scene: level
         });
@@ -67,7 +76,7 @@ Ext.define('MW.game.MechWarrior', {
 				url: "/resources/sound/" // where to locate sound files
 			});
 			// create the asset manager and load all the assets for the game
-			var assetManager = Ext.create('MW.util.AssetManager');
+			var assetManager = Ext.create('MW.util.manager.Asset');
 			Ext.create('MW.game.scene.assets.Global').load(assetManager).bind(this).then(function () {
 				// create the player model and add it to the scene
 				var player = this.createPlayer(assetManager);
@@ -118,7 +127,6 @@ Ext.define('MW.game.MechWarrior', {
 		var scene = sceneManager.getActiveScene();
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
 		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
-
 		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
 

@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.util.AssetManager', {
+Ext.define('MW.util.manager.Asset', {
 	alias: 'AssetManager',
 	assets: null,
 	constructor: function () {
