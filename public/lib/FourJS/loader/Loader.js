@@ -1,0 +1,15 @@
+/**
+ * @author Monica Olejniczak
+ */
+Ext.define('FourJS.loader.Loader', {
+    alias: 'Loader',
+    config: {
+        loaded: false
+    },
+    constructor: function (config) {
+        this.initConfig(config);
+    },
+    isLoaded: function () {
+        return this.getLoaded();
+    }
+});
