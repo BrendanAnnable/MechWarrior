@@ -126,7 +126,7 @@ Ext.define('MW.game.MechWarrior', {
 		// get the active scene from the manager
 		var scene = sceneManager.getActiveScene();
 		// keep skybox at constant distance from player (pretty sure there is a better way than this?)
-		mat4.copyTranslation(scene.getSkybox().getPosition(), position);
+		mat4.copyTranslation(scene.getSkybox().getPosition(), this.camera.getPosition());
 		// render the scene from the given camera
 		this.renderer.render(scene, this.camera);
 
