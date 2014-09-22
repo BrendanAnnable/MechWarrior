@@ -23,6 +23,10 @@ Ext.define('FourJS.util.math.BezierCurve', {
 		this.updateDerivativeCoefficients();
 		this.updateGeometry();
 		this.updateDerivativeGeometry();
+
+		if (this.getDimensions() > 4) {
+			throw new Error("Bezier curve dimensions greater than 4 not supported");
+		}
 	},
 	updateCoefficients: function () {
 		// See http://en.wikipedia.org/wiki/B%C3%A9zier_curve#Cubic_B.C3.A9zier_curves
