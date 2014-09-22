@@ -19,11 +19,11 @@ Ext.define('FourJS.camera.ThirdPersonCamera', {
 	constructor: function (config) {
 		this.callParent(arguments);
 		this.curve = Ext.create('FourJS.util.math.BezierCurve', {
-			startPoint: vec2.fromValues(0, 0),//this.getDistance()),
-			startControlPoint: vec2.fromValues(0, 0.5),
-			endPoint: vec2.fromValues(1, 1), //Math.PI / 2, this.getMinDistance()),
-			endControlPoint: vec2.fromValues(0.5, 1),
-			dimensions: 2
+			startPoint: vec3.fromValues(0, 0, this.getDistance()),
+			startControlPoint: vec3.fromValues(0, -1, 0),
+			endPoint: vec3.fromValues(0, 0, this.getMinDistance()),
+			endControlPoint: vec3.fromValues(0, 0, 1),
+			dimensions: 3
 		});
 	},
 	getPosition: function () {
@@ -43,15 +43,14 @@ Ext.define('FourJS.camera.ThirdPersonCamera', {
 		mat4.rotateX(position, position, pitch);
 
 		// translate 'distance' away from target
+		mat4.translate(position, position, [2, 2, 0]);
 		if (this.getPitch() > 0) {
-			// linear
-//			distance = distance + (minDistance() - distance) * pitch / (Math.PI / 2);
-			// exponential
-			//distance = (distance - minDistance) * Math.pow(2, rate * pitch) + minDistance;
-			// bezier spline
-			distance = distance + (minDistance - distance) * this.curve.getY(pitch / (Math.PI / 2));
+			// looking up, use bezier curve
+			mat4.translate(position, position, this.curve.getPoint(pitch));
+		} else {
+			// lookup forward/down, use simple distance
+			mat4.translate(position, position, [0, 0, distance]);
 		}
-		mat4.translate(position, position, [2, 2, distance]);
 
 		return position;
 	}
