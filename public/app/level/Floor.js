@@ -28,7 +28,7 @@ Ext.define('MW.level.Floor', {
 			width: this.getWidth(),
 			height: this.getHeight()
 		});
-		geometry.rotateX(Math.PI * 0.5);
+		geometry.rotateX(-Math.PI * 0.5);
 		// create the mesh containing the geometry
         var material = Ext.create('FourJS.material.Phong', {
             texture: Ext.create('FourJS.loader.Texture', {

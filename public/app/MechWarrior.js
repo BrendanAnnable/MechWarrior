@@ -39,7 +39,7 @@ Ext.define('MW.MechWarrior', {
 			name: name,
 			width: 200,
 			height: 200,
-			depth: 50
+			depth: 200
 		});
 		sceneManager.addScene(name, level);								// add the level to the manager
 		sceneManager.setActiveScene(level);								// set the active scene to the level
