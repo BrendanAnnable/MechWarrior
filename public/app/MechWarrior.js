@@ -20,6 +20,7 @@ Ext.define('MW.MechWarrior', {
 		'MW.projectile.Missile'
 	],
 	player: null,
+	face: null,
 	renderer: null,
 	camera: null,
     physics: null,
@@ -82,6 +83,8 @@ Ext.define('MW.MechWarrior', {
 				var player = this.createPlayer(assetManager);
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
+				this.face = this.createFace(assetManager);
+				level.addObstacle(this.face);
 				keyboardControls.on('jump', player.jump, player);          	// listen for space key events
 				keyboardControls.on('n', function (event) {
 					this.setSound(!this.getSound());
@@ -146,6 +149,48 @@ Ext.define('MW.MechWarrior', {
             geometry: playerAsset.geometry,
             material: playerAsset.material
         });
+	},
+	createFace: function (assetManager) {
+		var faceAsset = assetManager.getAsset('face');
+		var spline = Ext.create('FourJS.util.math.HermiteSpline', {
+			points: [
+				vec3.fromValues(0, 0, -3),
+				vec3.fromValues(3, 2, 0),
+				vec3.fromValues(0, 0, 3),
+				vec3.fromValues(-3, 2, 0),
+				vec3.fromValues(0, 0, -3)
+			],
+			loop: true
+		});
+		var face = Ext.create('FourJS.object.Mesh', {
+			name: faceAsset.name,
+			geometry: faceAsset.geometry,
+			material: faceAsset.material
+		});
+		var me = this;
+		// TODO: I hacked this in for now, need moving to a generic place
+		face.getPosition = function () {
+			var position = this._position;
+			var period = 7000;
+			var time = (Date.now() / period) % 1;
+
+			var up = vec3.fromValues(0, 1, 0);
+			var eye = spline.getPoint(time);
+			vec3.add(eye, eye, me.player.getTranslation());
+			var center = me.player.getTranslation();
+			center = vec3.negate(vec3.create(), center);
+
+			// this is a hack until I rotate the face geometry
+			vec3.rotateY(center, center, vec3.create(), Math.PI);
+
+			var transform = mat4.lookAt(mat4.create(), eye, center, up);
+			mat4.invert(transform, transform);
+
+			mat4.copy(position, transform);
+
+			return position;
+		};
+		return face;
 	},
     createBullet: function (mouseControls, options) {
         var bullet = options.assetManager.getAsset('bullet');

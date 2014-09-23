@@ -68,5 +68,55 @@ describe("HermiteSpline", function () {
 			expect(this.spline.getPoint(0.9)).toBeCloseToArray(vec3.fromValues(1.832, 0.232, 0), 3);
 		});
 	});
+
+	describe("should support looping splines", function () {
+
+		var spline = Ext.create('FourJS.util.math.HermiteSpline', {
+			points: [
+				vec3.fromValues(0, 0, -1),
+				vec3.fromValues(1, 0, 0),
+				vec3.fromValues(0, 0, 1),
+				vec3.fromValues(-1, 0, 0)
+			],
+			loop: true
+		});
+
+		it("should have 4 segments", function () {
+			expect(spline.segments.length).toEqual(4);
+		});
+
+		it("should have a valid first segment", function () {
+			var segment = spline.segments[0];
+			expect(segment.getStartPoint()).toBeCloseToArray(vec3.fromValues(0, 0, -1));
+			expect(segment.getStartTangent()).toBeCloseToArray(vec3.fromValues(2, 0, 0));
+			expect(segment.getEndPoint()).toBeCloseToArray(vec3.fromValues(1, 0, 0));
+			expect(segment.getEndTangent()).toBeCloseToArray(vec3.fromValues(0, 0, 2));
+		});
+
+		it("should have a valid second segment", function () {
+			var segment = spline.segments[1];
+			expect(segment.getStartPoint()).toBeCloseToArray(vec3.fromValues(1, 0, 0));
+			expect(segment.getStartTangent()).toBeCloseToArray(vec3.fromValues(0, 0, 2));
+			expect(segment.getEndPoint()).toBeCloseToArray(vec3.fromValues(0, 0, 1));
+			expect(segment.getEndTangent()).toBeCloseToArray(vec3.fromValues(-2, 0, 0));
+		});
+
+		it("should have a valid third segment", function () {
+			var segment = spline.segments[2];
+			expect(segment.getStartPoint()).toBeCloseToArray(vec3.fromValues(0, 0, 1));
+			expect(segment.getStartTangent()).toBeCloseToArray(vec3.fromValues(-2, 0, 0));
+			expect(segment.getEndPoint()).toBeCloseToArray(vec3.fromValues(-1, 0, 0));
+			expect(segment.getEndTangent()).toBeCloseToArray(vec3.fromValues(0, 0, -2));
+		});
+
+		it("should have a valid fourth segment", function () {
+			var segment = spline.segments[3];
+			expect(segment.getStartPoint()).toBeCloseToArray(vec3.fromValues(-1, 0, 0));
+			expect(segment.getStartTangent()).toBeCloseToArray(vec3.fromValues(0, 0, -2));
+			expect(segment.getEndPoint()).toBeCloseToArray(vec3.fromValues(0, 0, -1));
+			expect(segment.getEndTangent()).toBeCloseToArray(vec3.fromValues(2, 0, 0));
+		});
+
+	});
 });
 

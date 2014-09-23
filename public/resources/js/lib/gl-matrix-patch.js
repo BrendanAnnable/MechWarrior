@@ -4,6 +4,8 @@
  * Patch to add various helpers methods to the gl-matrix library.
  */
 
+var GLMAT_EPSILON = 0.000001;
+
 /**
  * Return a vec4 reference to the given column vector of a mat4
  *
@@ -317,3 +319,14 @@ mat4.print = function (a, n) {
 		+ a03.toFixed(n) + ", " + a13.toFixed(n) + ", " + a23.toFixed(n) + ", " + a33.toFixed(n)
 	);
 };
+
+vec3.equal = function (a, b) {
+	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+};
+
+vec3.close = function (a, b) {
+	return Math.abs(a[0] - b[0]) < GLMAT_EPSILON
+		&& Math.abs(a[1] - b[1]) < GLMAT_EPSILON
+		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON;
+};
+

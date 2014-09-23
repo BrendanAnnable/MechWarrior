@@ -96,13 +96,19 @@ Ext.define('FourJS.geometry.Geometry', {
 		}
 		return new Uint16Array(fArray);
 	},
+	translate: function (b) {
+		var vertices = this.getVertices();
+		for (var i = 0; i < vertices.length; i++) {
+			vec3.add(vertices[i], vertices[i], b);
+		}
+	},
     rotateX: function (rad) {
         var vertices = this.getVertices();
         var normals = this.getNormals();
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateX(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], normals[i]);
+            vec3.findNormal(normals[i], vertices[i]);
         }
     },
     rotateY: function (rad) {
@@ -111,7 +117,7 @@ Ext.define('FourJS.geometry.Geometry', {
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateY(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], normals[i]);
+            vec3.findNormal(normals[i], vertices[i]);
         }
     },
     rotateZ: function (rad) {
@@ -120,7 +126,7 @@ Ext.define('FourJS.geometry.Geometry', {
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateZ(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], normals[i]);
+            vec3.findNormal(normals[i], vertices[i]);
         }
     },
     scale: function (scale) {
