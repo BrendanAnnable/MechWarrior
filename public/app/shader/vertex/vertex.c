@@ -11,6 +11,7 @@ attribute vec2 aTextureCoord;
 uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 uniform mat3 uNMatrix;
+uniform mat4 uWorldTransform;
 uniform bool useTexture;
 
 // Varying variables which are linearly interpolated and given to the fragment shader
@@ -21,6 +22,7 @@ varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
 varying vec2 vTextureCoord;
+varying vec4 vLightDirection;
 
 void main(void) {
  //	vColor = aVertexColor;
@@ -32,6 +34,8 @@ void main(void) {
  	// Convert normal to camera-space
  	vNormal = uNMatrix * aVertexNormal;
  	vRawNormal = aVertexNormal;
+
+    vLightDirection = uWorldTransform * vec4(1.0, 1.0, 0.0, 0.0);
 
  	// Default color to white
  	vColor = vec4(1, 1, 1, 1);

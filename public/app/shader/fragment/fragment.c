@@ -18,6 +18,7 @@ varying vec3 vRawNormal;
 varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
+varying vec4 vLightDirection;
 
 // textures
 varying vec2 vTextureCoord;
@@ -37,15 +38,15 @@ void main(void) {
     	gl_FragColor = vColor;
     }
 
-    vec3 dirLightColor = vec3(1.0, 1.0, 1.0);
-    vec3 dirLightVec = normalize(vec3(1.0, 0.0, 0.0));
+    vec3 dirLightColor = vec3(0.2, 0.0, 0.6);
+    vec3 dirLightVec = normalize(vLightDirection.xyz);
 
     vec3 viewVec = normalize(-vPosition.xyz);
     vec3 reflectVec = reflect(-dirLightVec, normal);
     float specularAngle = max(dot(reflectVec, viewVec), 0.0);
     float shininess = 4.0;
 
-    vec3 ambientLight = vec3(0.2, 0.2, 0.2);
+    vec3 ambientLight = 0.2 * dirLightColor;
     vec3 diffuseLight = dirLightColor * max(dot(normal, dirLightVec), 0.0);
     vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
 
@@ -59,6 +60,7 @@ void main(void) {
 
 //	gl_FragColor = vec4(normal, 1);
 //	gl_FragColor = vec4(vRawNormal, 1);
+//	gl_FragColor = vec4(vLightDirection);
 
 	// add some fog
 	float density = 0.007;
@@ -75,5 +77,5 @@ void main(void) {
 	vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
 
 	// linearly blend current color with fog
-//	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
+	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
 }
