@@ -119,7 +119,7 @@ Ext.define('MW.MechWarrior', {
 		this.camera.setYaw(mouseControls.getYaw());
 		var position = this.player.getPosition();
 		// rotate player to face camera
-		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
+//		mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
 		// move player according to keyboard input
 		mat4.translate(position, position, keyboardControls.getTranslation());
 
