@@ -63,18 +63,14 @@ void main(void) {
 //	gl_FragColor = vec4(vLightDirection);
 
 	// add some fog
-	float density = 0.007;
-	// get z coordinate of fragment
-	// apparently wrong but still works well?
-	// see http://stackoverflow.com/a/13731548/868679
-	float z = gl_FragCoord.z / gl_FragCoord.w;
+	float density = 0.008;
 	// calculate fog factor
-	float fogFactor = exp2(-pow(density * z, 2.0));
+	float fogFactor = exp2(-pow(density * vPosition.z, 2.0));
 	// clamp between 0 and 1
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
 	// fog colour
-	vec4 fogColor = vec4(0.5, 0.5, 0.5, 1.0);
+	vec4 fogColor = vec4(0.2, 0.0, 0.3, 1.0);
 
 	// linearly blend current color with fog
 	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
