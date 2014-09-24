@@ -29,7 +29,7 @@ Ext.define('MW.projectile.Projectile', {
 			var position = this.getPosition();
 			// align object to point in direction of velocity
 			mat4.rotateY(position, position, yaw);
-			mat4.rotateX(position, position, pitch + Math.PI / 2);
+			mat4.rotateX(position, position, pitch - Math.PI / 2);
 		}
 
 		var vx = velocity * Math.sin(pitch) * Math.cos(-yaw);   // calculate the x component in velocity

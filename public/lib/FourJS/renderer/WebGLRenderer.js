@@ -81,6 +81,9 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 
 			shaderProgram.uSampler = gl.getUniformLocation(shaderProgram, "uSampler");
 			shaderProgram.uEnvironmentMap = gl.getUniformLocation(shaderProgram, "uEnvironmentMap");
+
+			shaderProgram.uWorldTransform = gl.getUniformLocation(shaderProgram, "uWorldTransform");
+
             this.setShaderProgram(shaderProgram);
             this.fireEvent('loaded');
         });
@@ -116,7 +119,11 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		// Transform from camera space to world space
 		mat4.multiply(cursor, cursor, camera.getPositionInverse());
 
-		this.renderObject(gl, scene, this.getShaderProgram(), cursor, camera);
+		var shaderProgram = this.getShaderProgram();
+		var worldTransform = mat4.clone(cursor);
+		gl.uniformMatrix4fv(shaderProgram.uWorldTransform, false, worldTransform);
+
+		this.renderObject(gl, scene, shaderProgram, cursor, camera);
 	},
     /**
      * Renders a particular object within the scene.

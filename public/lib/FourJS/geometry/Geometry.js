@@ -108,7 +108,7 @@ Ext.define('FourJS.geometry.Geometry', {
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateX(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], vertices[i]);
+			vec3.rotateX(normals[i], normals[i], origin, rad);
         }
     },
     rotateY: function (rad) {
@@ -117,7 +117,7 @@ Ext.define('FourJS.geometry.Geometry', {
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateY(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], vertices[i]);
+			vec3.rotateY(normals[i], normals[i], origin, rad);
         }
     },
     rotateZ: function (rad) {
@@ -126,7 +126,7 @@ Ext.define('FourJS.geometry.Geometry', {
         var origin = vec3.create();
         for (var i = 0; i < vertices.length; i++) {
             vec3.rotateZ(vertices[i], vertices[i], origin, rad);
-            vec3.findNormal(normals[i], vertices[i]);
+			vec3.rotateZ(normals[i], normals[i], origin, rad);
         }
     },
     scale: function (scale) {
