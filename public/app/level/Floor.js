@@ -32,7 +32,7 @@ Ext.define('MW.level.Floor', {
 		// create the mesh containing the geometry
         var material = Ext.create('FourJS.material.Phong', {
             texture: Ext.create('FourJS.loader.Texture', {
-                url: "/resources/image/ground.png",
+                url: "/resources/image/ground_low.jpg",
 	            repeatable: true
             }),
             color: Ext.create('FourJS.util.Color', {
