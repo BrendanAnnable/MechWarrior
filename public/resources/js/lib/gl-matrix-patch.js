@@ -330,3 +330,8 @@ vec3.close = function (a, b) {
 		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON;
 };
 
+mat4.fromValues = function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
+	return new Float32Array([
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+	]);
+};

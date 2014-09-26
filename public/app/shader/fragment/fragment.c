@@ -1,7 +1,13 @@
 /**
  * @author Brendan Annable
  */
+#define MAX_DIR_LIGHTS 4
+
 precision mediump float;
+
+uniform int uNumDirectionalLights;
+uniform vec3 uDirectionalLightsColor[MAX_DIR_LIGHTS];
+uniform vec3 uDirectionalLightsDirection[MAX_DIR_LIGHTS];
 
 // The position of the point light, passed in by JavaScript
 uniform vec4 uLightPos;
@@ -38,16 +44,16 @@ void main(void) {
     	gl_FragColor = vColor;
     }
 
-    vec3 dirLightColor = vec3(0.2, 0.0, 0.6);
-    vec3 dirLightVec = normalize(vLightDirection.xyz);
+    vec3 dirLightColor = uDirectionalLightsColor[0];
+    vec3 dirLightVec = normalize(uDirectionalLightsDirection[0]);
 
     vec3 viewVec = normalize(-vPosition.xyz);
-    vec3 reflectVec = reflect(-dirLightVec, normal);
+    vec3 reflectVec = reflect(dirLightVec, normal);
     float specularAngle = max(dot(reflectVec, viewVec), 0.0);
     float shininess = 4.0;
 
     vec3 ambientLight = 0.2 * dirLightColor;
-    vec3 diffuseLight = dirLightColor * max(dot(normal, dirLightVec), 0.0);
+    vec3 diffuseLight = dirLightColor * max(dot(normal, -dirLightVec), 0.0);
     vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
 
     if (useLighting) {
@@ -57,10 +63,6 @@ void main(void) {
             + specularLight
         , 1);
     }
-
-//	gl_FragColor = vec4(normal, 1);
-//	gl_FragColor = vec4(vRawNormal, 1);
-//	gl_FragColor = vec4(vLightDirection);
 
 	// add some fog
 	float density = 0.008;
@@ -74,4 +76,10 @@ void main(void) {
 
 	// linearly blend current color with fog
 	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
+
+	// for debugging
+//	gl_FragColor = vec4(normal, 1);
+//	gl_FragColor = vec4(vRawNormal, 1);
+//	gl_FragColor = vec4(vLightDirection);
+
 }

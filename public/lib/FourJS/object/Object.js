@@ -4,11 +4,12 @@
 Ext.define('FourJS.object.Object', {
 	alias: 'Object',
 	positionInverse: null,
+	worldPosition: null,
 	config: {
 		name: null,
 		position: null,
-		positionInverse: null,
 		children: null,
+		parent: null,
 		renderable: false
 	},
 	constructor: function (config) {
@@ -20,6 +21,7 @@ Ext.define('FourJS.object.Object', {
             this.setChildren([]);
         }
 		this.positionInverse = mat4.create();
+		this.worldPosition = mat4.create();
 	},
 	getPositionInverse: function () {
 		var position = this.getPosition();
@@ -36,6 +38,10 @@ Ext.define('FourJS.object.Object', {
 		var position = this.getPosition();
 		return mat4.col(position, 3, 3);
 	},
+	getTranslationVector: function () {
+		var position = this.getPosition();
+		return mat4.translateVector(position);
+	},
 	/**
 	 * Adds a child object to the object.
 	 *
@@ -43,6 +49,7 @@ Ext.define('FourJS.object.Object', {
 	 */
 	addChild: function (object) {
 		this.getChildren().push(object);
+		object.setParent(this);
 	},
 	/**
 	 * Removes a child from the object.
@@ -51,6 +58,7 @@ Ext.define('FourJS.object.Object', {
 	 */
 	removeChild: function (object) {
 		Ext.Array.remove(this.getChildren(), object);
+		object.setParent(null);
 	},
 	/**
 	 * Checks if the current object has children.
@@ -62,5 +70,22 @@ Ext.define('FourJS.object.Object', {
 	},
     isRenderable: function () {
         return this.getRenderable();
-    }
+    },
+	updateWorld: function (object) {
+		if (object === undefined) {
+			object = this;
+		}
+		var parent = object.getParent();
+		if (parent === null) {
+			object.worldPosition = object.getPosition();
+		}
+		else {
+			this.updateWorld(parent);
+			mat4.multiply(object.worldPosition, parent.getWorldPosition(), object.getPosition());
+		}
+	},
+	getWorldPosition: function () {
+		this.updateWorld(this);
+		return this.worldPosition;
+	}
 });

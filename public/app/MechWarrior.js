@@ -11,13 +11,14 @@ Ext.define('MW.MechWarrior', {
 		'FourJS.util.Scene',
 		'FourJS.util.manager.Asset',
 		'FourJS.control.Mouse',
+		'FourJS.light.DirectionalLight',
+		'PhysJS.PhysicsEngine',
 		'MW.control.Keyboard',
 		'MW.scene.assets.Global',
 		'MW.manager.Level',
 		'MW.level.genesis.Genesis',
-        'PhysJS.PhysicsEngine',
 		'MW.character.Player',
-		'MW.projectile.Missile'
+		'MW.projectile.Missile',
 	],
 	player: null,
 	face: null,
@@ -41,6 +42,13 @@ Ext.define('MW.MechWarrior', {
 			height: 200,
 			depth: 200
 		});
+
+		var directionalLight = Ext.create('FourJS.light.DirectionalLight', {
+			color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.6})
+		});
+		directionalLight.translate(0, 5, 0);
+		level.addChild(directionalLight);
+
 		sceneManager.addScene(name, level);								// add the level to the manager
 		sceneManager.setActiveScene(level);								// set the active scene to the level
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	// initialise the physics engine with the level
@@ -81,6 +89,7 @@ Ext.define('MW.MechWarrior', {
 			Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
 				// create the player model and add it to the scene
 				var player = this.createPlayer(assetManager);
+				directionalLight.setTarget(player);
 				this.camera.setTarget(player);                              // set the target of the camera to the player
 				level.addPlayer(player);                                    // add the player to the level
 				this.face = this.createFace(assetManager);
