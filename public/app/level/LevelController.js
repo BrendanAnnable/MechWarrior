@@ -3,6 +3,10 @@
  */
 Ext.define('MW.level.LevelController', {
     alias: 'LevelController',
+    requires: [
+        'PhysJS.PhysicsEngine',
+        'MW.character.Player'
+    ],
     face: null,
     physics: null,
     config: {
@@ -69,7 +73,7 @@ Ext.define('MW.level.LevelController', {
         // listen for mouse click and keyboard events
         mouseControls.on('click', weaponManager.createBullet, weaponManager, {
             assetManager: assetManager,
-            level: level,
+            levelController: this,
             position: player.getPosition()
         });
         keyboardControls.on('jump', player.jump, player);
@@ -101,7 +105,7 @@ Ext.define('MW.level.LevelController', {
      */
     addProjectile: function (projectile) {
         this.getProjectiles().push(projectile);
-        this.addChild(projectile);
+        this.getLevel().addChild(projectile);
         projectile.on('collision', function () {
             this.removeProjectile(projectile);
         }, this);
@@ -113,7 +117,7 @@ Ext.define('MW.level.LevelController', {
      */
     removeProjectile: function (projectile) {
         Ext.Array.remove(this.getProjectiles(), projectile);
-        this.removeChild(projectile);
+        this.getLevel().removeChild(projectile);
     },
     /**
      * Creates a player using the asset manager.

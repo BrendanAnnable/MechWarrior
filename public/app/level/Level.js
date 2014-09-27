@@ -6,7 +6,8 @@ Ext.define('MW.level.Level', {
     extend: 'FourJS.util.Scene',
     requires: [
         'MW.level.Floor',
-        'MW.level.Skybox'
+        'MW.level.Skybox',
+        'FourJS.light.DirectionalLight'
     ],
     config: {
         width: 0,

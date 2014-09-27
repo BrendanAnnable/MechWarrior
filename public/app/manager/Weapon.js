@@ -3,15 +3,18 @@
  */
 Ext.define('MW.manager.Weapon', {
     alias: 'WeaponManager',
+    requires: [
+        'MW.projectile.Bullet'
+    ],
     createBullet: function (mouseControls, options) {
         var bullet = options.assetManager.getAsset('bullet');
         var sound = options.assetManager.getAsset('bulletSound');
-        var level = options.level;
+        var levelController = options.levelController;
         var origin = options.position;
         var position = mat4.create();
         mat4.copyTranslation(position, origin);
         mat4.translate(position, position, vec3.fromValues(0, 2, 0));
-        level.addProjectile(Ext.create('MW.projectile.Bullet', {
+        levelController.addProjectile(Ext.create('MW.projectile.Bullet', {
             name: bullet.name,
             geometry: bullet.geometry,
             material: bullet.material,
