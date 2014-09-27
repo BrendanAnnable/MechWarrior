@@ -12,11 +12,11 @@ Ext.define('MW.level.Level', {
         width: 0,
         height: 0,
         depth: 0,
+        activeCamera: null,
+        cameras: null,
         skybox: null,
         floor: null,
-        players: null,
-        obstacles: null,
-        projectiles: null
+        obstacles: null
     },
     constructor: function () {
         this.callParent(arguments);
@@ -37,29 +37,28 @@ Ext.define('MW.level.Level', {
         });
         this.setSkybox(skybox);
         this.setFloor(floor);
-        this.setPlayers([]);
+        this.setCameras([]);
         this.setObstacles([]);
-        this.setProjectiles([]);
 		this.addChild(floor);
 		this.addChild(skybox);
     },
     /**
-     * Adds a player to the level.
+     * Adds a camera to the level.
      *
-     * @param player The player to add
+     * @param camera The camera to add
      */
-    addPlayer: function (player) {
-        this.getPlayers().push(player);
-        this.addChild(player);
+    addCamera: function (camera) {
+        this.getCameras().push(camera);
+        this.addChild(camera);
     },
     /**
-     * Removes a player from the level.
+     * Removes a camera from the level.
      *
-     * @param player The player to remove
+     * @param camera The camera to remove
      */
-    removePlayer: function (player) {
-        Ext.Array.remove(this.getPlayers(), player);
-        this.removeChild(player);
+    removeCamera: function (camera) {
+        Ext.Array.remove(this.getCameras(), camera);
+        this.removeChild(camera);
     },
     /**
      * Adds an obstacle to the level.
@@ -78,27 +77,5 @@ Ext.define('MW.level.Level', {
     removeObstacle: function (obstacle) {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
-    },
-	/**
-	 * Adds a projectile to the level when the user clicks the left mouse button.
-	 *
-	 * @param projectile The projectile to be added to the level.
-	 */
-	addProjectile: function (projectile) {
-		this.getProjectiles().push(projectile);
-		this.addChild(projectile);
-		projectile.on('collision', function () {
-			this.removeProjectile(projectile);
-		}, this);
-	},
-    /**
-     * Removes a projectile from the level.
-     *
-     * @param projectile The projectile to remove
-     */
-    removeProjectile: function (projectile) {
-        Ext.Array.remove(this.getProjectiles(), projectile);
-        this.removeChild(projectile);
     }
-
 });

@@ -118,8 +118,12 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 	render: function (scene, camera) {
 		var gl = this.getGl();
 
+        var width = this.getWidth();
+        var height = this.getHeight();
 		// Set the viewport size
-		gl.viewport(0, 0, this.getWidth(), this.getHeight());
+		gl.viewport(0, 0, width, height);
+        camera.setRatio(width / height);
+        camera.update();
 
 		var cursor = this.cursor;
 
