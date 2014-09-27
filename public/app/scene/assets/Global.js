@@ -35,13 +35,13 @@ Ext.define('MW.scene.assets.Global', {
 				face.geometry.rotateY(Math.PI);
             }),
 
-            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
-                assetManager.addAsset('destroyedCar', destroyedCar);
-                destroyedCar.name = 'destroyedCar';
-                destroyedCar.geometry.scale([0.05, 0.05, 0.05]);
-                destroyedCar.geometry.translate([0, 2, 0]);
-                destroyedCar.geometry.rotateY(Math.PI);
-            }),
+//            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
+//                assetManager.addAsset('destroyedCar', destroyedCar);
+//                destroyedCar.name = 'destroyedCar';
+//                destroyedCar.geometry.scale([0.05, 0.05, 0.05]);
+//                destroyedCar.geometry.translate([0, 2, 0]);
+//                destroyedCar.geometry.rotateY(Math.PI);
+//            }),
 
         // load sounds
 	        this.loadSoundAsset(this.getSoundPath('bullet.mp3')).then(function (sound) {
@@ -50,7 +50,7 @@ Ext.define('MW.scene.assets.Global', {
 
         ]);
 	},
-    
+
 	/**
 	 * Loads a model asset and returns it as a promise once it has finished loading.
 	 *
