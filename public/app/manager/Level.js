@@ -5,17 +5,22 @@ Ext.define('MW.manager.Level', {
 	alias: 'LevelManager',
 	extend: 'FourJS.util.manager.Scene',
     requires: [
-        'MW.level.LevelController'
+        'MW.level.LevelController',
+        'MW.manager.Audio'
     ],
+    weaponManager: null,
     config: {
         controllers: null,
         mouseControls: null,
         keyboardControls: null,
         assetManager: null,
-        weaponManager: null
+        audioManager: null
     },
 	constructor: function (config) {
 		this.callParent(arguments);
+        this.weaponManager = Ext.create('MW.manager.Weapon', {
+            audioManager: this.getAudioManager()
+        });
         this.setControllers({});
 	},
     /**
@@ -26,12 +31,12 @@ Ext.define('MW.manager.Level', {
      */
     addScene: function (key, level) {
         this.addAsset(key, level);
-        this.getControllers()[key] = Ext.create('MW.level.LevelController', {
+        this.getControllers()[key] = Ext.create(level.getController(), {
             level: level,
             keyboardControls: this.getKeyboardControls(),
             mouseControls: this.getMouseControls(),
             assetManager: this.getAssetManager(),
-            weaponManager: this.getWeaponManager()
+            weaponManager: this.weaponManager
         });
     },
     /**

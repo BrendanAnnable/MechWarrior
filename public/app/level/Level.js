@@ -10,6 +10,7 @@ Ext.define('MW.level.Level', {
         'FourJS.light.DirectionalLight'
     ],
     config: {
+        controller: null,
         width: 0,
         height: 0,
         depth: 0,

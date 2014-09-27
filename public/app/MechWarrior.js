@@ -20,8 +20,7 @@ Ext.define('MW.MechWarrior', {
 	renderer: null,
 	camera: null,
     config: {
-        canvas: null,
-		sound: true
+        canvas: null
     },
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
@@ -47,22 +46,19 @@ Ext.define('MW.MechWarrior', {
 			height: canvas.height,
 			backgroundColor: backgroundColor
 		}).on('loaded', function () {
-			soundManager.setup({
-				url: "/resources/sound/" // where to locate sound files
-			});
             // create the asset manager and load all the assets for the game
             var assetManager = Ext.create('FourJS.util.manager.Asset');
-            var weaponManager = Ext.create('MW.manager.Weapon');
+            // create the audio manager
+            var audioManager = Ext.create('MW.manager.Audio', {
+                keyboardControls: keyboardControls
+            });
 			Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
-				keyboardControls.on('n', function (event) {
-					this.setSound(!this.getSound());
-				}, this);
                 // initialises the level manager
                 var levelManager = Ext.create('MW.manager.Level', {
                     mouseControls: mouseControls,
                     keyboardControls: keyboardControls,
                     assetManager: assetManager,
-                    weaponManager: weaponManager
+                    audioManager: audioManager
                 });
                 var name = 'Genesis';											// set the name of the first level
                 var level = Ext.create('MW.level.genesis.Genesis', {		    // create the genesis level
@@ -77,6 +73,12 @@ Ext.define('MW.MechWarrior', {
 			});
 		}, this);
 	},
+    /**
+     * The method called when the viewport gets resized by the user.
+     *
+     * @param width The new window width.
+     * @param height The new window height.
+     */
 	onResize: function (width, height) {
 		this.renderer.setWidth(width);
 		this.renderer.setHeight(height);

@@ -3,6 +3,9 @@
  */
 Ext.define('MW.level.genesis.Genesis', {
 	extend: 'MW.level.Level',
+    requires: [
+        'MW.level.genesis.GenesisController'
+    ],
 	constructor: function () {
 		this.callParent(arguments);
         // create an ambient light to the level at the origin
@@ -23,5 +26,6 @@ Ext.define('MW.level.genesis.Genesis', {
         this.addChild(ambientLight);
         this.addChild(directionalLight);
         this.addChild(directionalLight2);
+        this.setController('MW.level.genesis.GenesisController');
 	}
 });

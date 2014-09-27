@@ -6,6 +6,12 @@ Ext.define('MW.manager.Weapon', {
     requires: [
         'MW.projectile.Bullet'
     ],
+    config: {
+        audioManager: null
+    },
+    constructor: function (config) {
+        this.initConfig(config);
+    },
     createBullet: function (mouseControls, options) {
         var bullet = options.assetManager.getAsset('bullet');
         var sound = options.assetManager.getAsset('bulletSound');
@@ -24,7 +30,7 @@ Ext.define('MW.manager.Weapon', {
             pitch: mouseControls.getPitch() - Math.PI / 2,
             yaw: mouseControls.getYaw() - Math.PI / 2
         }));
-        if (this.getSound()) {
+        if (this.getAudioManager().getSound()) {
             sound.play();
         }
     }

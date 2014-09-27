@@ -7,7 +7,6 @@ Ext.define('MW.level.LevelController', {
         'PhysJS.PhysicsEngine',
         'MW.character.Player'
     ],
-    face: null,
     physics: null,
     config: {
         level: null,
@@ -24,26 +23,12 @@ Ext.define('MW.level.LevelController', {
         this.setPlayers([]);                                        // set the players to an empty array
         this.setProjectiles([]);                                    // set the projectiles to an empty array
         var level = this.getLevel();                                // retrieve the level
-        var keyboardControls = this.getKeyboardControls();          // get the keyboard controls
-        var mouseControls = this.getMouseControls();                // get the mouse controls
         var assetManager = this.getAssetManager();                  // get the asset manager
         var weaponManager = this.getWeaponManager();                // get the weapon manager
         this.setupManagers(assetManager, weaponManager);            // ensure the managers are created
-        var player = this.createPlayer(assetManager);               // create the player model and add it to the scene
-        var camera = Ext.create('FourJS.camera.ThirdPersonCamera', {
-            target: player
-        });
-        level.addCamera(camera);
-        level.setActiveCamera(camera);
-        this.addPlayer(level, player);                              // add the player to the level
-        this.face = this.createFace(assetManager, player);          // create a face model
-        level.addObstacle(this.face);                               // add the face to the level obstacles
-        this.setActivePlayer(player);                               // set the active player
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
             scene: level
         });
-        // add mouse and keyboard events to the controller
-        this.addEvents(mouseControls, keyboardControls, assetManager, weaponManager, level, player);
     },
     /**
      * Creates the managers if they have not been passed in correctly.
@@ -60,23 +45,56 @@ Ext.define('MW.level.LevelController', {
         }
     },
     /**
+     * Creates a player using the asset manager.
+     *
+     * @param active Whether the player will be set to active or not.
+     * @returns {MW.character.Player}
+     */
+    createPlayer: function (active) {
+        var playerAsset = this.getAssetManager().getAsset('player');
+        var player = Ext.create('MW.character.Player', {
+            name: playerAsset.name,
+            geometry: playerAsset.geometry,
+            material: playerAsset.material
+        });
+        this.addPlayer(this.getLevel(), player);    // add the player to the level
+        if (active) {
+            this.setActivePlayer(player);           // set the active player
+        }
+        return player;
+    },
+    /**
+     * Creates a third person camera and adds it to the controller.
+     *
+     * @param target The target object that the camera follows.
+     * @param active Whether the camera will be set to active or not.
+     */
+    createThirdPersonCamera: function (target, active) {
+        var level = this.getLevel();
+        var camera = Ext.create('FourJS.camera.ThirdPersonCamera', {
+            target: target
+        });
+        level.addCamera(camera);
+        if (active) {
+            level.setActiveCamera(camera);
+        }
+        return camera;
+    },
+    /**
      * Adds events to the level.
      *
      * @param mouseControls The mouse controls for the game.
-     * @param keyboardControls The keyboard controls for the game.
      * @param assetManager The asset manager for the game.
      * @param weaponManager The weapon manager for the game.
-     * @param level The level being controlled.
      * @param player The player within the level.
      */
-    addEvents: function (mouseControls, keyboardControls, assetManager, weaponManager, level, player) {
+    addMouseClickEvent: function (mouseControls, assetManager, weaponManager, player) {
         // listen for mouse click and keyboard events
         mouseControls.on('click', weaponManager.createBullet, weaponManager, {
             assetManager: assetManager,
             levelController: this,
             position: player.getPosition()
         });
-        keyboardControls.on('jump', player.jump, player);
     },
     /**
      * Adds a player to the specified level.
@@ -85,8 +103,9 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to add.
      */
     addPlayer: function (level, player) {
-        this.getPlayers().push(player);
-        level.addChild(player);
+        this.getPlayers().push(player);                                 // adds the player to the array
+        level.addChild(player);                                         // adds the player to the level
+        this.getKeyboardControls().on('jump', player.jump, player);     // adds the player jump event to the player
     },
     /**
      * Removes a player from the specified level.
@@ -118,61 +137,6 @@ Ext.define('MW.level.LevelController', {
     removeProjectile: function (projectile) {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
-    },
-    /**
-     * Creates a player using the asset manager.
-     *
-     * @param assetManager The asset manager that loads in the models and other assets.
-     * @returns {MW.character.Player}
-     */
-    createPlayer: function (assetManager) {
-        var playerAsset = assetManager.getAsset('player');
-        return Ext.create('MW.character.Player', {
-            name: playerAsset.name,
-            geometry: playerAsset.geometry,
-            material: playerAsset.material
-        });
-    },
-    createFace: function (assetManager, player) {
-        var faceAsset = assetManager.getAsset('face');
-        var spline = Ext.create('FourJS.util.math.HermiteSpline', {
-            points: [
-                vec3.fromValues(0, 0, -3),
-                vec3.fromValues(3, 2, 0),
-                vec3.fromValues(0, 0, 3),
-                vec3.fromValues(-3, 2, 0),
-                vec3.fromValues(0, 0, -3)
-            ],
-            loop: true
-        });
-        var face = Ext.create('FourJS.object.Mesh', {
-            name: faceAsset.name,
-            geometry: faceAsset.geometry,
-            material: faceAsset.material
-        });
-        // TODO: I hacked this in for now, need moving to a generic place
-        face.getPosition = function () {
-            var position = this._position;
-            var period = 7000;
-            var time = (Date.now() / period) % 1;
-
-            var up = vec3.fromValues(0, 1, 0);
-            var eye = spline.getPoint(time);
-            vec3.add(eye, eye, player.getTranslation());
-            var center = player.getTranslation();
-            center = vec3.negate(vec3.create(), center);
-
-            // this is a hack until I rotate the face geometry
-            vec3.rotateY(center, center, vec3.create(), Math.PI);
-
-            var transform = mat4.lookAt(mat4.create(), eye, center, up);
-            mat4.invert(transform, transform);
-
-            mat4.copy(position, transform);
-
-            return position;
-        };
-        return face;
     },
     /**
      * Updates the level on each render.
