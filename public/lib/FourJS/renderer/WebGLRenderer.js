@@ -79,7 +79,9 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
             shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "useLighting");
 			shaderProgram.useEnvironmentMapUniform = gl.getUniformLocation(shaderProgram, "useEnvironmentMap");
 
-            shaderProgram.uNumDirectionalLights = gl.getUniformLocation(shaderProgram, "uNumDirectionalLights");
+            shaderProgram.uAmbientLightColor = gl.getUniformLocation(shaderProgram, "uAmbientLightColor");
+
+			shaderProgram.uNumDirectionalLights = gl.getUniformLocation(shaderProgram, "uNumDirectionalLights");
 			shaderProgram.uDirectionalLightsColor = gl.getUniformLocation(shaderProgram, "uDirectionalLightsColor");
 			shaderProgram.uDirectionalLightsDirection = gl.getUniformLocation(shaderProgram, "uDirectionalLightsDirection");
 
@@ -141,7 +143,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		var lights = scene.getLights();
 		var cameraInverse = camera.getPositionInverse();
 		var directionalLights = [];
-		var ambientLights = [];
+		var ambientLight = null;
 		var pointLights = [];
 		var spotLights = [];
 
@@ -151,7 +153,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 				directionalLights.push(light);
 			}
 			else if (light instanceof FourJS.light.AmbientLight) {
-				ambientLights.push(light);
+				ambientLight = light;
 			}
 			else if (light instanceof FourJS.light.PointLight) {
 				pointLights.push(light);
@@ -160,6 +162,12 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 				spotLights.push(light);
 			}
 		}
+
+		gl.uniform3fv(shaderProgram.uAmbientLightColor, new Float32Array([
+			ambientLight.getColor().getR(),
+			ambientLight.getColor().getG(),
+			ambientLight.getColor().getB()
+		]));
 
 		gl.uniform1i(shaderProgram.uNumDirectionalLights, directionalLights.length);
 		var directionalLightsColor = new Float32Array(this.MAX_DIR_LIGHTS * 3);

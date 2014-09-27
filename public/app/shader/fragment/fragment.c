@@ -5,6 +5,8 @@
 
 precision mediump float;
 
+uniform vec3 uAmbientLightColor;
+
 uniform int uNumDirectionalLights;
 uniform vec3 uDirectionalLightsColor[MAX_DIR_LIGHTS];
 uniform vec3 uDirectionalLightsDirection[MAX_DIR_LIGHTS];
@@ -44,24 +46,30 @@ void main(void) {
     	gl_FragColor = vColor;
     }
 
-    vec3 dirLightColor = uDirectionalLightsColor[0];
-    vec3 dirLightVec = normalize(uDirectionalLightsDirection[0]);
-
-    vec3 viewVec = normalize(-vPosition.xyz);
-    vec3 reflectVec = reflect(dirLightVec, normal);
-    float specularAngle = max(dot(reflectVec, viewVec), 0.0);
-    float shininess = 4.0;
-
-    vec3 ambientLight = 0.2 * dirLightColor;
-    vec3 diffuseLight = dirLightColor * max(dot(normal, -dirLightVec), 0.0);
-    vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
-
     if (useLighting) {
-        gl_FragColor = gl_FragColor * vec4(
-            + ambientLight
-            + diffuseLight
-            + specularLight
-        , 1);
+		vec3 lighting = vec3(0.0, 0.0, 0.0);
+
+		for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
+			if (i < uNumDirectionalLights) {
+				vec3 dirLightColor = uDirectionalLightsColor[i];
+				vec3 dirLightVec = normalize(uDirectionalLightsDirection[i]);
+
+				vec3 viewVec = normalize(-vPosition.xyz);
+				vec3 reflectVec = reflect(dirLightVec, normal);
+				float specularAngle = max(dot(reflectVec, viewVec), 0.0);
+				float shininess = 4.0;
+
+				vec3 diffuseLight = dirLightColor * max(dot(normal, -dirLightVec), 0.0);
+				vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
+
+				lighting += diffuseLight;
+				lighting += specularLight;
+			}
+		}
+
+		lighting += uAmbientLightColor;
+
+        gl_FragColor *= vec4(lighting, 1.0);
     }
 
 	// add some fog
