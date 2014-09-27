@@ -52,7 +52,7 @@ void main(void) {
 		for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
 			if (i < uNumDirectionalLights) {
 				vec3 dirLightColor = uDirectionalLightsColor[i];
-				vec3 dirLightVec = normalize(uDirectionalLightsDirection[i]);
+				vec3 dirLightVec = uDirectionalLightsDirection[i];
 
 				vec3 viewVec = normalize(-vPosition.xyz);
 				vec3 reflectVec = reflect(dirLightVec, normal);
@@ -73,9 +73,13 @@ void main(void) {
     }
 
 	// add some fog
-	float density = 0.008;
-	// calculate fog factor
-	float fogFactor = exp2(-pow(density * vPosition.z, 2.0));
+	float density = 0.10;
+	// falloff speed
+	float easing = 0.3;
+	// height of fog
+	float height = -5.0;
+	// gives fog based on distance from camera and height from ground
+	float fogFactor = exp2(-pow(density * vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-easing * vRawPosition.y - height)));
 	// clamp between 0 and 1
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 

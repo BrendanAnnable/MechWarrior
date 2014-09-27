@@ -51,13 +51,13 @@ Ext.define('MW.MechWarrior', {
 		var directionalLight = Ext.create('FourJS.light.DirectionalLight', {
 			color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.6})
 		});
-		directionalLight.translate(-25, 5, 0);
+		directionalLight.translate(-25, 10, 0);
 		level.addChild(directionalLight);
 
 		var directionalLight2 = Ext.create('FourJS.light.DirectionalLight', {
 			color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.6})
 		});
-		directionalLight2.translate(25, 5, 0);
+		directionalLight2.translate(25, 10, 0);
 		level.addChild(directionalLight2);
 
 		sceneManager.addScene(name, level);								// add the level to the manager

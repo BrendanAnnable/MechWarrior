@@ -182,6 +182,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			// direction
 			var direction = vec4.subtract(vec4.create(), light.getTarget().getTranslationVector(), light.getTranslationVector());
 			vec4.transformMat4(direction, direction, cameraInverse); // transform to camera-space
+			vec4.normalize(direction, direction);
 			directionalLightsDirection[3 * i + 0] = direction[0];
 			directionalLightsDirection[3 * i + 1] = direction[1];
 			directionalLightsDirection[3 * i + 2] = direction[2];
