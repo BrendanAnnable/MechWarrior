@@ -1,55 +1,43 @@
 /**
- * @author Julius Sky
  * @author Brendan Annable
- *
- * The keyboard class returns keyboard events recorded from the user.
  */
 Ext.define('MW.control.Keyboard', {
-	mixins: {
-		observable: 'Ext.util.Observable'
-	},
-	keyMap: null,
+	extend: 'FourJS.control.Keyboard',
+	ctrl: false,
+	shift: false,
+	alt: false,
 	translation: null,
 	needsUpdate: true,
-    config: {
+	config: {
 		speed: 1,
-        element: null,
+		altSpeedMultiplier: 2,
 		forwardKey: 'W'.charCodeAt(0),
 		leftKey: 'A'.charCodeAt(0),
 		backwardKey: 'S'.charCodeAt(0),
 		rightKey: 'D'.charCodeAt(0),
-		spaceKey: ' '.charCodeAt(0)
-    },
-    constructor: function (config) {
-        this.initConfig(config);
-		this.mixins.observable.constructor.call(this, config);
-        this.translation = vec3.fromValues(0, 0, 0);
-		this.keyMap = {};
-
-        var element = this.getElement();
-        element = Ext.get(element);
-        element.on({
-            keydown: this.onKeyDown,
-			keyup: this.onKeyUp,
-            scope: this
-        });
-        this.setElement(element);
-    },
-    onKeyDown: function (event){
-		// register key as down
-		this.keyMap[event.keyCode] = Date.now();
-		if (event.keyCode === this.getSpaceKey()) {
-			this.fireEvent('space');
-		}
-		this.needsUpdate = true;
-    },
-	onKeyUp: function (event) {
-		// unregister key as down
-		delete this.keyMap[event.keyCode];
-		this.needsUpdate = true;
+		jumpKey: ' '.charCodeAt(0)
 	},
-	isKeyDown: function (key) {
-		return this.keyMap.hasOwnProperty(key);
+	constructor: function () {
+		this.callParent(arguments);
+		this.translation = vec3.fromValues(0, 0, 0);
+	},
+	onKeyDown: function (event){
+		this.callParent(arguments);
+		this.needsUpdate = true;
+		if (event.keyCode === this.getJumpKey()) {
+			this.fireEvent('jump');
+		}
+		this.fireEvent(String.fromCharCode(event.keyCode), event);
+		this.shift = event.shiftKey;
+		this.ctrl = event.ctrlKey;
+		this.alt = event.altKey;
+	},
+	onKeyUp: function (event) {
+		this.callParent(arguments);
+		this.needsUpdate = true;
+		this.shift = event.shiftKey;
+		this.ctrl = event.ctrlKey;
+		this.alt = event.altKey;
 	},
 	getTranslation: function () {
 		var translation = this.translation;
@@ -74,10 +62,9 @@ Ext.define('MW.control.Keyboard', {
 
 			vec3.set(translation, x, y, z);
 			vec3.normalize(translation, translation);
-			vec3.scale(translation, translation, this.getSpeed());
+			vec3.scale(translation, translation, (this.shift ? this.getAltSpeedMultiplier() : 1) * this.getSpeed());
 			this.needsUpdate = false;
 		}
 		return translation;
 	}
 });
-//# sourceURL=Keyboard.js

@@ -5,7 +5,7 @@ Ext.define('MW.view.ViewportController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.ViewportController',
     requires: [
-        'MW.game.MechWarrior'
+        'MW.MechWarrior'
     ],
 	game: null,
 	config: {
@@ -19,7 +19,7 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
-		this.game = Ext.create('MW.game.MechWarrior', {
+		this.game = Ext.create('MW.MechWarrior', {
             canvas: canvas
         });
 	},

@@ -4,6 +4,8 @@
  * Patch to add various helpers methods to the gl-matrix library.
  */
 
+var GLMAT_EPSILON = 0.000001;
+
 /**
  * Return a vec4 reference to the given column vector of a mat4
  *
@@ -299,4 +301,37 @@ glMatrix.getVec = function (n) {
 		throw new Error("Vector of size " + n + " not supported");
 	}
 	return vec;
+};
+
+mat4.print = function (a, n) {
+	if (n === undefined) {
+		n = 4;
+	}
+	var a00 = a[0], a01 = a[1], a02 = a[2], a03 = a[3],
+		a10 = a[4], a11 = a[5], a12 = a[6], a13 = a[7],
+		a20 = a[8], a21 = a[9], a22 = a[10], a23 = a[11],
+		a30 = a[12], a31 = a[13], a32 = a[14], a33 = a[15];
+
+	console.log(
+		  a00.toFixed(n) + ", " + a10.toFixed(n) + ", " + a20.toFixed(n) + ", " + a30.toFixed(n) + "\n"
+		+ a01.toFixed(n) + ", " + a11.toFixed(n) + ", " + a21.toFixed(n) + ", " + a31.toFixed(n) + "\n"
+		+ a02.toFixed(n) + ", " + a12.toFixed(n) + ", " + a22.toFixed(n) + ", " + a32.toFixed(n) + "\n"
+		+ a03.toFixed(n) + ", " + a13.toFixed(n) + ", " + a23.toFixed(n) + ", " + a33.toFixed(n)
+	);
+};
+
+vec3.equal = function (a, b) {
+	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+};
+
+vec3.close = function (a, b) {
+	return Math.abs(a[0] - b[0]) < GLMAT_EPSILON
+		&& Math.abs(a[1] - b[1]) < GLMAT_EPSILON
+		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON;
+};
+
+mat4.fromValues = function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
+	return new Float32Array([
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+	]);
 };

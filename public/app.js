@@ -5,9 +5,11 @@ Ext.Loader.setConfig({
 });
 
 Ext.application({
-	name: 'MW',
+	name: 'MechWarrior',
 	paths: {
-		'MW': '/app'
+		'MW': '/app',
+		'FourJS': '/lib/FourJS',
+		'PhysJS': '/lib/PhysJS'
 	},
 	requires: [
 		'MW.view.Viewport'
