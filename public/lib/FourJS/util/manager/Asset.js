@@ -4,7 +4,8 @@
 Ext.define('FourJS.util.manager.Asset', {
 	alias: 'AssetManager',
 	assets: null,
-	constructor: function () {
+	constructor: function (config) {
+        this.initConfig(config);
 		this.assets = {};
 	},
 	/**

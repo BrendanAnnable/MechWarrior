@@ -6,60 +6,94 @@ Ext.define('MW.level.Level', {
     extend: 'FourJS.util.Scene',
     requires: [
         'MW.level.Floor',
-        'MW.level.Skybox'
+        'MW.level.Skybox',
+        'FourJS.light.DirectionalLight'
     ],
     config: {
+        controller: null,
         width: 0,
         height: 0,
         depth: 0,
+        activeCamera: null,
+        cameras: null,
         skybox: null,
         floor: null,
-        players: null,
-        obstacles: null,
-        projectiles: null
+        obstacles: null
     },
     constructor: function () {
         this.callParent(arguments);
-        var width = this.getWidth();
-        var height = this.getHeight();
-        var depth = this.getDepth();
+        this.setCameras([]);
+        this.setObstacles([]);
+    },
+    /**
+     * Adds a camera to the level.
+     *
+     * @param camera The camera to add
+     */
+    addCamera: function (camera) {
+        this.getCameras().push(camera);
+        this.addChild(camera);
+    },
+    /**
+     * Removes a camera from the level.
+     *
+     * @param camera The camera to remove
+     */
+    removeCamera: function (camera) {
+        Ext.Array.remove(this.getCameras(), camera);
+        this.removeChild(camera);
+    },
+    /**
+     * Creates a skybox for the level.
+     *
+     * @param cubeMap The paths of the cube map images.
+     * @param [width] The width of the skybox.
+     * @param [height] The height of the skybox.
+     * @param [depth] The depth of the skybox.
+     */
+    createSkybox: function (cubeMap, width, height, depth) {
+        var scale = 2;
+        if (width === undefined) {
+            width = this.getWidth() * scale;
+        }
+        if (height === undefined) {
+            height = this.getHeight() * scale;
+        }
+        if (depth === undefined) {
+            depth = this.getDepth() * scale
+        }
+        var skybox = Ext.create('MW.level.Skybox', {
+            name: 'skybox',
+            width: width,
+            height: height,
+            depth: depth,
+            cubeMap: cubeMap
+        });
+        this.setSkybox(skybox);
+        this.addChild(skybox);
+    },
+    /**
+     * Creates a floor for the level.
+     *
+     * @param url The path of the floor image.
+     * @param [width] The width of the floor.
+     * @param [height] The height of the floor.
+     */
+    createFloor: function (url, width, height) {
+        if (width === undefined) {
+            width = this.getWidth();
+        }
+        if (height === undefined) {
+            height = this.getHeight();
+        }
         var floor = Ext.create('MW.level.Floor', {
             name: 'floor',
             width: width,
-            height: height
+            height: height,
+            url: url
         });
-		var scale = 2;
-        var skybox = Ext.create('MW.level.Skybox', {
-            name: 'skybox',
-            width: width * scale,
-            height: height * scale,
-            depth: depth * scale
-        });
-        this.setSkybox(skybox);
         this.setFloor(floor);
-        this.setPlayers([]);
-        this.setObstacles([]);
-        this.setProjectiles([]);
-		this.addChild(floor);
-		this.addChild(skybox);
-    },
-    /**
-     * Adds a player to the level.
-     *
-     * @param player The player to add
-     */
-    addPlayer: function (player) {
-        this.getPlayers().push(player);
-        this.addChild(player);
-    },
-    /**
-     * Removes a player from the level.
-     *
-     * @param player The player to remove
-     */
-    removePlayer: function (player) {
-        Ext.Array.remove(this.getPlayers(), player);
-        this.removeChild(player);
+        this.addChild(floor);
     },
     /**
      * Adds an obstacle to the level.
@@ -79,26 +113,16 @@ Ext.define('MW.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-	/**
-	 * Adds a projectile to the level when the user clicks the left mouse button.
-	 *
-	 * @param projectile The projectile to be added to the level.
-	 */
-	addProjectile: function (projectile) {
-		this.getProjectiles().push(projectile);
-		this.addChild(projectile);
-		projectile.on('collision', function () {
-			this.removeProjectile(projectile);
-		}, this);
-	},
     /**
-     * Removes a projectile from the level.
+     * Sets the width, height and depth of the level.
      *
-     * @param projectile The projectile to remove
+     * @param width The width of the level.
+     * @param height The height of the level.
+     * @param depth The depth of the level.
      */
-    removeProjectile: function (projectile) {
-        Ext.Array.remove(this.getProjectiles(), projectile);
-        this.removeChild(projectile);
+    setDimensions: function (width, height, depth) {
+        this.setWidth(width);
+        this.setHeight(height);
+        this.setDepth(depth);
     }
-
 });

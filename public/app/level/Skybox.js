@@ -11,7 +11,8 @@ Ext.define('MW.level.Skybox', {
     config: {
         width: 0,
         height: 0,
-        depth: 0
+        depth: 0,
+        cubeMap: null
     },
 	/**
 	 * Creates a cube mesh to represent the skybox in the scene.
@@ -26,14 +27,15 @@ Ext.define('MW.level.Skybox', {
 			depth: this.getDepth()
 		});
 		geometry.negateNormals();
+        var cubeMap = this.getCubeMap();
 		var material = Ext.create('FourJS.material.Phong', {
 			environmentMap: Ext.create('FourJS.loader.CubeMap', {
-				upUrl: "/resources/image/skybox/urban/up.png",
-				rightUrl: "/resources/image/skybox/urban/right.png",
-				downUrl: "/resources/image/skybox/urban/down.png",
-				leftUrl: "/resources/image/skybox/urban/left.png",
-				frontUrl: "/resources/image/skybox/urban/front.png",
-				backUrl: "/resources/image/skybox/urban/back.png"
+				upUrl: cubeMap.upUrl,
+				rightUrl: cubeMap.rightUrl,
+				downUrl: cubeMap.downUrl,
+				leftUrl: cubeMap.leftUrl,
+				frontUrl: cubeMap.frontUrl,
+				backUrl: cubeMap.backUrl
 			}),
 			useLighting: false
 		});
