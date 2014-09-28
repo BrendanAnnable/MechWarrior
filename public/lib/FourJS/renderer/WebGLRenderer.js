@@ -11,8 +11,13 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
         'FourJS.buffer.Normal',
         'FourJS.buffer.Face',
         'FourJS.buffer.TextureCoordinate',
-	    'FourJS.buffer.EnvironmentCoordinate'
+	    'FourJS.buffer.EnvironmentCoordinate',
+		'FourJS.light.AmbientLight',
+		'FourJS.light.DirectionalLight',
+		'FourJS.light.PointLight',
+		'FourJS.light.SpotLight'
     ],
+	MAX_DIR_LIGHTS: 4,
 	config: {
 		gl: null,
         shaderProgram: null,
@@ -74,7 +79,13 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
             shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "useLighting");
 			shaderProgram.useEnvironmentMapUniform = gl.getUniformLocation(shaderProgram, "useEnvironmentMap");
 
-            shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
+            shaderProgram.uAmbientLightColor = gl.getUniformLocation(shaderProgram, "uAmbientLightColor");
+
+			shaderProgram.uNumDirectionalLights = gl.getUniformLocation(shaderProgram, "uNumDirectionalLights");
+			shaderProgram.uDirectionalLightsColor = gl.getUniformLocation(shaderProgram, "uDirectionalLightsColor");
+			shaderProgram.uDirectionalLightsDirection = gl.getUniformLocation(shaderProgram, "uDirectionalLightsDirection");
+
+			shaderProgram.uLightPos = gl.getUniformLocation(shaderProgram, "uLightPos");
             shaderProgram.uLightColor = gl.getUniformLocation(shaderProgram, "uLightColor");
 
             shaderProgram.uDiffuseColor = gl.getUniformLocation(shaderProgram, "uDiffuseColor");
@@ -107,8 +118,12 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 	render: function (scene, camera) {
 		var gl = this.getGl();
 
+        var width = this.getWidth();
+        var height = this.getHeight();
 		// Set the viewport size
-		gl.viewport(0, 0, this.getWidth(), this.getHeight());
+		gl.viewport(0, 0, width, height);
+        camera.setRatio(width / height);
+        camera.update();
 
 		var cursor = this.cursor;
 
@@ -119,11 +134,71 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		// Transform from camera space to world space
 		mat4.multiply(cursor, cursor, camera.getPositionInverse());
 
+
 		var shaderProgram = this.getShaderProgram();
 		var worldTransform = mat4.clone(cursor);
 		gl.uniformMatrix4fv(shaderProgram.uWorldTransform, false, worldTransform);
 
+		this.updateLighting(gl, scene, shaderProgram, cursor, camera);
+
 		this.renderObject(gl, scene, shaderProgram, cursor, camera);
+	},
+	updateLighting: function (gl, scene, shaderProgram, cursor, camera) {
+		var lights = scene.getLights();
+		var cameraInverse = camera.getPositionInverse();
+		var directionalLights = [];
+		var ambientLight = null;
+		var pointLights = [];
+		var spotLights = [];
+
+		for (var i = 0 ; i < lights.length; i++) {
+			var light = lights[i];
+			if (light instanceof FourJS.light.DirectionalLight) {
+				directionalLights.push(light);
+			}
+			else if (light instanceof FourJS.light.AmbientLight) {
+				ambientLight = light;
+			}
+			else if (light instanceof FourJS.light.PointLight) {
+				pointLights.push(light);
+			}
+			else if (light instanceof FourJS.light.SpotLight) {
+				spotLights.push(light);
+			}
+		}
+
+        if (ambientLight === null) {
+            ambientLight = Ext.create('FourJS.light.AmbientLight', {
+                color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1})
+            });
+        }
+
+		gl.uniform3fv(shaderProgram.uAmbientLightColor, new Float32Array([
+			ambientLight.getColor().getR(),
+			ambientLight.getColor().getG(),
+			ambientLight.getColor().getB()
+		]));
+
+		gl.uniform1i(shaderProgram.uNumDirectionalLights, directionalLights.length);
+		var directionalLightsColor = new Float32Array(this.MAX_DIR_LIGHTS * 3);
+		var directionalLightsDirection = new Float32Array(this.MAX_DIR_LIGHTS * 3);
+		for (var i = 0 ; i < directionalLights.length; i++) {
+			var light = directionalLights[i];
+			// color
+			directionalLightsColor[3 * i + 0] = light.getColor().getR();
+			directionalLightsColor[3 * i + 1] = light.getColor().getG();
+			directionalLightsColor[3 * i + 2] = light.getColor().getB();
+
+			// direction
+			var direction = vec4.subtract(vec4.create(), light.getTarget().getTranslationVector(), light.getTranslationVector());
+			vec4.transformMat4(direction, direction, cameraInverse); // transform to camera-space
+			vec4.normalize(direction, direction);
+			directionalLightsDirection[3 * i + 0] = direction[0];
+			directionalLightsDirection[3 * i + 1] = direction[1];
+			directionalLightsDirection[3 * i + 2] = direction[2];
+		}
+		gl.uniform3fv(shaderProgram.uDirectionalLightsColor, directionalLightsColor);
+		gl.uniform3fv(shaderProgram.uDirectionalLightsDirection, directionalLightsDirection);
 	},
     /**
      * Renders a particular object within the scene.

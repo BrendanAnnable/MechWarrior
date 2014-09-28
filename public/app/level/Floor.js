@@ -15,7 +15,7 @@ Ext.define('MW.level.Floor', {
     config: {
         width: 0,
         height: 0,
-        dynamic: false
+        url: null
     },
 	/**
 	 * Creates a plane mesh to represent the floor in the scene.
@@ -32,7 +32,7 @@ Ext.define('MW.level.Floor', {
 		// create the mesh containing the geometry
         var material = Ext.create('FourJS.material.Phong', {
             texture: Ext.create('FourJS.loader.Texture', {
-                url: "/resources/image/ground_low.jpg",
+                url: this.getUrl(),
 	            repeatable: true
             }),
             color: Ext.create('FourJS.util.Color', {
@@ -43,5 +43,6 @@ Ext.define('MW.level.Floor', {
         });
 		this.setGeometry(geometry);
 		this.setMaterial(material);
+        this.setDynamic(false);
 	}
 });

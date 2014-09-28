@@ -1,7 +1,15 @@
 /**
  * @author Brendan Annable
  */
+#define MAX_DIR_LIGHTS 4
+
 precision mediump float;
+
+uniform vec3 uAmbientLightColor;
+
+uniform int uNumDirectionalLights;
+uniform vec3 uDirectionalLightsColor[MAX_DIR_LIGHTS];
+uniform vec3 uDirectionalLightsDirection[MAX_DIR_LIGHTS];
 
 // The position of the point light, passed in by JavaScript
 uniform vec4 uLightPos;
@@ -38,34 +46,40 @@ void main(void) {
     	gl_FragColor = vColor;
     }
 
-    vec3 dirLightColor = vec3(0.2, 0.0, 0.6);
-    vec3 dirLightVec = normalize(vLightDirection.xyz);
-
-    vec3 viewVec = normalize(-vPosition.xyz);
-    vec3 reflectVec = reflect(-dirLightVec, normal);
-    float specularAngle = max(dot(reflectVec, viewVec), 0.0);
-    float shininess = 4.0;
-
-    vec3 ambientLight = 0.2 * dirLightColor;
-    vec3 diffuseLight = dirLightColor * max(dot(normal, dirLightVec), 0.0);
-    vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
-
     if (useLighting) {
-        gl_FragColor = gl_FragColor * vec4(
-            + ambientLight
-            + diffuseLight
-            + specularLight
-        , 1);
+		vec3 lighting = vec3(0.0, 0.0, 0.0);
+
+		for (int i = 0; i < MAX_DIR_LIGHTS; i++) {
+			if (i < uNumDirectionalLights) {
+				vec3 dirLightColor = uDirectionalLightsColor[i];
+				vec3 dirLightVec = uDirectionalLightsDirection[i];
+
+				vec3 viewVec = normalize(-vPosition.xyz);
+				vec3 reflectVec = reflect(dirLightVec, normal);
+				float specularAngle = max(dot(reflectVec, viewVec), 0.0);
+				float shininess = 4.0;
+
+				vec3 diffuseLight = dirLightColor * max(dot(normal, -dirLightVec), 0.0);
+				vec3 specularLight = dirLightColor * pow(specularAngle, shininess);
+
+				lighting += diffuseLight;
+				lighting += specularLight;
+			}
+		}
+
+		lighting += uAmbientLightColor;
+
+        gl_FragColor *= vec4(lighting, 1.0);
     }
 
-//	gl_FragColor = vec4(normal, 1);
-//	gl_FragColor = vec4(vRawNormal, 1);
-//	gl_FragColor = vec4(vLightDirection);
-
 	// add some fog
-	float density = 0.008;
-	// calculate fog factor
-	float fogFactor = exp2(-pow(density * vPosition.z, 2.0));
+	float density = 0.10;
+	// falloff speed
+	float easing = 0.3;
+	// height of fog
+	float height = -5.0;
+	// gives fog based on distance from camera and height from ground
+	float fogFactor = exp2(-pow(density * vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-easing * vRawPosition.y - height)));
 	// clamp between 0 and 1
 	fogFactor = clamp(fogFactor, 0.0, 1.0);
 
@@ -74,4 +88,10 @@ void main(void) {
 
 	// linearly blend current color with fog
 	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
+
+	// for debugging
+//	gl_FragColor = vec4(normal, 1);
+//	gl_FragColor = vec4(vRawNormal, 1);
+//	gl_FragColor = vec4(vLightDirection);
+
 }
