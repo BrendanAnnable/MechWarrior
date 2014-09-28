@@ -295,17 +295,20 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			geometry.__webglVertexBuffer = Ext.create('FourJS.buffer.Vertex').load(gl, geometry);
             geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
             geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
-			if (object.hasMaterial()) {
-				var material = object.getMaterial();
+			geometry.__webglBuffers = true;
+        }
+		if (object.hasMaterial()) {
+			var material = object.getMaterial();
+			if (material.__webglBuffers !== true) {
 				if (material.hasTexture()) {
 					material.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
 				}
 				if (material.hasEnvironmentMap()) {
 					material.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
 				}
+				material.__webglBuffers = true;
 			}
-			geometry.__webglBuffers = true;
-        }
+		}
     },
     /**
      * Applies a texture to an object.

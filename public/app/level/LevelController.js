@@ -5,8 +5,10 @@ Ext.define('MW.level.LevelController', {
     alias: 'LevelController',
     requires: [
         'PhysJS.PhysicsEngine',
-        'MW.character.Player'
-    ],
+        'MW.character.Player',
+		'FourJS.camera.PerspectiveCamera',
+		'FourJS.camera.ThirdPersonCamera'
+	],
     physics: null,
     config: {
         level: null,
