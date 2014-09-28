@@ -22,21 +22,18 @@ Ext.define('MW.level.LevelController', {
         this.initConfig(config);
         this.setPlayers([]);                                        // set the players to an empty array
         this.setProjectiles([]);                                    // set the projectiles to an empty array
-        var level = this.getLevel();                                // retrieve the level
-        var assetManager = this.getAssetManager();                  // get the asset manager
-        var weaponManager = this.getWeaponManager();                // get the weapon manager
-        this.setupManagers(assetManager, weaponManager);            // ensure the managers are created
+        this.setupManagers();                                       // setup the manager configs
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
-            scene: level
+            scene: this.getLevel()
         });
+        this.getLevel().setActiveCamera(Ext.create('FourJS.camera.PerspectiveCamera'));
     },
     /**
      * Creates the managers if they have not been passed in correctly.
-     *
-     * @param assetManager The asset manager of the game.
-     * @param weaponManager The weapon manager of the game.
      */
-    setupManagers: function (assetManager, weaponManager) {
+    setupManagers: function () {
+        var assetManager = this.getAssetManager();
+        var weaponManager = this.getWeaponManager();
         if (assetManager === null || assetManager === undefined) {
             this.setAssetManager(Ext.create('FourJS.util.manager.Asset'));
         }
@@ -147,14 +144,24 @@ Ext.define('MW.level.LevelController', {
         var keyboardControls = this.getKeyboardControls();
         var mouseControls = this.getMouseControls();
         var player = this.getActivePlayer();
-        // rotate camera around target
-        camera.setPitch(mouseControls.getPitch());
-        camera.setYaw(mouseControls.getYaw());
-        var position = player.getPosition();
-        // rotate player to face camera
-        mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
-        // move player according to keyboard input
-        mat4.translate(position, position, keyboardControls.getTranslation());
+        if (camera instanceof FourJS.camera.ThirdPersonCamera) {
+            // rotate camera around target
+            camera.setPitch(mouseControls.getPitch());
+            camera.setYaw(mouseControls.getYaw());
+            if (player !== null) {
+                var position = player.getPosition();
+                // rotate player to face camera
+                mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
+            }
+        }
+        else {
+            mat4.copyRotation(camera.getPosition(), mouseControls.getPosition());
+        }
+        if (player !== null) {
+            var position = player.getPosition();
+            // move player according to keyboard input
+            mat4.translate(position, position, keyboardControls.getTranslation());
+        }
         // run the physics engine update
         this.physics.update();
         // keep skybox at constant distance from player (pretty sure there is a better way than this?)

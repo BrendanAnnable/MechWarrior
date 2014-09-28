@@ -60,15 +60,7 @@ Ext.define('MW.MechWarrior', {
                     assetManager: assetManager,
                     audioManager: audioManager
                 });
-                var name = 'Genesis';											// set the name of the first level
-                var level = Ext.create('MW.level.genesis.Genesis', {		    // create the genesis level
-                    name: name,
-                    width: 200,
-                    height: 200,
-                    depth: 200
-                });
-                levelManager.addScene(name, level);								// add the level to the manager
-                levelManager.setActiveScene(level);								// set the active scene to the level
+                levelManager.loadLevel('Genesis');
 				this.update(levelManager, keyboardControls, mouseControls); // start the animation loop
 			});
 		}, this);

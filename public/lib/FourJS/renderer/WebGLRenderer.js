@@ -167,6 +167,12 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			}
 		}
 
+        if (ambientLight === null) {
+            ambientLight = Ext.create('FourJS.light.AmbientLight', {
+                color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1})
+            });
+        }
+
 		gl.uniform3fv(shaderProgram.uAmbientLightColor, new Float32Array([
 			ambientLight.getColor().getR(),
 			ambientLight.getColor().getG(),

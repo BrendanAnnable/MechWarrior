@@ -8,6 +8,20 @@ Ext.define('MW.level.genesis.Genesis', {
     ],
 	constructor: function () {
 		this.callParent(arguments);
+        this.setName('Genesis');
+        var width = 200;
+        var height = 200;
+        var depth = 200;
+        this.setDimensions(width, height, depth);
+        this.createSkybox({
+            upUrl: "/resources/image/skybox/urban/up.png",
+            rightUrl: "/resources/image/skybox/urban/right.png",
+            downUrl: "/resources/image/skybox/urban/down.png",
+            leftUrl: "/resources/image/skybox/urban/left.png",
+            frontUrl: "/resources/image/skybox/urban/front.png",
+            backUrl: "/resources/image/skybox/urban/back.png"
+        });
+        this.createFloor("/resources/image/ground_low.jpg");
         // create an ambient light to the level at the origin
         var ambientLight = Ext.create('FourJS.light.AmbientLight', {
             color: Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0.2})
