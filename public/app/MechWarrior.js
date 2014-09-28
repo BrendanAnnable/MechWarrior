@@ -6,36 +6,41 @@ Ext.define('MW.MechWarrior', {
 	alias: 'MechWarrior',
 	requires: [
 		'FourJS.renderer.WebGLRenderer',
-		'FourJS.camera.ThirdPersonCamera',
 		'FourJS.util.Color',
 		'FourJS.util.Scene',
         'FourJS.control.Mouse',
-        'MW.control.Keyboard',
 		'FourJS.util.manager.Asset',
-        'MW.manager.Weapon',
+        'MW.control.Keyboard',
 		'MW.scene.assets.Global',
-		'MW.manager.Level',
-		'MW.level.genesis.Genesis'
+		'MW.manager.Weapon',
+		'MW.manager.Level'
 	],
 	renderer: null,
 	camera: null,
+	mouseControls: null,
+	keyboardControls: null,
     config: {
-        canvas: null
+        canvas: null,
+		defaultLevel: 'Genesis'
     },
 	/**
 	 * Constructor called after the HTML5 canvas has been rendered.
 	 */
 	constructor: function (config) {
-        this.initConfig(config);
-        var keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
+		this.initConfig(config);
+		this.setup();
+	},
+	setup: function () {
+		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
+
+        this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
 			speed: 0.5
 		});
-        var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
-		var mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
+		this.mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
 			element: canvas
-//			minPitch: Math.PI / 16
 		});
+
 		// Setup WebGL
 		var gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 		var backgroundColor = Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0, a: 1});
@@ -45,25 +50,26 @@ Ext.define('MW.MechWarrior', {
 			width: canvas.width,
 			height: canvas.height,
 			backgroundColor: backgroundColor
-		}).on('loaded', function () {
-            // create the asset manager and load all the assets for the game
-            var assetManager = Ext.create('FourJS.util.manager.Asset');
-            // create the audio manager
-            var audioManager = Ext.create('MW.manager.Audio', {
-                keyboardControls: keyboardControls
-            });
-			Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
-                // initialises the level manager
-                var levelManager = Ext.create('MW.manager.Level', {
-                    mouseControls: mouseControls,
-                    keyboardControls: keyboardControls,
-                    assetManager: assetManager,
-                    audioManager: audioManager
-                });
-                levelManager.loadLevel('Genesis');
-				this.update(levelManager, keyboardControls, mouseControls); // start the animation loop
+		}).on('loaded', this.onLoaded, this);
+	},
+	onLoaded: function () {
+		// create the asset manager and load all the assets for the game
+		var assetManager = Ext.create('FourJS.util.manager.Asset');
+		// create the audio manager
+		var audioManager = Ext.create('MW.manager.Audio', {
+			keyboardControls: this.keyboardControls
+		});
+		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
+			// initialises the level manager
+			var levelManager = Ext.create('MW.manager.Level', {
+				mouseControls: this.mouseControls,
+				keyboardControls: this.keyboardControls,
+				assetManager: assetManager,
+				audioManager: audioManager
 			});
-		}, this);
+			levelManager.loadLevel(this.getDefaultLevel());
+			this.update(levelManager, this.keyboardControls, this.mouseControls); // start the animation loop
+		});
 	},
     /**
      * The method called when the viewport gets resized by the user.
