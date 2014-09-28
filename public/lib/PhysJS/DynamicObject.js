@@ -4,8 +4,8 @@
 Ext.define('PhysJS.DynamicObject', {
 	alias: 'DynamicObject',
 	mixins: {
-		observable: 'Ext.util.Observable'
-	},
+        observable: 'Ext.util.Observable'
+    },
 	isDynamicObject: true,
 	config: {
 		mass: 1,

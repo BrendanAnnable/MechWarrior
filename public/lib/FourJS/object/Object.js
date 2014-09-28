@@ -68,24 +68,45 @@ Ext.define('FourJS.object.Object', {
 	hasChildren: function () {
 		return this.getChildren().length !== 0;
 	},
+    /**
+     * Checks if the object is renderable.
+     * @returns {*}
+     */
     isRenderable: function () {
         return this.getRenderable();
     },
-	updateWorld: function (object) {
-		if (object === undefined) {
-			object = this;
-		}
-		var parent = object.getParent();
+    /**
+     * Updates the object's world position.
+     */
+	updateWorld: function () {
+		var parent = this.getParent();
 		if (parent === null) {
-			object.worldPosition = object.getPosition();
+            this.worldPosition = this.getPosition();
 		}
 		else {
-			this.updateWorld(parent);
-			mat4.multiply(object.worldPosition, parent.getWorldPosition(), object.getPosition());
+			parent.updateWorld();
+			mat4.multiply(this.worldPosition, parent.getWorldPosition(), this.getPosition());
 		}
 	},
+    /**
+     * Retrieves the world position of the object.
+     * @returns {null}
+     */
 	getWorldPosition: function () {
-		this.updateWorld(this);
+		this.updateWorld();
 		return this.worldPosition;
-	}
+	},
+    /**
+     * Recursively finds all the children of an object and returns it as a single array.
+     * @returns {Array}
+     */
+    getAllChildren: function () {
+        var result = [];
+        var children = this.getChildren();
+        for (var i = 0; i < children.length; i++) {
+            result.push(children[i]);
+            result = result.concat(children[i].getAllChildren());
+        }
+        return result;
+    }
 });

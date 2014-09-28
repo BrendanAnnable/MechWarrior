@@ -82,4 +82,32 @@ describe("Object", function () {
 		});
 	});
 
+    describe("should correctly return all of its children as a single array", function () {
+
+        beforeEach(function () {
+            // create some objects
+            this.grandParent = Ext.create('FourJS.object.Object');
+            this.parent = Ext.create('FourJS.object.Object');
+            this.object = Ext.create('FourJS.object.Object');
+            this.sibling = Ext.create('FourJS.object.Object');
+            this.child = Ext.create('FourJS.object.Object');
+
+            // create a nested hierarchy
+            this.grandParent.addChild(this.parent);
+            this.parent.addChild(this.object);
+            this.parent.addChild(this.sibling);
+            this.object.addChild(this.child);
+        });
+
+        it("the children of the grandparent should include all children", function () {
+            var children = this.grandParent.getAllChildren();
+            expect(children).toContain(this.parent);
+            expect(children).toContain(this.object);
+            expect(children).toContain(this.sibling);
+            expect(children).toContain(this.child);
+            expect(children).not.toContain(this.grandParent);
+        });
+
+    });
+
 });

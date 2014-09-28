@@ -7,6 +7,7 @@ Ext.define('MW.level.LevelController', {
         'PhysJS.PhysicsEngine',
         'MW.character.Player'
     ],
+
     physics: null,
     config: {
         level: null,
@@ -25,6 +26,10 @@ Ext.define('MW.level.LevelController', {
         this.setupManagers();                                       // setup the manager configs
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
             scene: this.getLevel()
+        });
+        this.physics.on({
+            collision: this.onCollision,
+            scope: this
         });
         this.getLevel().setActiveCamera(Ext.create('FourJS.camera.PerspectiveCamera'));
     },
@@ -45,12 +50,13 @@ Ext.define('MW.level.LevelController', {
      * Creates a player using the asset manager.
      *
      * @param active Whether the player will be set to active or not.
+     * @param [name]
      * @returns {MW.character.Player}
      */
-    createPlayer: function (active) {
+    createPlayer: function (active, name) {
         var playerAsset = this.getAssetManager().getAsset('player');
         var player = Ext.create('MW.character.Player', {
-            name: playerAsset.name,
+            name: name || playerAsset.name,
             geometry: playerAsset.geometry,
             material: playerAsset.material
         });
@@ -102,6 +108,7 @@ Ext.define('MW.level.LevelController', {
     addPlayer: function (level, player) {
         this.getPlayers().push(player);                                 // adds the player to the array
         level.addChild(player);                                         // adds the player to the level
+        // TODO: don't want to add this to all players!
         this.getKeyboardControls().on('jump', player.jump, player);     // adds the player jump event to the player
     },
     /**
@@ -134,6 +141,9 @@ Ext.define('MW.level.LevelController', {
     removeProjectile: function (projectile) {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
+    },
+    onCollision: function (object1, object2) {
+        console.log('collision!', object1.getName(), object2.getName());
     },
     /**
      * Updates the level on each render.
