@@ -18,6 +18,7 @@ Ext.define('MW.projectile.Projectile', {
 	constructor: function (config) {
 		this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);     // call the physics constructor to initialise the mixin
+		this.computeBoundingBox(this.getGeometry().getVertices());
 		var velocity = this.getInitialVelocity();               // get the initial velocity of the projectile
 
         var pitch = this.getPitch();                            // gets the angle the projectile is fired from

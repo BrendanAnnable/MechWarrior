@@ -62,12 +62,6 @@ Ext.define('PhysJS.PhysicsEngine', {
 			// convert back to local space
 			mat4.multiply(transform, transform, object.getPosition());
 
-			vec3.scale(acceleration, force, mass);
-			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
-			vec3.scale(avg, avg, 1 / 2);
-			var c = vec3.scale(vec3.create(), avg, timeStep);
-			vec3.add(velocity, velocity, c);
-
             // apply transform to potential new position
             var candidatePosition = mat4.multiply(mat4.create(), position, transform);
             if (candidatePosition[13] < 0) {
@@ -79,8 +73,17 @@ Ext.define('PhysJS.PhysicsEngine', {
             var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
             if (collidedObject !== null) {
                 this.fireEvent('collision', object, collidedObject);
+				var axis = vec3.subtract(vec3.create(), mat4.translateVector(position), mat4.translateVector(object.getLastPosition()));
+				this.resolveCollision(candidatePosition, object, collidedObject, axis);
             }
+			mat4.copy(object.getLastPosition(), position);
             mat4.copy(position, candidatePosition);
+
+			vec3.scale(acceleration, force, mass);
+			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
+			vec3.scale(avg, avg, 1 / 2);
+			var c = vec3.scale(vec3.create(), avg, timeStep);
+			vec3.add(velocity, velocity, c);
         }
 	},
     hasCollided: function (object, position, scene) {
@@ -88,29 +91,72 @@ Ext.define('PhysJS.PhysicsEngine', {
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
             if (child.isDynamicObject && child !== object) {
-                var points = object.getBoundingPoints();
-                var boundingBox = child.getBoundingBox();
-                // check if the points intersect with the bounding box
-                if (this.isColliding(points, boundingBox)) {
-                    return child;
-                }
+				var box1 = object.getBoundingBox();
+                var box2 = child.getBoundingBox();
+				if (box1 && box2 && object.getName() === 'player') {
+					box1.setPosition(object.getWorldPosition());
+					box2.setPosition(child.getWorldPosition());
+					var results = PhysJS.util.math.BoundingBox.intersects(box1, box2);
+					if (results.intersects) {
+						return child;
+					}
+				}
             }
         }
         return null;
     },
-    isColliding: function (points, boundingBox) {
-        var min = boundingBox.min;
-        var max = boundingBox.max;
-        // check each point within the object
-        for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-            var xBound = point[0] >= min[0] && point[0] <= max[0];
-            var yBound = point[1] >= min[1] && point[1] <= max[1];
-            var zBound = point[2] >= min[2] && point[2] <= max[2];
-            if (xBound && yBound && zBound) {
-                return true;
-            }
-        }
-        return false; // the object points do not collide with the bounding box
-    }
+	resolveCollision: function (position, object1, object2, axis) {
+
+		vec3.normalize(axis, axis);
+
+		var box1 = object1.getBoundingBox();
+		var box2 = object2.getBoundingBox();
+
+		var pos1 = box1.getPosition();
+		var pos2 = box2.getPosition();
+
+		var center1 = vec3.transformMat4(vec3.create(), box1.getCenter(), pos1);
+		var center2 = vec3.transformMat4(vec3.create(), box2.getCenter(), pos2);
+		var centerDifference = vec3.subtract(vec3.create(), center1, center2);
+
+		// get the axis vectors of the first box
+		var ax1 = mat4.col(pos1, 0, 3);
+		var ay1 = mat4.col(pos1, 1, 3);
+		var az1 = mat4.col(pos1, 2, 3);
+		// get the axis vectors of the second box
+		var ax2 = mat4.col(pos2, 0, 3);
+		var ay2 = mat4.col(pos2, 1, 3);
+		var az2 = mat4.col(pos2, 2, 3);
+
+		// get the orientated radii vectors of the first box
+		var radii1 = box1.getRadii();
+		var radX1 = vec3.scale(vec3.create(), ax1, radii1[0]);
+		var radY1 = vec3.scale(vec3.create(), ay1, radii1[1]);
+		var radZ1 = vec3.scale(vec3.create(), az1, radii1[2]);
+
+		// get the orientated radii vectors of the second box
+		var radii2 = box2.getRadii();
+		var radX2 = vec3.scale(vec3.create(), ax2, radii2[0]);
+		var radY2 = vec3.scale(vec3.create(), ay2, radii2[1]);
+		var radZ2 = vec3.scale(vec3.create(), az2, radii2[2]);
+
+		// get the projections of the first half box onto the axis
+		var projAx1 = Math.abs(vec3.dot(radX1, axis));
+		var projAy1 = Math.abs(vec3.dot(radY1, axis));
+		var projAz1 = Math.abs(vec3.dot(radZ1, axis));
+
+		// get the projections of the second half box onto the axis
+		var projAx2 = Math.abs(vec3.dot(radX2, axis));
+		var projAy2 = Math.abs(vec3.dot(radY2, axis));
+		var projAz2 = Math.abs(vec3.dot(radZ2, axis));
+
+		// sum the projections
+		var projectionBoxesSum = projAx1 + projAy1 + projAz1 + projAx2 + projAy2 + projAz2;
+
+		// get the projection of the center difference onto the axis
+		var projectionDifference = Math.abs(vec3.dot(centerDifference, axis));
+
+		var dist = vec3.scale(vec3.create(), axis, -(projectionBoxesSum - projectionDifference));
+		mat4.translate(position, position, dist);
+	}
 });

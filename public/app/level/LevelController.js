@@ -143,7 +143,7 @@ Ext.define('MW.level.LevelController', {
         this.getLevel().removeChild(projectile);
     },
     onCollision: function (object1, object2) {
-        console.log('collision!', object1.getName(), object2.getName());
+        //console.log('collision!', object1.getName(), object2.getName());
     },
     /**
      * Updates the level on each render.
