@@ -169,6 +169,7 @@ Ext.define('MW.level.LevelController', {
         }
         if (player !== null) {
             var position = player.getPosition();
+			mat4.copy(player.getLastPosition(), position);
             // move player according to keyboard input
             mat4.translate(position, position, keyboardControls.getTranslation());
         }

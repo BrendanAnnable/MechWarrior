@@ -73,11 +73,10 @@ Ext.define('PhysJS.PhysicsEngine', {
             var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
             if (collidedObject !== null) {
                 this.fireEvent('collision', object, collidedObject);
-				var axis = vec3.subtract(vec3.create(), mat4.translateVector(position), mat4.translateVector(object.getLastPosition()));
+				var axis = vec4.subtract(vec4.create(), mat4.translateVector(candidatePosition), mat4.translateVector(object.getLastPosition()));
 				this.resolveCollision(candidatePosition, object, collidedObject, axis);
             }
-			mat4.copy(object.getLastPosition(), position);
-            mat4.copy(position, candidatePosition);
+			mat4.copy(position, candidatePosition);
 
 			vec3.scale(acceleration, force, mass);
 			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
@@ -106,6 +105,7 @@ Ext.define('PhysJS.PhysicsEngine', {
         return null;
     },
 	resolveCollision: function (position, object1, object2, axis) {
+		// TODO: this is duplicate code from BoundingBox with only 1 axis, needs refactoring
 
 		vec3.normalize(axis, axis);
 
@@ -115,48 +115,52 @@ Ext.define('PhysJS.PhysicsEngine', {
 		var pos1 = box1.getPosition();
 		var pos2 = box2.getPosition();
 
-		var center1 = vec3.transformMat4(vec3.create(), box1.getCenter(), pos1);
-		var center2 = vec3.transformMat4(vec3.create(), box2.getCenter(), pos2);
-		var centerDifference = vec3.subtract(vec3.create(), center1, center2);
+		var center1 = vec4.transformMat4(vec4.create(), box1.getCenter(), pos1);
+		var center2 = vec4.transformMat4(vec4.create(), box2.getCenter(), pos2);
+		var centerDifference = vec4.subtract(vec4.create(), center1, center2);
 
 		// get the axis vectors of the first box
-		var ax1 = mat4.col(pos1, 0, 3);
-		var ay1 = mat4.col(pos1, 1, 3);
-		var az1 = mat4.col(pos1, 2, 3);
+		var ax1 = mat4.col(pos1, 0);
+		var ay1 = mat4.col(pos1, 1);
+		var az1 = mat4.col(pos1, 2);
 		// get the axis vectors of the second box
-		var ax2 = mat4.col(pos2, 0, 3);
-		var ay2 = mat4.col(pos2, 1, 3);
-		var az2 = mat4.col(pos2, 2, 3);
+		var ax2 = mat4.col(pos2, 0);
+		var ay2 = mat4.col(pos2, 1);
+		var az2 = mat4.col(pos2, 2);
 
 		// get the orientated radii vectors of the first box
 		var radii1 = box1.getRadii();
-		var radX1 = vec3.scale(vec3.create(), ax1, radii1[0]);
-		var radY1 = vec3.scale(vec3.create(), ay1, radii1[1]);
-		var radZ1 = vec3.scale(vec3.create(), az1, radii1[2]);
+		var radX1 = vec4.scale(vec4.create(), ax1, radii1[0]);
+		var radY1 = vec4.scale(vec4.create(), ay1, radii1[1]);
+		var radZ1 = vec4.scale(vec4.create(), az1, radii1[2]);
 
 		// get the orientated radii vectors of the second box
 		var radii2 = box2.getRadii();
-		var radX2 = vec3.scale(vec3.create(), ax2, radii2[0]);
-		var radY2 = vec3.scale(vec3.create(), ay2, radii2[1]);
-		var radZ2 = vec3.scale(vec3.create(), az2, radii2[2]);
+		var radX2 = vec4.scale(vec4.create(), ax2, radii2[0]);
+		var radY2 = vec4.scale(vec4.create(), ay2, radii2[1]);
+		var radZ2 = vec4.scale(vec4.create(), az2, radii2[2]);
 
 		// get the projections of the first half box onto the axis
-		var projAx1 = Math.abs(vec3.dot(radX1, axis));
-		var projAy1 = Math.abs(vec3.dot(radY1, axis));
-		var projAz1 = Math.abs(vec3.dot(radZ1, axis));
+		var projAx1 = Math.abs(vec4.dot(radX1, axis));
+		var projAy1 = Math.abs(vec4.dot(radY1, axis));
+		var projAz1 = Math.abs(vec4.dot(radZ1, axis));
 
 		// get the projections of the second half box onto the axis
-		var projAx2 = Math.abs(vec3.dot(radX2, axis));
-		var projAy2 = Math.abs(vec3.dot(radY2, axis));
-		var projAz2 = Math.abs(vec3.dot(radZ2, axis));
+		var projAx2 = Math.abs(vec4.dot(radX2, axis));
+		var projAy2 = Math.abs(vec4.dot(radY2, axis));
+		var projAz2 = Math.abs(vec4.dot(radZ2, axis));
 
 		// sum the projections
 		var projectionBoxesSum = projAx1 + projAy1 + projAz1 + projAx2 + projAy2 + projAz2;
 
 		// get the projection of the center difference onto the axis
-		var projectionDifference = Math.abs(vec3.dot(centerDifference, axis));
+		var projectionDifference = Math.abs(vec4.dot(centerDifference, axis));
 
-		var dist = vec3.scale(vec3.create(), axis, -(projectionBoxesSum - projectionDifference));
+		var dist = vec4.scale(vec4.create(), axis, -(projectionBoxesSum - projectionDifference));
+		var worldPositionInverse = object1.getWorldPositionInverse();
+		// convert translation to local coordinates
+		vec4.transformMat4(dist, dist, worldPositionInverse);
+
 		mat4.translate(position, position, dist);
 	}
 });

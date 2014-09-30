@@ -20,20 +20,20 @@ describe("BoundingBox", function (){
 
 		});
 
-		it("expects the min to be [-5, -2.5, -3]", function () {
-			expect(this.boundingBox.getMin()).toEqual(vec3.fromValues(-5, -2.5, -3));
+		it("expects the min to be [-5, -2.5, -3, 0]", function () {
+			expect(this.boundingBox.getMin()).toEqual(vec4.fromValues(-5, -2.5, -3, 0));
 		});
 
-		it("expects the max to be [7, 30, 20]", function () {
-			expect(this.boundingBox.getMax()).toEqual(vec3.fromValues(7, 30, 20));
+		it("expects the max to be [7, 30, 20, 0]", function () {
+			expect(this.boundingBox.getMax()).toEqual(vec4.fromValues(7, 30, 20, 0));
 		});
 
-		it("expects the radii to be [6, 16.25, 11.5]", function () {
-			expect(this.boundingBox.getRadii()).toEqual(vec3.fromValues(6, 16.25, 11.5));
+		it("expects the radii to be [6, 16.25, 11.5, 0]", function () {
+			expect(this.boundingBox.getRadii()).toEqual(vec4.fromValues(6, 16.25, 11.5, 0));
 		});
 
-		it("expects the center to be [1, 13.75, 8.5]", function () {
-			expect(this.boundingBox.getCenter()).toEqual(vec3.fromValues(1, 13.75, 8.5));
+		it("expects the center to be [1, 13.75, 8.5, 0]", function () {
+			expect(this.boundingBox.getCenter()).toEqual(vec4.fromValues(1, 13.75, 8.5, 0));
 		});
 	});
 
@@ -57,7 +57,7 @@ describe("BoundingBox", function (){
 		});
 
 		it ("describe should detect the boxes as intersecting", function () {
-			expect(PhysJS.util.math.BoundingBox.intersects(this.box1, this.box2)).toBe(true);
+			expect(PhysJS.util.math.BoundingBox.intersects(this.box1, this.box2).intersects).toBe(true);
 		});
 	});
 
@@ -81,7 +81,7 @@ describe("BoundingBox", function (){
 		});
 
 		it("describe should detect the boxes as not intersecting", function () {
-			expect(PhysJS.util.math.BoundingBox.intersects(this.box1, this.box2)).toBe(false);
+			expect(PhysJS.util.math.BoundingBox.intersects(this.box1, this.box2).intersects).toBe(false);
 		});
 	});
 });

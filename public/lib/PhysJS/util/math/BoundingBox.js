@@ -19,8 +19,8 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 		var min, max, point, x, y, z;
 
 		// set the bounds at infinity
-		min = vec3.fromValues(Infinity, Infinity, Infinity);
-		max = vec3.fromValues(-Infinity, -Infinity, -Infinity);
+		min = vec4.fromValues(Infinity, Infinity, Infinity, 0);
+		max = vec4.fromValues(-Infinity, -Infinity, -Infinity, 0);
 
 		// check there are points to deal with
 		if (points.length > 0) {
@@ -64,11 +64,13 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 		this.setMin(min);
 		this.setMax(max);
 
-		var radii = vec3.subtract(vec3.create(), max, min);
-		this.setRadii(vec3.scale(radii, radii, 0.5));
+		var radii = vec4.subtract(vec4.create(), max, min);
+		this.setRadii(vec4.scale(radii, radii, 0.5));
 
-		var center = vec3.add(vec3.create(), min, max);
-		this.setCenter(vec3.scale(center, center, 0.5));
+		var center = vec4.add(vec4.create(), min, max);
+		vec4.scale(center, center, 0.5);
+		center[3] = 1; // make it a point
+		this.setCenter(center);
 	},
 	statics: {
 		/**
@@ -91,33 +93,33 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 			// assumes the position of each box to be an orthonormal basis
 			var pos1 = box1.getPosition();
 			var pos2 = box2.getPosition();
-			var center1 = vec3.transformMat4(vec3.create(), box1.getCenter(), pos1);
-			var center2 = vec3.transformMat4(vec3.create(), box2.getCenter(), pos2);
-			var centerDifference = vec3.subtract(vec3.create(), center1, center2);
+			var center1 = vec4.transformMat4(vec4.create(), box1.getCenter(), pos1);
+			var center2 = vec4.transformMat4(vec4.create(), box2.getCenter(), pos2);
+			var centerDifference = vec4.subtract(vec4.create(), center1, center2);
 
 			// get the axis vectors of the first box
-			var ax1 = mat4.col(pos1, 0, 3);
-			var ay1 = mat4.col(pos1, 1, 3);
-			var az1 = mat4.col(pos1, 2, 3);
+			var ax1 = mat4.col(pos1, 0);
+			var ay1 = mat4.col(pos1, 1);
+			var az1 = mat4.col(pos1, 2);
 			// get the axis vectors of the second box
-			var ax2 = mat4.col(pos2, 0, 3);
-			var ay2 = mat4.col(pos2, 1, 3);
-			var az2 = mat4.col(pos2, 2, 3);
+			var ax2 = mat4.col(pos2, 0);
+			var ay2 = mat4.col(pos2, 1);
+			var az2 = mat4.col(pos2, 2);
 
 			// keep them in a list
 			var axes = [ax1, ay1, az1, ax2, ay2, az2];
 
 			// get the orientated radii vectors of the first box
 			var radii1 = box1.getRadii();
-			var radX1 = vec3.scale(vec3.create(), ax1, radii1[0]);
-			var radY1 = vec3.scale(vec3.create(), ay1, radii1[1]);
-			var radZ1 = vec3.scale(vec3.create(), az1, radii1[2]);
+			var radX1 = vec4.scale(vec4.create(), ax1, radii1[0]);
+			var radY1 = vec4.scale(vec4.create(), ay1, radii1[1]);
+			var radZ1 = vec4.scale(vec4.create(), az1, radii1[2]);
 
 			// get the orientated radii vectors of the second box
 			var radii2 = box2.getRadii();
-			var radX2 = vec3.scale(vec3.create(), ax2, radii2[0]);
-			var radY2 = vec3.scale(vec3.create(), ay2, radii2[1]);
-			var radZ2 = vec3.scale(vec3.create(), az2, radii2[2]);
+			var radX2 = vec4.scale(vec4.create(), ax2, radii2[0]);
+			var radY2 = vec4.scale(vec4.create(), ay2, radii2[1]);
+			var radZ2 = vec4.scale(vec4.create(), az2, radii2[2]);
 
 			var results = {
 				intersects: true,
@@ -126,7 +128,7 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 
 			var smallestDifference = Infinity;
 			// there are 15 axes to check, so loop through all of them until a separation plane is found
-			var zeros = vec3.create();
+			var zeros = vec4.create();
 			for (var i = 0; i < 15; i++) {
 				var axis;
 
@@ -139,28 +141,28 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 					var offset = i - 6;
 					var j = Math.floor(offset / 3);
 					var k = offset % 3;
-					axis = vec3.cross(vec3.create(), axes[j], axes[k]);
-					if (vec3.close(axis, zeros)) {
+					axis = vec4.cross(vec4.create(), axes[j], axes[k]);
+					if (vec4.close(axis, zeros)) {
 						// axes must be collinear, ignore
 						continue;
 					}
 				}
 
 				// get the projections of the first half box onto the axis
-				var projAx1 = Math.abs(vec3.dot(radX1, axis));
-				var projAy1 = Math.abs(vec3.dot(radY1, axis));
-				var projAz1 = Math.abs(vec3.dot(radZ1, axis));
+				var projAx1 = Math.abs(vec4.dot(radX1, axis));
+				var projAy1 = Math.abs(vec4.dot(radY1, axis));
+				var projAz1 = Math.abs(vec4.dot(radZ1, axis));
 
 				// get the projections of the second half box onto the axis
-				var projAx2 = Math.abs(vec3.dot(radX2, axis));
-				var projAy2 = Math.abs(vec3.dot(radY2, axis));
-				var projAz2 = Math.abs(vec3.dot(radZ2, axis));
+				var projAx2 = Math.abs(vec4.dot(radX2, axis));
+				var projAy2 = Math.abs(vec4.dot(radY2, axis));
+				var projAz2 = Math.abs(vec4.dot(radZ2, axis));
 
 				// sum the projections
 				var projectionBoxesSum = projAx1 + projAy1 + projAz1 + projAx2 + projAy2 + projAz2;
 
 				// get the projection of the center difference onto the axis
-				var projectionDifference = Math.abs(vec3.dot(centerDifference, axis));
+				var projectionDifference = Math.abs(vec4.dot(centerDifference, axis));
 
 				if (projectionDifference > projectionBoxesSum) {
 					// If the projection of the center difference onto the axis is greater
@@ -172,7 +174,7 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 				else {
 					var difference = projectionBoxesSum - projectionDifference;
 					if (difference < smallestDifference) {
-						results.resolution = vec3.scale(vec3.create(), axis, difference);
+						results.resolution = vec4.scale(vec4.create(), axis, difference);
 						smallestDifference = difference;
 					}
 				}

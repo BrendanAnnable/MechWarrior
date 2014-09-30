@@ -5,6 +5,7 @@ Ext.define('FourJS.object.Object', {
 	alias: 'Object',
 	positionInverse: null,
 	worldPosition: null,
+	worldPositionInverse: null,
 	config: {
 		name: null,
 		position: null,
@@ -22,6 +23,7 @@ Ext.define('FourJS.object.Object', {
         }
 		this.positionInverse = mat4.create();
 		this.worldPosition = mat4.create();
+		this.worldPositionInverse = mat4.create();
 	},
 	getPositionInverse: function () {
 		var position = this.getPosition();
@@ -95,6 +97,11 @@ Ext.define('FourJS.object.Object', {
 	getWorldPosition: function () {
 		this.updateWorld();
 		return this.worldPosition;
+	},
+	getWorldPositionInverse: function () {
+		var worldPosition = this.getWorldPosition();
+		mat4.invert(this.worldPositionInverse, worldPosition);
+		return this.worldPositionInverse;
 	},
     /**
      * Recursively finds all the children of an object and returns it as a single array.
