@@ -46,6 +46,7 @@ Ext.define('MW.character.Player', {
 		var center = boundingBox.getCenter();
 		box.translate(center[0], center[1], center[2]);
 		this.box = box;
+		this.box.setRenderable(false);
 		this.addChild(box);
 	},
 	/**
