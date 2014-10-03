@@ -49,7 +49,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 
 			if (object.getGravity()) {
 				// add gravity to force vector if enabled
-				force = vec3.add(vec3.create(), force, [0, this.ACC_GRAV, 0]);
+				force = vec3.add(vec3.create(), force, [0, this.getACC_GRAV(), 0]);
 			}
 
 			var lastAcceleration = vec3.clone(acceleration);
