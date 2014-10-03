@@ -5,9 +5,9 @@ Ext.define('MW.level.LevelController', {
     alias: 'LevelController',
     requires: [
         'PhysJS.PhysicsEngine',
-        'MW.character.Player'
+        'MW.character.Player',
+	    'FourJS.camera.ThirdPersonCamera'
     ],
-
     physics: null,
     config: {
         level: null,
@@ -60,7 +60,7 @@ Ext.define('MW.level.LevelController', {
             geometry: playerAsset.geometry,
             material: playerAsset.material
         });
-        this.addPlayer(this.getLevel(), player);    // add the player to the level
+	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player
         }
@@ -106,11 +106,35 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to add.
      */
     addPlayer: function (level, player) {
-        this.getPlayers().push(player);                                 // adds the player to the array
-        level.addChild(player);                                         // adds the player to the level
-        // TODO: don't want to add this to all players!
-        this.getKeyboardControls().on('jump', player.jump, player);     // adds the player jump event to the player
+        this.getPlayers().push(player);     // adds the player to the array
+        level.addChild(player);             // adds the player to the level
     },
+	/**
+	 * Overrides the setter method for active players to handle events properly.
+	 *
+	 * @param player The player to make active.
+	 */
+	setActivePlayer: function (player) {
+		// todo fix collision of new active player
+		var activePlayer = this.getActivePlayer();
+		// check if the active player needs to be modified
+		if (player !== activePlayer) {
+			var keyboardControls = this.getKeyboardControls();
+			// check an active player exists
+			if (activePlayer !== null) {
+				// remove the current active player event listener
+				keyboardControls.un('jump', activePlayer.jump, activePlayer);
+			}
+			// add the jump event to the new active player and set the new active player
+			keyboardControls.on('jump', player.jump, player);
+			// set a new target on the active camera if it is third person
+			var camera = this.getLevel().getActiveCamera();
+			if (camera instanceof FourJS.camera.ThirdPersonCamera) {
+				camera.setTarget(player);
+			}
+			this._activePlayer = player;
+		}
+	},
     /**
      * Removes a player from the specified level.
      *
