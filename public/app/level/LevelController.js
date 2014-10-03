@@ -154,6 +154,10 @@ Ext.define('MW.level.LevelController', {
         var keyboardControls = this.getKeyboardControls();
         var mouseControls = this.getMouseControls();
         var player = this.getActivePlayer();
+		if (player !== null) {
+			var position = player.getPosition();
+			mat4.copy(player.getLastPosition(), position);
+		}
         if (camera instanceof FourJS.camera.ThirdPersonCamera) {
             // rotate camera around target
             camera.setPitch(mouseControls.getPitch());
@@ -169,7 +173,6 @@ Ext.define('MW.level.LevelController', {
         }
         if (player !== null) {
             var position = player.getPosition();
-			mat4.copy(player.getLastPosition(), position);
             // move player according to keyboard input
             mat4.translate(position, position, keyboardControls.getTranslation());
         }
