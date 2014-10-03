@@ -262,8 +262,7 @@ vec4.fromMat4 = function (a) {
 	return point;
 };
 
-mat4.fromVec4Cols = function (v1, v2, v3, v4) {
-	var out = mat4.zeros();
+mat4.fromVec4Cols = function (out, v1, v2, v3, v4) {
 	out[0] = v1[0];
 	out[1] = v1[1];
 	out[2] = v1[2];
@@ -359,4 +358,10 @@ vec4.cross = function(out, a, b) {
 	out[1] = az * bx - ax * bz;
 	out[2] = ax * by - ay * bx;
 	return out;
+};
+
+vec4.blend = function (out, a, b, factor) {
+	var c = vec4.scale(vec4.create(), a, 1 - factor);
+	var d = vec4.scale(vec4.create(), b, factor);
+	return vec4.add(out, c, d);
 };

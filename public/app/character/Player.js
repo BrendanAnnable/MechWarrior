@@ -5,6 +5,7 @@
 Ext.define('MW.character.Player', {
 	alias: 'Player',
 	extend: 'FourJS.object.Mesh',
+	box: null, // TODO: hack
 	mixins: {
 		physics: 'PhysJS.DynamicObject'
 	},
@@ -44,6 +45,7 @@ Ext.define('MW.character.Player', {
 		});
 		var center = boundingBox.getCenter();
 		box.translate(center[0], center[1], center[2]);
+		this.box = box;
 		this.addChild(box);
 	},
 	/**

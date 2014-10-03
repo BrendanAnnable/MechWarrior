@@ -97,70 +97,65 @@ Ext.define('PhysJS.PhysicsEngine', {
 					box2.setPosition(child.getWorldPosition());
 					var results = PhysJS.util.math.BoundingBox.intersects(box1, box2);
 					if (results.intersects) {
+						object.box.setColor(1, 0, 0, 1);
 						return child;
+					}
+					else {
+						object.box.setColor(1, 1, 1, 1);
 					}
 				}
             }
         }
         return null;
     },
-	resolveCollision: function (position, object1, object2, axis) {
-		// TODO: this is duplicate code from BoundingBox with only 1 axis, needs refactoring
+	resolveCollision: function (candidatePosition, object1, object2, axis) {
+		var position1 = object1.getLastPosition();
 
-		vec3.normalize(axis, axis);
+		var startPoint = mat4.translateVector(position1);
+		var startAngle = mat4.col(position1, 2);
+		var startUp = mat4.col(position1, 1);
+		var endPoint = mat4.translateVector(candidatePosition);
+		var endAngle = mat4.col(candidatePosition, 2);
+		var endUp = mat4.col(candidatePosition, 1);
 
 		var box1 = object1.getBoundingBox();
 		var box2 = object2.getBoundingBox();
+		box2.setPosition(object2.getWorldPosition());
 
-		var pos1 = box1.getPosition();
-		var pos2 = box2.getPosition();
+		var left = 0;
+		var right = 1;
+		var results;
+		var i = 0;
+		var newPoint = vec4.create();
+		var newAngle = vec4.create();
+		var newUp = vec4.create();
+		var newPosition = mat4.create();
+		do {
+			var mid = (right + left) / 2;
+			vec4.blend(newPoint, startPoint, endPoint, mid);
+			vec4.blend(newAngle, startAngle, endAngle, mid);
+			vec4.blend(newUp, startUp, endUp, mid);
 
-		var center1 = vec4.transformMat4(vec4.create(), box1.getCenter(), pos1);
-		var center2 = vec4.transformMat4(vec4.create(), box2.getCenter(), pos2);
-		var centerDifference = vec4.subtract(vec4.create(), center1, center2);
+			var z = newAngle;
+			vec4.normalize(z, z);
+			var x = vec4.cross(vec4.create(), newUp, z);
+			vec4.normalize(x, x);
+			var y = vec4.cross(vec4.create(), z, x);
 
-		// get the axis vectors of the first box
-		var ax1 = mat4.col(pos1, 0);
-		var ay1 = mat4.col(pos1, 1);
-		var az1 = mat4.col(pos1, 2);
-		// get the axis vectors of the second box
-		var ax2 = mat4.col(pos2, 0);
-		var ay2 = mat4.col(pos2, 1);
-		var az2 = mat4.col(pos2, 2);
-
-		// get the orientated radii vectors of the first box
-		var radii1 = box1.getRadii();
-		var radX1 = vec4.scale(vec4.create(), ax1, radii1[0]);
-		var radY1 = vec4.scale(vec4.create(), ay1, radii1[1]);
-		var radZ1 = vec4.scale(vec4.create(), az1, radii1[2]);
-
-		// get the orientated radii vectors of the second box
-		var radii2 = box2.getRadii();
-		var radX2 = vec4.scale(vec4.create(), ax2, radii2[0]);
-		var radY2 = vec4.scale(vec4.create(), ay2, radii2[1]);
-		var radZ2 = vec4.scale(vec4.create(), az2, radii2[2]);
-
-		// get the projections of the first half box onto the axis
-		var projAx1 = Math.abs(vec4.dot(radX1, axis));
-		var projAy1 = Math.abs(vec4.dot(radY1, axis));
-		var projAz1 = Math.abs(vec4.dot(radZ1, axis));
-
-		// get the projections of the second half box onto the axis
-		var projAx2 = Math.abs(vec4.dot(radX2, axis));
-		var projAy2 = Math.abs(vec4.dot(radY2, axis));
-		var projAz2 = Math.abs(vec4.dot(radZ2, axis));
-
-		// sum the projections
-		var projectionBoxesSum = projAx1 + projAy1 + projAz1 + projAx2 + projAy2 + projAz2;
-
-		// get the projection of the center difference onto the axis
-		var projectionDifference = Math.abs(vec4.dot(centerDifference, axis));
-
-		var dist = vec4.scale(vec4.create(), axis, -(projectionBoxesSum - projectionDifference));
-		var worldPositionInverse = object1.getWorldPositionInverse();
-		// convert translation to local coordinates
-		vec4.transformMat4(dist, dist, worldPositionInverse);
-
-		mat4.translate(position, position, dist);
+			mat4.fromVec4Cols(newPosition, x, y, z, newPoint);
+			box1.setPosition(newPosition);
+			results = PhysJS.util.math.BoundingBox.intersects(box1, box2);
+			if (results.intersects) {
+				right = mid;
+			} else {
+				left = mid;
+			}
+			i++;
+		} while ((i < 4 || results.intersects) && i < 5);
+		if (!results.intersects) {
+			mat4.copy(candidatePosition, newPosition);
+		} else {
+			mat4.copy(candidatePosition, position1);
+		}
 	}
 });

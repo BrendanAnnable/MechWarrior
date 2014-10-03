@@ -141,7 +141,7 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 					var offset = i - 6;
 					var j = Math.floor(offset / 3);
 					var k = offset % 3;
-					axis = vec4.cross(vec4.create(), axes[j], axes[k]);
+					axis = vec4.cross(vec4.create(), axes[j], axes[k + 3]);
 					if (vec4.close(axis, zeros)) {
 						// axes must be collinear, ignore
 						continue;
