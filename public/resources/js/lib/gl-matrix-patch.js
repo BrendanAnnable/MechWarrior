@@ -360,6 +360,16 @@ vec4.cross = function(out, a, b) {
 	return out;
 };
 
+
+/**
+ * Interpolates position of two inversely proportional points according to some factor.
+ * // TODO: explain this better
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a the first operand
+ * @param {vec4} b the second operand
+ * @returns {vec4} out
+ */
 vec4.blend = function (out, a, b, factor) {
 	var c = vec4.scale(vec4.create(), a, 1 - factor);
 	var d = vec4.scale(vec4.create(), b, factor);

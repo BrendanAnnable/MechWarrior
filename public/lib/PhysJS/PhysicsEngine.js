@@ -9,7 +9,8 @@ Ext.define('PhysJS.PhysicsEngine', {
     lastTime: Date.now() * 1E-3, // in seconds
 	count: 0,
     config: {
-        scene: null
+        scene: null,
+        ACC_GRAV: 9.8
     },
     constructor: function (config) {
         this.initConfig(config);
@@ -48,7 +49,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 
 			if (object.getGravity()) {
 				// add gravity to force vector if enabled
-				force = vec3.add(vec3.create(), force, [0, -9.8, 0]);
+				force = vec3.add(vec3.create(), force, [0, this.ACC_GRAV, 0]);
 			}
 
 			var lastAcceleration = vec3.clone(acceleration);
@@ -88,13 +89,19 @@ Ext.define('PhysJS.PhysicsEngine', {
         var children = scene.getAllChildren();
         for (var i = 0; i < children.length; i++) {
             var child = children[i];
+            // if child object moving and object is not the child
             if (child.isDynamicObject && child !== object) {
-				var box1 = object.getBoundingBox();
-                var box2 = child.getBoundingBox();
-				if (box1 && box2 && object.getName() === 'player') {
-					box1.setPosition(object.getWorldPosition());
-					box2.setPosition(child.getWorldPosition());
-					var results = PhysJS.util.math.BoundingBox.intersects(box1, box2);
+				var objectsBBox = object.getBoundingBox();
+                var childsBBox = child.getBoundingBox();
+
+                // if object's bounding box is defined and child's bounding box is defined and object is the player
+				if (objectsBBox && childsBBox && object.getName() === 'player') {
+
+					// set the bounding box positions (middle point) to be at their positions in the world
+                    objectsBBox.setPosition(object.getWorldPosition());
+					childsBBox.setPosition(child.getWorldPosition());
+
+					var results = PhysJS.util.math.BoundingBox.intersects(objectsBBox, childsBBox);
 					if (results.intersects) {
 						object.box.setColor(1, 0, 0, 1);
 						return child;
@@ -108,31 +115,31 @@ Ext.define('PhysJS.PhysicsEngine', {
         return null;
     },
 	/**
-	 * Resolves a given collision of two objects by moving object1
-	 * away from object2 such that they no longer collide.
+	 * Resolves a given collision of two objects by moving the collider object
+	 * away from the collided into object such that they no longer collide.
 	 *
 	 * Uses the last position of object (assumed to not be colliding)
 	 * and linearly interpolate its position (including rotation) with
 	 * the colliding candidate position along with a binary search
 	 * until a reasonably 'close' non-colliding position is found.
 	 *
-	 * @param candidatePosition The candidate position which has a collision
-	 * @param object1 The object colliding, and the one to move
-	 * @param object2 The object colliding with, assumed to not move
+	 * @param candidateCollisionPosition The candidate position which has a collision
+	 * @param colliderObj The object colliding, and the one to move
+	 * @param collidedIntoObj The object colliding with, assumed to not move
 	 */
-	resolveCollision: function (candidatePosition, object1, object2) {
-		var position1 = object1.getLastPosition();
+	resolveCollision: function (candidateCollisionPosition, colliderObj, collidedIntoObj) {
+		var position1 = colliderObj.getLastPosition();
 
 		var startPoint = mat4.translateVector(position1);
 		var startAngle = mat4.col(position1, 2);
 		var startUp = mat4.col(position1, 1);
-		var endPoint = mat4.translateVector(candidatePosition);
-		var endAngle = mat4.col(candidatePosition, 2);
-		var endUp = mat4.col(candidatePosition, 1);
+		var endPoint = mat4.translateVector(candidateCollisionPosition);
+		var endAngle = mat4.col(candidateCollisionPosition, 2);
+		var endUp = mat4.col(candidateCollisionPosition, 1);
 
-		var box1 = object1.getBoundingBox();
-		var box2 = object2.getBoundingBox();
-		box2.setPosition(object2.getWorldPosition());
+		var colliderObjBBox = colliderObj.getBoundingBox();
+		var collidedIntoObjBBox = collidedIntoObj.getBoundingBox();
+		collidedIntoObjBBox.setPosition(collidedIntoObj.getWorldPosition());
 
 		var left = 0;
 		var right = 1;
@@ -158,8 +165,8 @@ Ext.define('PhysJS.PhysicsEngine', {
 			var y = vec4.cross(vec4.create(), z, x);
 			mat4.fromVec4Cols(newPosition, x, y, z, newPoint);
 
-			box1.setPosition(newPosition);
-			results = PhysJS.util.math.BoundingBox.intersects(box1, box2);
+			colliderObjBBox.setPosition(newPosition);
+			results = PhysJS.util.math.BoundingBox.intersects(colliderObjBBox, collidedIntoObjBBox);
 
 			// binary search, narrow in on the closest point
 			if (results.intersects) {
@@ -174,10 +181,10 @@ Ext.define('PhysJS.PhysicsEngine', {
 
 		if (!results.intersects) {
 			// found a closer non-intersecting position
-			mat4.copy(candidatePosition, newPosition);
+			mat4.copy(candidateCollisionPosition, newPosition);
 		} else {
 			// could not find a closer non-intersecting position, use last position
-			mat4.copy(candidatePosition, position1);
+			mat4.copy(candidateCollisionPosition, position1);
 		}
 	}
 });
