@@ -10,7 +10,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 	count: 0,
     config: {
         scene: null,
-        ACC_GRAV: 9.8
+        ACC_GRAV: -9.8
     },
     constructor: function (config) {
         this.initConfig(config);
