@@ -14,6 +14,7 @@ uniform mat4 uMVMatrix;
 uniform mat4 uPMatrix;
 uniform mat3 uNMatrix;
 uniform mat4 uWorldTransform;
+uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 
 // Varying variables which are linearly interpolated and given to the fragment shader
@@ -40,7 +41,7 @@ void main(void) {
     vLightDirection = uWorldTransform * vec4(1.0, 1.0, 0.0, 0.0);
 
  	// Default color to white
- 	vColor = vec4(1, 1, 1, 1);
+ 	vColor = uDiffuseColor;
 
  	// Convert position to clip-space
  	gl_Position = uPMatrix * vPosition;

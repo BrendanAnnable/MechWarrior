@@ -253,7 +253,8 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 
 			// Update the WebGL uniforms and then draw the object on the screen
 			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
-			gl.drawElements(gl.TRIANGLES, object.__webglFaceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			var wireframe = material && material.getWireframe();
+			gl.drawElements(wireframe ? gl.LINE_LOOP : gl.TRIANGLES, object.__webglFaceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
 		}
 
 		this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);

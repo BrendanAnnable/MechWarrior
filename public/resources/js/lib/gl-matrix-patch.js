@@ -262,8 +262,7 @@ vec4.fromMat4 = function (a) {
 	return point;
 };
 
-mat4.fromVec4Cols = function (v1, v2, v3, v4) {
-	var out = mat4.zeros();
+mat4.fromVec4Cols = function (out, v1, v2, v3, v4) {
 	out[0] = v1[0];
 	out[1] = v1[1];
 	out[2] = v1[2];
@@ -330,8 +329,39 @@ vec3.close = function (a, b) {
 		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON;
 };
 
+vec4.close = function (a, b) {
+	return Math.abs(a[0] - b[0]) < GLMAT_EPSILON
+		&& Math.abs(a[1] - b[1]) < GLMAT_EPSILON
+		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON
+		&& Math.abs(a[3] - b[3]) < GLMAT_EPSILON;
+};
+
 mat4.fromValues = function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
 	return new Float32Array([
 		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
 	]);
+};
+
+/**
+ * Computes the cross product of two vec4's
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a the first operand
+ * @param {vec4} b the second operand
+ * @returns {vec4} out
+ */
+vec4.cross = function(out, a, b) {
+	var ax = a[0], ay = a[1], az = a[2],
+		bx = b[0], by = b[1], bz = b[2];
+
+	out[0] = ay * bz - az * by;
+	out[1] = az * bx - ax * bz;
+	out[2] = ax * by - ay * bx;
+	return out;
+};
+
+vec4.blend = function (out, a, b, factor) {
+	var c = vec4.scale(vec4.create(), a, 1 - factor);
+	var d = vec4.scale(vec4.create(), b, factor);
+	return vec4.add(out, c, d);
 };

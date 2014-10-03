@@ -1,7 +1,6 @@
 describe("HermiteSpline", function () {
-	beforeEach(function () {
-		Ext.syncRequire('FourJS.util.math.HermiteSpline');
-	});
+
+	Ext.syncRequire('FourJS.util.math.HermiteSpline');
 
 	describe("Spline of points (0, 0, 0), (1, 1, 0), (2, 0, 0)", function () {
 
