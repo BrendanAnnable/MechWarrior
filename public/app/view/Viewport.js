@@ -13,6 +13,15 @@ Ext.define('MW.view.Viewport', {
 	items: [{
 		xtype: 'container',
 		layout: 'fit',
+		reference: 'menu',
+		cls: 'menu',
+		items: [{
+			xtype: 'component',
+			cls: 'radar'
+		}]
+	},  {
+		xtype: 'container',
+		layout: 'fit',
 		region: 'center',
 		autoEl: 'canvas',
 		reference: 'canvas',

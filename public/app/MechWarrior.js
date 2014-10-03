@@ -21,6 +21,7 @@ Ext.define('MW.MechWarrior', {
 	keyboardControls: null,
     config: {
         canvas: null,
+	    menu: null,
 		defaultLevel: 'Genesis'
     },
 	/**
@@ -32,13 +33,13 @@ Ext.define('MW.MechWarrior', {
 	},
 	setup: function () {
 		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
-
+		var menu = this.getMenu();
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
 			speed: 0.5
 		});
 		this.mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
-			element: canvas
+			element: menu
 		});
 
 		// Setup WebGL

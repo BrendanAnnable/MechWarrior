@@ -3,3 +3,14 @@ body {
 	background-color: #000 !important;
 }
 
+.menu {
+	z-index: 5;
+}
+
+.radar {
+	width: 20%;
+	height: 20%;
+	background: url('../image/menu/radar.png') no-repeat top left / contain;
+	margin: 1%;
+}
+
