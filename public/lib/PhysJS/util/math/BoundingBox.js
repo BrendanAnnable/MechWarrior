@@ -172,6 +172,8 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 					break;
 				}
 				else {
+					// keep track of the difference, the smallest gives the minimum distance
+					// and direction to move the boxes such that they no longer intersect
 					var difference = projectionBoxesSum - projectionDifference;
 					if (difference < smallestDifference) {
 						results.resolution = vec4.scale(vec4.create(), axis, difference);
@@ -180,7 +182,7 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 				}
 			}
 
-			// could not find an separating plane, they must intersect
+			// could not find a separating plane, they must intersect
 			return results;
 		}
 	}

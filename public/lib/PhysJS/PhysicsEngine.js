@@ -71,12 +71,16 @@ Ext.define('PhysJS.PhysicsEngine', {
                 velocity[1] = 0;
                 // TODO: object.fireEvent('collision', object, the_floor);
             }
-            var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
-            if (collidedObject !== null) {
-                this.fireEvent('collision', object, collidedObject);
-				this.resolveCollision(candidatePosition, object, collidedObject);
-            }
-			mat4.copy(position, candidatePosition);
+
+			// run collision detection twice, in case object was moved into another object
+			for (var i = 0; i < 2; i++) {
+				var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
+				if (collidedObject !== null) {
+					this.fireEvent('collision', object, collidedObject);
+					this.resolveCollision(candidatePosition, object, collidedObject);
+				}
+				mat4.copy(position, candidatePosition);
+			}
 
 			vec3.scale(acceleration, force, mass);
 			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
