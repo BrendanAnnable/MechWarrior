@@ -132,7 +132,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 	 * @param collidedIntoObj The object colliding with, assumed to not move
 	 */
 	resolveCollision: function (candidateCollisionPosition, colliderObj, collidedIntoObj) {
-		var position1 = colliderObj.getLastPosition();
+		var lastPosition = colliderObj.getLastPosition();
 
 		var colliderObjBBox = colliderObj.getBoundingBox();
 		var collidedIntoObjBBox = collidedIntoObj.getBoundingBox();
@@ -143,11 +143,14 @@ Ext.define('PhysJS.PhysicsEngine', {
 		var results;
 		var i = 0;
 		var newPosition = mat4.create();
+		var lastCloser = mat4.clone(lastPosition);
+		var distanceMoved = Infinity;
+		var precision = 0.01;
 		do {
 			// find midpoint of search
 			var mid = (right + left) / 2;
 			// blend between the two positions
-			mat4.blend(newPosition, position1, candidateCollisionPosition, mid);
+			mat4.blend(newPosition, lastPosition, candidateCollisionPosition, mid);
 
 			colliderObjBBox.setPosition(newPosition);
 			results = PhysJS.util.math.BoundingBox.intersects(colliderObjBBox, collidedIntoObjBBox);
@@ -156,19 +159,17 @@ Ext.define('PhysJS.PhysicsEngine', {
 			if (results.intersects) {
 				right = mid;
 			} else {
+				// get the distance between the last closest and the new position
+				distanceMoved = mat4.distance(lastCloser, newPosition);
+				mat4.copy(lastCloser, newPosition);
 				left = mid;
 			}
 			i++;
-			// loop max 4 times (if 4th does not intersect), or 5 otherwise
-			// TODO: loop until distance between last two positions is <= EPSILON
-		} while ((i < 4 || results.intersects) && i < 5);
+			// loop until we're in the given precision, capped at 50
+		} while (distanceMoved > precision && i < 50);
 
-		if (!results.intersects) {
-			// found a closer non-intersecting position
-			mat4.copy(candidateCollisionPosition, newPosition);
-		} else {
-			// could not find a closer non-intersecting position, use last position
-			mat4.copy(candidateCollisionPosition, position1);
-		}
+		// copy the last closest into the candidate position
+		mat4.copy(candidateCollisionPosition, lastCloser);
+		colliderObjBBox.setPosition(lastCloser);
 	}
 });

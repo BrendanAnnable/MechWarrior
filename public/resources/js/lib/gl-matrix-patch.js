@@ -369,7 +369,7 @@ vec4.cross = function(out, a, b) {
  * @param {vec4} out the receiving vector
  * @param {vec4} a the first operand
  * @param {vec4} b the second operand
- * @param {int} factor
+ * @param {Number} factor
  * @returns {vec4} out
  */
 vec4.blend = function (out, a, b, factor) {
@@ -391,7 +391,7 @@ vec4.blend = function (out, a, b, factor) {
  * @param {mat4} out The mat4 to put the interpolated basis in
  * @param {mat4} a The first basis
  * @param {mat4} b The second basis
- * @param {int} factor
+ * @param {Number} factor
  * @returns {mat4} The interpolated basis
  */
 mat4.blend = function (out, a, b, factor) {
@@ -407,4 +407,15 @@ mat4.blend = function (out, a, b, factor) {
 	vec4.normalize(y, y);
 	vec4.normalize(z, z);
 	return out;
+};
+
+/**
+ * Calculate the distance between two bases. Uses just their translations.
+ *
+ * @param a The first basis
+ * @param b The second basis
+ * @returns {Number} The distance between their translations
+ */
+mat4.distance = function (a, b) {
+	return vec4.distance(mat4.col(a, 3), mat4.col(b, 3));
 };
