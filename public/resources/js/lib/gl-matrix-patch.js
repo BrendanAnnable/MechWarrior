@@ -11,9 +11,9 @@ var GLMAT_EPSILON = 0.000001;
  *
  * Editing the returned vector will edit the original matrix in place
  *
- * @param a The mat4 to get the column of
- * @param col The index of the column (0-indexed)
- * @returns A vec4 reference to the column vector
+ * @param {mat4} a The mat4 to get the column of
+ * @param {int} col The index of the column (0-indexed)
+ * @returns {vec4} A vec4 reference to the column vector
  */
 mat4.col = function (a, col, rows) {
 	if (rows === undefined) {
@@ -364,7 +364,7 @@ vec4.cross = function(out, a, b) {
 /**
  * Linearly interpolate two vectors based on the given factor.
  *
- * Uses the following formula component-wise: a * f + b * (1 - f)
+ * Uses the following formula component-wise: a * (1 - f) + b * f
  *
  * @param {vec4} out the receiving vector
  * @param {vec4} a the first operand
@@ -373,15 +373,18 @@ vec4.cross = function(out, a, b) {
  * @returns {vec4} out
  */
 vec4.blend = function (out, a, b, factor) {
-	var c = vec4.scale(vec4.create(), a, 1 - factor);
-	var d = vec4.scale(vec4.create(), b, factor);
-	return vec4.add(out, c, d);
+	var rem = 1 - factor;
+	out[0] = a[0] * rem + b[0] * factor;
+	out[1] = a[1] * rem + b[1] * factor;
+	out[2] = a[2] * rem + b[2] * factor;
+	out[3] = a[3] * rem + b[3] * factor;
+	return out;
 };
 
 /**
  * Linearly interpolate two bases based on the given factor.
  *
- * Uses the following formula component-wise: a * f + b * (1 - f)
+ * Uses the following formula component-wise: a * (1 - f) + b * f
  *
  * Note: Ensures the first 3 columns remain normalized
  *
@@ -392,29 +395,16 @@ vec4.blend = function (out, a, b, factor) {
  * @returns {mat4} The interpolated basis
  */
 mat4.blend = function (out, a, b, factor) {
-	var rem = 1 - factor;
-	out[0] = a[0] * factor + b[0] * rem;
-	out[1] = a[1] * factor + b[1] * rem;
-	out[2] = a[2] * factor + b[2] * rem;
-	out[3] = a[3] * factor + b[3] * rem;
-	out[4] = a[4] * factor + b[4] * rem;
-	out[5] = a[5] * factor + b[5] * rem;
-	out[6] = a[6] * factor + b[6] * rem;
-	out[7] = a[7] * factor + b[7] * rem;
-	out[8] = a[8] * factor + b[8] * rem;
-	out[9] = a[9] * factor + b[9] * rem;
-	out[10] = a[10] * factor + b[10] * rem;
-	out[11] = a[11] * factor + b[11] * rem;
-	out[12] = a[12] * factor + b[12] * rem;
-	out[13] = a[13] * factor + b[13] * rem;
-	out[14] = a[14] * factor + b[14] * rem;
-	out[15] = a[15] * factor + b[15] * rem;
 	var x = mat4.col(out, 0);
 	var y = mat4.col(out, 1);
 	var z = mat4.col(out, 2);
+	var t = mat4.col(out, 3);
+	vec4.blend(x, mat4.col(a, 0), mat4.col(b, 0), factor);
+	vec4.blend(y, mat4.col(a, 1), mat4.col(b, 1), factor);
+	vec4.blend(z, mat4.col(a, 2), mat4.col(b, 2), factor);
+	vec4.blend(t, mat4.col(a, 3), mat4.col(b, 3), factor);
 	vec4.normalize(x, x);
 	vec4.normalize(y, y);
 	vec4.normalize(z, z);
-
 	return out;
 };
