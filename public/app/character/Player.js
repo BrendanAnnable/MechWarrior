@@ -5,6 +5,7 @@
 Ext.define('MW.character.Player', {
 	alias: 'Player',
 	extend: 'FourJS.object.Mesh',
+	box: null, // TODO: hack
 	mixins: {
 		physics: 'PhysJS.DynamicObject'
 	},
@@ -20,6 +21,33 @@ Ext.define('MW.character.Player', {
 	constructor: function (config) {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
+		this.computeBoundingBox(this.getGeometry().getVertices());
+
+		// attach a visual bounding box for debugging purposes
+		// TODO: make this generic and put it somewhere
+		var boundingBox = this.getBoundingBox();
+		var radii = boundingBox.getRadii();
+		var box = Ext.create('FourJS.object.Mesh', {
+			geometry: Ext.create('FourJS.geometry.CubeGeometry', {
+				width: radii[0] * 2,
+				height: radii[1] * 2,
+				depth: radii[2] * 2
+			}),
+			material: Ext.create('FourJS.material.Phong', {
+				color: Ext.create('FourJS.util.Color', {
+					r: 1,
+					g: 1,
+					b: 1
+				}),
+				useLighting: false,
+				wireframe: true
+			})
+		});
+		var center = boundingBox.getCenter();
+		box.translate(center[0], center[1], center[2]);
+		this.box = box;
+		//this.box.setRenderable(false);
+		this.addChild(box);
 	},
 	/**
 	 * Adds velocity to the player when the user presses the space bar.

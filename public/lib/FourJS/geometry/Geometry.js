@@ -27,9 +27,6 @@ Ext.define('FourJS.geometry.Geometry', {
 	},
 	center: function () {
 		var boundingBox = this.getBoundingBox();
-		if (boundingBox === null) {
-			boundingBox = this.computeBoundingBox();
-		}
 		var offset = vec3.add(vec3.create(), boundingBox.min, boundingBox.max);
 		vec3.scale(offset, offset, -0.5);
 		var vertices = this.getVertices();
@@ -38,36 +35,40 @@ Ext.define('FourJS.geometry.Geometry', {
 			vec3.add(vertex, vertex, offset);
 		}
 	},
-	computeBoundingBox: function () {
-		var boundingBox = {
-			min: vec3.fromValues(Infinity, Infinity, Infinity),
-			max: vec3.fromValues(-Infinity, -Infinity, -Infinity)
-		};
-		var vertices = this.getVertices();
-		for (var i = 0; i < vertices.length; i++) {
-			var vertex = vertices[i];
-			var x = vertex[0];
-			var y = vertex[1];
-			var z = vertex[2];
-			if (x < boundingBox.min[0]) {
-				boundingBox.min[0] = x;
-			}
-			if (x > boundingBox.max[0]) {
-				boundingBox.max[0] = x;
-			}
-			if (y < boundingBox.min[1]) {
-				boundingBox.min[1] = y;
-			}
-			if (y > boundingBox.max[1]) {
-				boundingBox.max[1] = y;
-			}
-			if (z < boundingBox.min[2]) {
-				boundingBox.min[2] = z;
-			}
-			if (z > boundingBox.max[2]) {
-				boundingBox.max[2] = z;
-			}
-		}
+	getBoundingBox: function () {
+        var boundingBox = this._boundingBox;
+        if (boundingBox === null) {
+            boundingBox = {
+                min: vec3.fromValues(Infinity, Infinity, Infinity),
+                max: vec3.fromValues(-Infinity, -Infinity, -Infinity)
+            };
+            var vertices = this.getVertices();
+            for (var i = 0; i < vertices.length; i++) {
+                var vertex = vertices[i];
+                var x = vertex[0];
+                var y = vertex[1];
+                var z = vertex[2];
+                if (x < boundingBox.min[0]) {
+                    boundingBox.min[0] = x;
+                }
+                if (x > boundingBox.max[0]) {
+                    boundingBox.max[0] = x;
+                }
+                if (y < boundingBox.min[1]) {
+                    boundingBox.min[1] = y;
+                }
+                if (y > boundingBox.max[1]) {
+                    boundingBox.max[1] = y;
+                }
+                if (z < boundingBox.min[2]) {
+                    boundingBox.min[2] = z;
+                }
+                if (z > boundingBox.max[2]) {
+                    boundingBox.max[2] = z;
+                }
+            }
+            this.setBoundingBox(boundingBox);
+        }
 		return boundingBox;
 	},
 	getFlattenedVertices: function () {

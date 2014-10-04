@@ -13,6 +13,9 @@ Ext.define('MW.level.genesis.GenesisController', {
         var face = this.createFace(assetManager, player);           // create the face model
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
 
+        var player2 = this.createPlayer(false, 'player2');         // create a test player
+//		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
+        player2.translate(0, 0, -20);
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);
         // add mouse event to the controller

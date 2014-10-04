@@ -10,7 +10,8 @@ Ext.define('FourJS.material.Material', {
         color: null,
         opacity: 1,             // todo support
         transparent: false,      // todo support
-        useLighting: true
+        useLighting: true,
+		wireframe: false
     },
     constructor: function (config) {
         this.initConfig(config);

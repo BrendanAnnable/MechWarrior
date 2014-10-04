@@ -28,6 +28,10 @@ Ext.define('MW.level.LevelController', {
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
             scene: this.getLevel()
         });
+        this.physics.on({
+            collision: this.onCollision,
+            scope: this
+        });
         this.getLevel().setActiveCamera(Ext.create('FourJS.camera.PerspectiveCamera'));
     },
     /**
@@ -47,16 +51,17 @@ Ext.define('MW.level.LevelController', {
      * Creates a player using the asset manager.
      *
      * @param active Whether the player will be set to active or not.
+     * @param [name]
      * @returns {MW.character.Player}
      */
-    createPlayer: function (active) {
+    createPlayer: function (active, name) {
         var playerAsset = this.getAssetManager().getAsset('player');
         var player = Ext.create('MW.character.Player', {
-            name: playerAsset.name,
+            name: name || playerAsset.name,
             geometry: playerAsset.geometry,
             material: playerAsset.material
         });
-        this.addPlayer(this.getLevel(), player);    // add the player to the level
+	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player
         }
@@ -102,10 +107,35 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to add.
      */
     addPlayer: function (level, player) {
-        this.getPlayers().push(player);                                 // adds the player to the array
-        level.addChild(player);                                         // adds the player to the level
-        this.getKeyboardControls().on('jump', player.jump, player);     // adds the player jump event to the player
+        this.getPlayers().push(player);     // adds the player to the array
+        level.addChild(player);             // adds the player to the level
     },
+	/**
+	 * Overrides the setter method for active players to handle events properly.
+	 *
+	 * @param player The player to make active.
+	 */
+	setActivePlayer: function (player) {
+		// todo fix collision of new active player
+		var activePlayer = this.getActivePlayer();
+		// check if the active player needs to be modified
+		if (player !== activePlayer) {
+			var keyboardControls = this.getKeyboardControls();
+			// check an active player exists
+			if (activePlayer !== null) {
+				// remove the current active player event listener
+				keyboardControls.un('jump', activePlayer.jump, activePlayer);
+			}
+			// add the jump event to the new active player and set the new active player
+			keyboardControls.on('jump', player.jump, player);
+			// set a new target on the active camera if it is third person
+			var camera = this.getLevel().getActiveCamera();
+			if (camera instanceof FourJS.camera.ThirdPersonCamera) {
+				camera.setTarget(player);
+			}
+			this._activePlayer = player;
+		}
+	},
     /**
      * Removes a player from the specified level.
      *
@@ -137,6 +167,9 @@ Ext.define('MW.level.LevelController', {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
     },
+    onCollision: function (object1, object2) {
+        //console.log('collision!', object1.getName(), object2.getName());
+    },
     /**
      * Updates the level on each render.
      */
@@ -146,6 +179,10 @@ Ext.define('MW.level.LevelController', {
         var keyboardControls = this.getKeyboardControls();
         var mouseControls = this.getMouseControls();
         var player = this.getActivePlayer();
+		if (player !== null) {
+			var position = player.getPosition();
+			mat4.copy(player.getLastPosition(), position);
+		}
         if (camera instanceof FourJS.camera.ThirdPersonCamera) {
             // rotate camera around target
             camera.setPitch(mouseControls.getPitch());

@@ -3,8 +3,8 @@
  */
 Ext.define('FourJS.util.math.BezierCurve', {
 	geometry: null,
-	derivativeGeometry: null,
 	coefficients: null,
+	derivativeGeometry: null,
 	derivativeCoefficients: null,
 	config: {
 		startPoint: null,
@@ -100,8 +100,8 @@ Ext.define('FourJS.util.math.BezierCurve', {
 		// TODO: use binary search under certain conditions, see https://github.com/gre/bezier-easing/blob/master/index.js
 
 		// Use newton's method to solve the cubic for time given X
-		// Note: This assumes the the curve is injective. This is always the case if the control points are within
-		// the bounding box of the start and end points
+		// Note: This assumes the the curve is injective. This is always the case if at least 1 axis of the
+		// control points remain within the axis-aligned bounding box of the start and end points
 		var time = x;
 		var precision = 1E-3;
 		var count = 0;
@@ -110,6 +110,7 @@ Ext.define('FourJS.util.math.BezierCurve', {
 			var derivative = this.getDerivative4(time)[0];
 			// slope is too flat
 			if (Math.abs(derivative) <= precision) {
+				//throw new Error('Derivative is zero! TODO: Add binary search to fix this problem');
 				break;
 			}
 			// get the x coordinate given time

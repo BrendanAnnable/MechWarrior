@@ -17,9 +17,9 @@ Ext.define('MW.scene.assets.Global', {
             this.loadModelAsset(this.getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player); // addAsset(key,Asset)
                 player.name = 'player';
-                player.material.getColor().setR(0);
+                /*player.material.getColor().setR(1);
                 player.material.getColor().setG(1);
-                player.material.getColor().setB(0);
+                player.material.getColor().setB(1);*/
 		    }),
 		    this.loadModelAsset(this.getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
@@ -65,9 +65,9 @@ Ext.define('MW.scene.assets.Global', {
 					geometry: geometry,
 					material: Ext.create('FourJS.material.Phong', {
 						color: Ext.create('FourJS.util.Color', {
-							r: 0,
+							r: 1,
 							g: 1,
-							b: 0
+							b: 1
 						})
 					})
 				});

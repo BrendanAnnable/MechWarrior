@@ -17,5 +17,8 @@ Ext.define('FourJS.object.Mesh', {
     },
     hasMaterial: function () {
         return this.getMaterial() !== null;
-    }
+    },
+	setColor: function (r, g, b, a) {
+		this.getMaterial().getColor().setColor(r, g, b, a);
+	}
 });
