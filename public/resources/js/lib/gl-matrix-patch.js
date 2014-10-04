@@ -362,16 +362,59 @@ vec4.cross = function(out, a, b) {
 
 
 /**
- * Interpolates position of two inversely proportional points according to some factor.
- * // TODO: explain this better
+ * Linearly interpolate two vectors based on the given factor.
+ *
+ * Uses the following formula component-wise: a * f + b * (1 - f)
  *
  * @param {vec4} out the receiving vector
  * @param {vec4} a the first operand
  * @param {vec4} b the second operand
+ * @param {int} factor
  * @returns {vec4} out
  */
 vec4.blend = function (out, a, b, factor) {
 	var c = vec4.scale(vec4.create(), a, 1 - factor);
 	var d = vec4.scale(vec4.create(), b, factor);
 	return vec4.add(out, c, d);
+};
+
+/**
+ * Linearly interpolate two bases based on the given factor.
+ *
+ * Uses the following formula component-wise: a * f + b * (1 - f)
+ *
+ * Note: Ensures the first 3 columns remain normalized
+ *
+ * @param {mat4} out The mat4 to put the interpolated basis in
+ * @param {mat4} a The first basis
+ * @param {mat4} b The second basis
+ * @param {int} factor
+ * @returns {mat4} The interpolated basis
+ */
+mat4.blend = function (out, a, b, factor) {
+	var rem = 1 - factor;
+	out[0] = a[0] * factor + b[0] * rem;
+	out[1] = a[1] * factor + b[1] * rem;
+	out[2] = a[2] * factor + b[2] * rem;
+	out[3] = a[3] * factor + b[3] * rem;
+	out[4] = a[4] * factor + b[4] * rem;
+	out[5] = a[5] * factor + b[5] * rem;
+	out[6] = a[6] * factor + b[6] * rem;
+	out[7] = a[7] * factor + b[7] * rem;
+	out[8] = a[8] * factor + b[8] * rem;
+	out[9] = a[9] * factor + b[9] * rem;
+	out[10] = a[10] * factor + b[10] * rem;
+	out[11] = a[11] * factor + b[11] * rem;
+	out[12] = a[12] * factor + b[12] * rem;
+	out[13] = a[13] * factor + b[13] * rem;
+	out[14] = a[14] * factor + b[14] * rem;
+	out[15] = a[15] * factor + b[15] * rem;
+	var x = mat4.col(out, 0);
+	var y = mat4.col(out, 1);
+	var z = mat4.col(out, 2);
+	vec4.normalize(x, x);
+	vec4.normalize(y, y);
+	vec4.normalize(z, z);
+
+	return out;
 };

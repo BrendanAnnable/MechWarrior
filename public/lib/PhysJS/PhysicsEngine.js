@@ -134,13 +134,6 @@ Ext.define('PhysJS.PhysicsEngine', {
 	resolveCollision: function (candidateCollisionPosition, colliderObj, collidedIntoObj) {
 		var position1 = colliderObj.getLastPosition();
 
-		var startPoint = mat4.translateVector(position1);
-		var startAngle = mat4.col(position1, 2);
-		var startUp = mat4.col(position1, 1);
-		var endPoint = mat4.translateVector(candidateCollisionPosition);
-		var endAngle = mat4.col(candidateCollisionPosition, 2);
-		var endUp = mat4.col(candidateCollisionPosition, 1);
-
 		var colliderObjBBox = colliderObj.getBoundingBox();
 		var collidedIntoObjBBox = collidedIntoObj.getBoundingBox();
 		collidedIntoObjBBox.setPosition(collidedIntoObj.getWorldPosition());
@@ -149,25 +142,12 @@ Ext.define('PhysJS.PhysicsEngine', {
 		var right = 1;
 		var results;
 		var i = 0;
-		var newPoint = vec4.create();
-		var newAngle = vec4.create();
-		var newUp = vec4.create();
 		var newPosition = mat4.create();
 		do {
 			// find midpoint of search
 			var mid = (right + left) / 2;
-			// linearly interpolate the axes
-			vec4.blend(newPoint, startPoint, endPoint, mid);
-			vec4.blend(newAngle, startAngle, endAngle, mid);
-			vec4.blend(newUp, startUp, endUp, mid);
-
-			// create a new basis along z
-			var z = newAngle;
-			vec4.normalize(z, z);
-			var x = vec4.cross(vec4.create(), newUp, z);
-			vec4.normalize(x, x);
-			var y = vec4.cross(vec4.create(), z, x);
-			mat4.fromVec4Cols(newPosition, x, y, z, newPoint);
+			// blend between the two positions
+			mat4.blend(newPosition, position1, candidateCollisionPosition, mid);
 
 			colliderObjBBox.setPosition(newPosition);
 			results = PhysJS.util.math.BoundingBox.intersects(colliderObjBBox, collidedIntoObjBBox);
