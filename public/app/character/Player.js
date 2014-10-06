@@ -4,7 +4,7 @@
  */
 Ext.define('MW.character.Player', {
 	alias: 'Player',
-	extend: 'FourJS.object.Mesh',
+	extend: 'FourJS.object.Object',
 	box: null, // TODO: hack
 	mixins: {
 		physics: 'PhysJS.DynamicObject'

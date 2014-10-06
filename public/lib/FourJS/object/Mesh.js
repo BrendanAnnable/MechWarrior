@@ -11,9 +11,18 @@ Ext.define('FourJS.object.Mesh', {
         geometry: null,
         material: null
     },
-    constructor: function () {
+    constructor: function (config) {
         this.callParent(arguments);
 		this.setRenderable(true);
+		if (this.config.material === null) {
+			this.setMaterial(Ext.create('FourJS.material.Phong', {
+				color: Ext.create('FourJS.util.Color', {
+					r: Math.random(),
+					g: Math.random(),
+					b: Math.random()
+				})
+			}));
+		}
     },
     hasMaterial: function () {
         return this.getMaterial() !== null;
