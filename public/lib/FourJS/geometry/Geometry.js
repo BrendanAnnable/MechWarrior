@@ -141,5 +141,34 @@ Ext.define('FourJS.geometry.Geometry', {
 		for (var i = 0; i < normals.length; i++) {
 			vec3.negate(normals[i], normals[i]);
 		}
+	},
+	statics: {
+		getBoundingBox: function (object) {
+			var points = [];
+			var children = object.getAllChildren();
+			children.push(object); // include self
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.isMesh && child.getGeometry()) {
+					points = points.concat(child.getGeometry().getVertices());
+				}
+			}
+			return Ext.create('PhysJS.util.math.BoundingBox', {
+				points: points
+			});
+		},
+		scaleAll: function (object, scale) {
+			var children = object.getAllChildren();
+			children.push(object); // include self
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.isMesh && child.getGeometry()) {
+					var vertices = child.getGeometry().getVertices();
+					for (var j = 0; j < vertices.length; j++) {
+						vec3.multiply(vertices[j], vertices[j], scale);
+					}
+				}
+			}
+		}
 	}
 });

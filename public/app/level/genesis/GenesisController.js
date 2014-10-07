@@ -22,21 +22,16 @@ Ext.define('MW.level.genesis.GenesisController', {
         this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
     },
     createFace: function (assetManager, player) {
-        var faceAsset = assetManager.getAsset('face');
+        var face = assetManager.getAsset('face');
         var spline = Ext.create('FourJS.util.math.HermiteSpline', {
             points: [
-                vec3.fromValues(0, 0, -3),
-                vec3.fromValues(3, 2, 0),
-                vec3.fromValues(0, 0, 3),
-                vec3.fromValues(-3, 2, 0),
-                vec3.fromValues(0, 0, -3)
+                vec3.fromValues(0, 2, -3),
+                vec3.fromValues(3, 4, 0),
+                vec3.fromValues(0, 2, 3),
+                vec3.fromValues(-3, 4, 0),
+                vec3.fromValues(0, 2, -3)
             ],
             loop: true
-        });
-        var face = Ext.create('FourJS.object.Mesh', {
-            name: faceAsset.name,
-            geometry: faceAsset.geometry,
-            material: faceAsset.material
         });
         // TODO: I hacked this in for now, need moving to a generic place
         face.getPosition = function () {
@@ -49,6 +44,7 @@ Ext.define('MW.level.genesis.GenesisController', {
             vec3.add(eye, eye, player.getTranslation());
             var center = player.getTranslation();
             center = vec3.negate(vec3.create(), center);
+			vec3.add(center, center, vec3.fromValues(0, 2, 0));
 
             // this is a hack until I rotate the face geometry
             vec3.rotateY(center, center, vec3.create(), Math.PI);
