@@ -59,6 +59,7 @@ Ext.define('MW.level.LevelController', {
             name: name || playerAsset.getName()
         });
 		player.addChild(playerAsset);
+		player.addBoundingBox();
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player

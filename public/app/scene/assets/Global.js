@@ -4,6 +4,9 @@
 Ext.define('MW.scene.assets.Global', {
 	alias: 'GlobalAssets',
 	extend: 'MW.scene.assets.Assets',
+	requires: [
+		'FourJS.geometry.Geometry'
+	],
 	/**
 	 * Loads the models and other assets required for the game to begin.
 	 *
@@ -17,23 +20,17 @@ Ext.define('MW.scene.assets.Global', {
             this.loadModelAsset(this.getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player); // addAsset(key,Asset)
                 player.setName('player');
-                /*player.material.getColor().setR(1);
-                player.material.getColor().setG(1);
-                player.material.getColor().setB(1);*/
 		    }),
 		    this.loadModelAsset(this.getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
                 bullet.setName('bullet');
-                // TODO: bullet.geometry.scale(vec3.fromValues(5, 5, 5));
+				FourJS.geometry.Geometry.scaleAll(bullet, [5, 5, 5]);
 		    }),
 
             this.loadModelAsset(this.getModelPath('face.json')).then(function (face) {
                 assetManager.addAsset('face', face);
                 face.setName('face');
-				// TODO
-//              face.geometry.scale([0.05, 0.05, 0.05]);
-//				face.geometry.translate([0, 2, 0]);
-//				face.geometry.rotateY(Math.PI);
+				FourJS.geometry.Geometry.scaleAll(face, [0.05, 0.05, -0.05]);
             }),
 
 //            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {

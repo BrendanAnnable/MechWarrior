@@ -10,6 +10,7 @@ Ext.define('MW.character.Player', {
 		physics: 'PhysJS.DynamicObject'
 	},
     requires: [
+		'FourJS.geometry.Geometry',
         'FourJS.loader.Model',
         'FourJS.material.Phong',
         'FourJS.util.Color'
@@ -21,7 +22,9 @@ Ext.define('MW.character.Player', {
 	constructor: function (config) {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
-		this.computeBoundingBox(this.getGeometry().getVertices());
+	},
+	addBoundingBox: function () {
+		this.setBoundingBox(FourJS.geometry.Geometry.getBoundingBox(this));
 
 		// attach a visual bounding box for debugging purposes
 		// TODO: make this generic and put it somewhere

@@ -7,6 +7,7 @@ Ext.define('FourJS.object.Mesh', {
     requires: [
         'FourJS.geometry.Geometry'
     ],
+	isMesh: true,
     config: {
         geometry: null,
         material: null
