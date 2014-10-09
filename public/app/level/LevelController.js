@@ -6,8 +6,9 @@ Ext.define('MW.level.LevelController', {
     requires: [
         'PhysJS.PhysicsEngine',
         'MW.character.Player',
-	    'FourJS.camera.ThirdPersonCamera'
-    ],
+		'FourJS.camera.PerspectiveCamera',
+		'FourJS.camera.ThirdPersonCamera'
+	],
     physics: null,
     config: {
         level: null,
@@ -190,6 +191,10 @@ Ext.define('MW.level.LevelController', {
                 var position = player.getPosition();
                 // rotate player to face camera
                 mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
+				var head = player.getChild("Head");
+				if (head !== null) {
+					mat4.copyRotation(head.getPosition(), mat4.createRotateX(mouseControls.getPitch()));
+				}
             }
         }
         else {

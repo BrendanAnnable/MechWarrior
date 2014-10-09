@@ -76,6 +76,7 @@ Ext.define('MW.manager.Level', {
                 console.error(Ext.String.format('The level {0} does not exist', name));
             } else {
                 // load the level and add it to the manager
+				Ext.syncRequire(level);
                 this.addScene(name, Ext.create(level));
             }
         }

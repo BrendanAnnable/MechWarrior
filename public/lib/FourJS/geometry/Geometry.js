@@ -12,10 +12,18 @@ Ext.define('FourJS.geometry.Geometry', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
-		this.setVertices([]);
-		this.setColors([]);
-		this.setNormals([]);
-		this.setFaces([]);
+		if (this.config.vertices === null) {
+			this.setVertices([]);
+		}
+		if (this.config.colors === null) {
+			this.setColors([]);
+		}
+		if (this.config.normals === null) {
+			this.setNormals([]);
+		}
+		if (this.config.faces === null) {
+			this.setFaces([]);
+		}
 	},
 	center: function () {
 		var boundingBox = this.getBoundingBox();
