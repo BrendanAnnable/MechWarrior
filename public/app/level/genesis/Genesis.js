@@ -24,16 +24,16 @@ Ext.define('MW.level.genesis.Genesis', {
         this.createFloor("/resources/image/ground_low.jpg");
         // create an ambient light to the level at the origin
         var ambientLight = Ext.create('FourJS.light.AmbientLight', {
-            color: Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0.2})
+            color: Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0.0})
         });
         // create a directional light to the level and move its position
         var directionalLight = Ext.create('FourJS.light.DirectionalLight', {
-            color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.6})
+            color: Ext.create('FourJS.util.Color', {r: 0.3, g: 0.0, b: 1.0})
         });
-        directionalLight.translate(-25, 10, 0);
+        directionalLight.translate(0, 10, 0);
         // create a second directional light to the level and move its position
         var directionalLight2 = Ext.create('FourJS.light.DirectionalLight', {
-            color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.6})
+            color: Ext.create('FourJS.util.Color', {r: 0.5, g: 0, b: 0.0})
         });
         directionalLight2.translate(25, 10, 0);
         // add all the lights to the level

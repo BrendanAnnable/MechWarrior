@@ -78,6 +78,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
             shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, "useTexture");
             shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "useLighting");
 			shaderProgram.useEnvironmentMapUniform = gl.getUniformLocation(shaderProgram, "useEnvironmentMap");
+			shaderProgram.reflectivity = gl.getUniformLocation(shaderProgram, "reflectivity");
 
             shaderProgram.uAmbientLightColor = gl.getUniformLocation(shaderProgram, "uAmbientLightColor");
 
@@ -94,6 +95,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			shaderProgram.uEnvironmentMap = gl.getUniformLocation(shaderProgram, "uEnvironmentMap");
 
 			shaderProgram.uWorldTransform = gl.getUniformLocation(shaderProgram, "uWorldTransform");
+			shaderProgram.uWorldEyeVec = gl.getUniformLocation(shaderProgram, "uWorldEyeVec");
 
             this.setShaderProgram(shaderProgram);
             this.fireEvent('loaded');
@@ -134,10 +136,13 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		// Transform from camera space to world space
 		mat4.multiply(cursor, cursor, camera.getPositionInverse());
 
-
 		var shaderProgram = this.getShaderProgram();
-		var worldTransform = mat4.clone(cursor);
+		var cameraPosition = camera.getPosition();
+		var worldTransform = mat4.clone(cameraPosition);
 		gl.uniformMatrix4fv(shaderProgram.uWorldTransform, false, worldTransform);
+
+		var worldEyeVec = mat4.translateVector(cameraPosition);
+		gl.uniform4fv(shaderProgram.uWorldEyeVec, worldEyeVec);
 
 		this.updateLighting(gl, scene, shaderProgram, cursor, camera);
 
@@ -250,6 +255,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			}
 
             gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
+			gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
 
 			// Update the WebGL uniforms and then draw the object on the screen
 			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);

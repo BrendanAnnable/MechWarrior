@@ -51,7 +51,15 @@ Ext.define('FourJS.loader.Json', {
 			geometry.setNormals(normals);
 			geometry.setFaces(mesh.faces);
 			meshArray.push(Ext.create('FourJS.object.Mesh', {
-				geometry: geometry
+				geometry: geometry,
+				material: Ext.create('FourJS.material.Phong', {
+					color: Ext.create('FourJS.util.Color', {
+						r: 1,
+						g: 1,
+						b: 1
+					}),
+					reflectivity: 1
+				})
 			}));
 		}
 

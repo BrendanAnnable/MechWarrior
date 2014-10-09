@@ -115,5 +115,22 @@ Ext.define('FourJS.object.Object', {
             result = result.concat(children[i].getAllChildren());
         }
         return result;
-    }
+    },
+	getChild: function (name) {
+		var children = this.getChildren();
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+
+			if (child.getName() === name) {
+				return child;
+			}
+
+			child = children[i].getChild(name);
+
+			if (child !== null) {
+				return child;
+			}
+		}
+		return null;
+	}
 });
