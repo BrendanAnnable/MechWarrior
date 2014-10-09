@@ -11,9 +11,9 @@ var GLMAT_EPSILON = 0.000001;
  *
  * Editing the returned vector will edit the original matrix in place
  *
- * @param a The mat4 to get the column of
- * @param col The index of the column (0-indexed)
- * @returns A vec4 reference to the column vector
+ * @param {mat4} a The mat4 to get the column of
+ * @param {int} col The index of the column (0-indexed)
+ * @returns {vec4} A vec4 reference to the column vector
  */
 mat4.col = function (a, col, rows) {
 	if (rows === undefined) {
@@ -362,16 +362,60 @@ vec4.cross = function(out, a, b) {
 
 
 /**
- * Interpolates position of two inversely proportional points according to some factor.
- * // TODO: explain this better
+ * Linearly interpolate two vectors based on the given factor.
+ *
+ * Uses the following formula component-wise: a * (1 - f) + b * f
  *
  * @param {vec4} out the receiving vector
  * @param {vec4} a the first operand
  * @param {vec4} b the second operand
+ * @param {Number} factor
  * @returns {vec4} out
  */
 vec4.blend = function (out, a, b, factor) {
-	var c = vec4.scale(vec4.create(), a, 1 - factor);
-	var d = vec4.scale(vec4.create(), b, factor);
-	return vec4.add(out, c, d);
+	var rem = 1 - factor;
+	out[0] = a[0] * rem + b[0] * factor;
+	out[1] = a[1] * rem + b[1] * factor;
+	out[2] = a[2] * rem + b[2] * factor;
+	out[3] = a[3] * rem + b[3] * factor;
+	return out;
+};
+
+/**
+ * Linearly interpolate two bases based on the given factor.
+ *
+ * Uses the following formula component-wise: a * (1 - f) + b * f
+ *
+ * Note: Ensures the first 3 columns remain normalized
+ *
+ * @param {mat4} out The mat4 to put the interpolated basis in
+ * @param {mat4} a The first basis
+ * @param {mat4} b The second basis
+ * @param {Number} factor
+ * @returns {mat4} The interpolated basis
+ */
+mat4.blend = function (out, a, b, factor) {
+	var x = mat4.col(out, 0);
+	var y = mat4.col(out, 1);
+	var z = mat4.col(out, 2);
+	var t = mat4.col(out, 3);
+	vec4.blend(x, mat4.col(a, 0), mat4.col(b, 0), factor);
+	vec4.blend(y, mat4.col(a, 1), mat4.col(b, 1), factor);
+	vec4.blend(z, mat4.col(a, 2), mat4.col(b, 2), factor);
+	vec4.blend(t, mat4.col(a, 3), mat4.col(b, 3), factor);
+	vec4.normalize(x, x);
+	vec4.normalize(y, y);
+	vec4.normalize(z, z);
+	return out;
+};
+
+/**
+ * Calculate the distance between two bases. Uses just their translations.
+ *
+ * @param a The first basis
+ * @param b The second basis
+ * @returns {Number} The distance between their translations
+ */
+mat4.distance = function (a, b) {
+	return vec4.distance(mat4.col(a, 3), mat4.col(b, 3));
 };

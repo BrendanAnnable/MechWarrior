@@ -10,7 +10,6 @@ Ext.define('PhysJS.DynamicObject', {
         observable: 'Ext.util.Observable'
     },
 	isDynamicObject: true,
-	boundingBox: null,
 	config: {
 		mass: 1,
 		force: null,
@@ -19,7 +18,8 @@ Ext.define('PhysJS.DynamicObject', {
 		dynamic: true,
 		gravity: true,
 		lastPosition: null,
-		renderBoundingBox: false
+		renderBoundingBox: false,
+		boundingBox: null
 	},
 	constructor: function (config) {
 		this.initConfig(config);
@@ -32,13 +32,5 @@ Ext.define('PhysJS.DynamicObject', {
 		}
 		this.setAcceleration(vec3.create());
 		this.setLastPosition(mat4.create());
-	},
-	computeBoundingBox: function (points) {
-		this.boundingBox = Ext.create('PhysJS.util.math.BoundingBox', {
-			points: points
-		});
-	},
-	getBoundingBox: function () {
-		return this.boundingBox;
 	}
 });

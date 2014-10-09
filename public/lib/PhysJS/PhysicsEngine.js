@@ -132,14 +132,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 	 * @param collidedIntoObj The object colliding with, assumed to not move
 	 */
 	resolveCollision: function (candidateCollisionPosition, colliderObj, collidedIntoObj) {
-		var position1 = colliderObj.getLastPosition();
-
-		var startPoint = mat4.translateVector(position1);
-		var startAngle = mat4.col(position1, 2);
-		var startUp = mat4.col(position1, 1);
-		var endPoint = mat4.translateVector(candidateCollisionPosition);
-		var endAngle = mat4.col(candidateCollisionPosition, 2);
-		var endUp = mat4.col(candidateCollisionPosition, 1);
+		var lastPosition = colliderObj.getLastPosition();
 
 		var colliderObjBBox = colliderObj.getBoundingBox();
 		var collidedIntoObjBBox = collidedIntoObj.getBoundingBox();
@@ -149,25 +142,15 @@ Ext.define('PhysJS.PhysicsEngine', {
 		var right = 1;
 		var results;
 		var i = 0;
-		var newPoint = vec4.create();
-		var newAngle = vec4.create();
-		var newUp = vec4.create();
 		var newPosition = mat4.create();
+		var lastCloser = mat4.clone(lastPosition);
+		var distanceMoved = Infinity;
+		var precision = 0.01;
 		do {
 			// find midpoint of search
 			var mid = (right + left) / 2;
-			// linearly interpolate the axes
-			vec4.blend(newPoint, startPoint, endPoint, mid);
-			vec4.blend(newAngle, startAngle, endAngle, mid);
-			vec4.blend(newUp, startUp, endUp, mid);
-
-			// create a new basis along z
-			var z = newAngle;
-			vec4.normalize(z, z);
-			var x = vec4.cross(vec4.create(), newUp, z);
-			vec4.normalize(x, x);
-			var y = vec4.cross(vec4.create(), z, x);
-			mat4.fromVec4Cols(newPosition, x, y, z, newPoint);
+			// blend between the two positions
+			mat4.blend(newPosition, lastPosition, candidateCollisionPosition, mid);
 
 			colliderObjBBox.setPosition(newPosition);
 			results = PhysJS.util.math.BoundingBox.intersects(colliderObjBBox, collidedIntoObjBBox);
@@ -176,19 +159,17 @@ Ext.define('PhysJS.PhysicsEngine', {
 			if (results.intersects) {
 				right = mid;
 			} else {
+				// get the distance between the last closest and the new position
+				distanceMoved = mat4.distance(lastCloser, newPosition);
+				mat4.copy(lastCloser, newPosition);
 				left = mid;
 			}
 			i++;
-			// loop max 4 times (if 4th does not intersect), or 5 otherwise
-			// TODO: loop until distance between last two positions is <= EPSILON
-		} while ((i < 4 || results.intersects) && i < 5);
+			// loop until we're in the given precision, capped at 50
+		} while (distanceMoved > precision && i < 50);
 
-		if (!results.intersects) {
-			// found a closer non-intersecting position
-			mat4.copy(candidateCollisionPosition, newPosition);
-		} else {
-			// could not find a closer non-intersecting position, use last position
-			mat4.copy(candidateCollisionPosition, position1);
-		}
+		// copy the last closest into the candidate position
+		mat4.copy(candidateCollisionPosition, lastCloser);
+		colliderObjBBox.setPosition(lastCloser);
 	}
 });
