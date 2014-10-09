@@ -18,6 +18,7 @@ uniform vec3 uLightColor;
 uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 uniform bool useLighting;
+// TODO: uniform bool useFog;
 uniform bool useEnvironmentMap;
 uniform float reflectivity;
 uniform mat4 uWorldTransform;
@@ -80,13 +81,14 @@ void main(void) {
         gl_FragColor *= vec4(lighting, 1.0);
     }
 
-	if (false) {
+	bool useFog = true;
+	if (useFog) {
 		// add some fog
 		float density = 0.10;
 		// falloff speed
-		float easing = 0.3;
+		float easing = 0.7;
 		// height of fog
-		float height = -5.0;
+		float height = -2.0;
 		// gives fog based on distance from camera and height from ground
 		float fogFactor = exp2(-pow(density * vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-easing * vWorldPosition.y - height)));
 		// clamp between 0 and 1
