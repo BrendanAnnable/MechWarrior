@@ -9,8 +9,7 @@ Ext.define('MW.display.health.Health', {
     ],
     controller: 'Health',
     config: {
-        fillColor: '#fff',
-        fillOpacity: 0.8,
+        fillColor: null,
         strokeColor: '#fff',
         strokeWidth: 0.2
     },
@@ -20,5 +19,14 @@ Ext.define('MW.display.health.Health', {
     autoEl: {
         tag: 'svg',
         preserveAspectRatio: 'xMinYMin meet'
+    },
+    initComponent: function () {
+        this.callParent(arguments);
+        this.setFillColor(Ext.create('FourJS.util.Color', {
+            r: 255,
+            g: 255,
+            b: 255,
+            a: 0.8
+        }));
     }
 });

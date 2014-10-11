@@ -9,8 +9,7 @@ Ext.define('MW.display.shield.Shield', {
     ],
     controller: 'Shield',
     config: {
-        fillColor: '#044e6d',
-        fillOpacity: 0.7,
+        fillColor: null,
         strokeColor: '#6ffaff',
         strokeWidth: 0.3
     },
@@ -20,5 +19,14 @@ Ext.define('MW.display.shield.Shield', {
     autoEl: {
         tag: 'svg',
         preserveAspectRatio: 'xMinYMin meet'
+    },
+    initComponent: function () {
+        this.callParent(arguments);
+        this.setFillColor(Ext.create('FourJS.util.Color', {
+            r: 4,
+            g: 78,
+            b: 109,
+            a: 0.7
+        }));
     }
 });

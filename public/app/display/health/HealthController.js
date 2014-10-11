@@ -30,10 +30,17 @@ Ext.define('MW.display.health.HealthController', {
         });
         // create a clipping rectangle to change the bar width easily
         this.clip = draw.rect(100, 100).fill('transparent');
+        // create the gradient for the fill effect
+        var gradient = draw.gradient('linear', function (stop) {
+            var amount = 20;
+            stop.at({offset: 0, color: view.getFillColor().getDarker(amount).getHex()});
+            stop.at({offset: 0.5, color: view.getFillColor().getHex()});
+            stop.at({offset: 1, color: view.getFillColor().getLighter(amount).getHex()});
+        });
         // create the fill polygon for the shield with its specified colour and opacity
         this.fill = draw.polygon(this.points).fill({
-            color: view.getFillColor(),
-            opacity: view.getFillOpacity()
+            color: gradient,
+            opacity: view.getFillColor().getOpacity()
         });
     }
 });
