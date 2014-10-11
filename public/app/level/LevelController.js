@@ -192,8 +192,17 @@ Ext.define('MW.level.LevelController', {
                 // rotate player to face camera
                 mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
 				var head = player.getChild("Head");
-				if (head !== null) {
-					mat4.copyRotation(head.getPosition(), mat4.createRotateX(mouseControls.getPitch()));
+				if (head !== null) {                                                                                    // moves the head
+					//mat4.copyRotation(head.getPosition(), mat4.createRotateX(mouseControls.getPitch()));
+
+
+                    mat4.copyRotation(head.getPosition(), mat4.createRotateZ(Date.now() / 360));
+
+                    //var T = 5000; // period in ms
+                    //var scal = 1+ Math.abs(Math.sin(2*Date.now()/T ));
+                    //mat4.scale(head.getPosition(), mat4.create(), vec3.fromValues(scal, scal, scal)); //mat4.create() makes an identity trix
+                        //mat4.scale = function(out, a, v) {
+
 				}
             }
         }

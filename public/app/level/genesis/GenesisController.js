@@ -13,6 +13,9 @@ Ext.define('MW.level.genesis.GenesisController', {
         var face = this.createFace(assetManager, player);           // create the face model
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
 
+        var house = this.createHouse(assetManager);
+        this.getLevel().addObstacle(house);
+
         var player2 = this.createPlayer(false, 'player2');         // create a test player
 //		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
         player2.translate(0, 0, -20);
@@ -20,6 +23,11 @@ Ext.define('MW.level.genesis.GenesisController', {
         this.createThirdPersonCamera(player, true);
         // add mouse event to the controller
         this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
+    },
+    createHouse: function (assetManager) {
+        var house = assetManager.getAsset('house');
+        house.translate(0, 10, 0);
+        return house;
     },
     createFace: function (assetManager, player) {
         var face = assetManager.getAsset('face');
