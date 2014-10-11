@@ -11,9 +11,12 @@ Ext.define('MW.display.Display', {
     layout: 'absolute',
     initComponent: function () {
         this.callParent(arguments);
-        this.add(Ext.create('MW.display.radar.Radar'));
+        this.add(Ext.create('MW.display.radar.Radar', {
+	        x: 20,
+	        y: 30
+        }));
         this.add(Ext.create('MW.display.life.Life', {
-            y: 80
+            y: 50
         }));
     }
 });

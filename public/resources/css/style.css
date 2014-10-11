@@ -8,10 +8,10 @@ body {
 }
 
 .radar {
-	width: 18%;
-	height: 18%;
-	background: url('../image/menu/radar.png') no-repeat top left / contain;
-	margin: 1%;
+	width: 20%;
+	height: 20%;
+	/*background: url('../image/menu/radar.png') no-repeat top left / contain;
+	margin: 1%;*/
 }
 
 .health, .shield, .life {

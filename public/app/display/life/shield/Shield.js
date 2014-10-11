@@ -1,21 +1,21 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.display.health.Health', {
-    alias: 'widget.Health',
+Ext.define('MW.display.life.shield.Shield', {
+    alias: 'widget.Shield',
     extend: 'Ext.container.Container',
     requires: [
-        'MW.display.health.HealthController'
+        'MW.display.life.shield.ShieldController'
     ],
-    controller: 'Health',
+    controller: 'Shield',
     config: {
         fillColor: null,
-        strokeColor: '#fff',
-        strokeWidth: 0.2
+        strokeColor: '#6ffaff',
+        strokeWidth: 0.3
     },
     layout: 'fit',
-    cls: 'health',
-    id: 'health',
+    cls: 'shield',
+    id: 'shield',
     autoEl: {
         tag: 'svg',
         preserveAspectRatio: 'xMinYMin meet'
@@ -23,10 +23,10 @@ Ext.define('MW.display.health.Health', {
     initComponent: function () {
         this.callParent(arguments);
         this.setFillColor(Ext.create('FourJS.util.Color', {
-            r: 255,
-            g: 255,
-            b: 255,
-            a: 0.8
+            r: 0,
+            g: 85,
+            b: 150,
+            a: 0.7
         }));
     }
 });

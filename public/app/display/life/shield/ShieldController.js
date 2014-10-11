@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('MW.display.shield.ShieldController', {
+Ext.define('MW.display.life.shield.ShieldController', {
     extend: 'Ext.app.ViewController',
     alias: 'controller.Shield',
     outline: null,
@@ -25,17 +25,17 @@ Ext.define('MW.display.shield.ShieldController', {
         // create an svg element to draw on with a view box of 100 x 100
         var draw = SVG('shield').viewbox(0, 0, 100, 5);
         // create the outline of the shield and its specified colour and width
-        this.outline = draw.polygon(this.points).fill('transparent').stroke({
+        this.outline = draw.polygon(this.points).fill('none').stroke({
             color: view.getStrokeColor(),
             width: view.getStrokeWidth()
         });
         // create a clipping rectangle to change the bar width easily
-        this.clip = draw.rect(100, 100).fill('transparent');
+        this.clip = draw.rect(100, 100).fill('none');
         // create the gradient for the fill effect
         var gradient = draw.gradient('linear', function (stop) {
-            stop.at({offset: 0, color: view.getFillColor().getDarker(20).getHex()});
+            stop.at({offset: 0, color: view.getFillColor().getDarker(10).getHex()});
             stop.at({offset: 0.5, color: view.getFillColor().getHex()});
-            stop.at({offset: 1, color: view.getFillColor().getLighter(30).getHex()});
+            stop.at({offset: 1, color: view.getFillColor().getLighter(20).getHex()});
         });
         // create the fill polygon for the shield with its specified colour and opacity
         this.fill = draw.polygon(this.points).fill({
