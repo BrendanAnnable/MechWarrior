@@ -6,19 +6,15 @@ Ext.define('MW.view.Viewport', {
 	requires: [
         'Ext.layout.container.Border',
         'Ext.layout.container.Fit',
-		'MW.view.ViewportController'
+		'MW.view.ViewportController',
+        'MW.display.Display'
 	],
 	controller: 'ViewportController',
 	layout: 'border',
 	items: [{
-		xtype: 'container',
-		layout: 'fit',
-		reference: 'menu',
-		cls: 'menu',
-		items: [{
-			xtype: 'component',
-			cls: 'radar'
-		}]
+		xtype: 'Display',
+        reference: 'menu',
+        cls: 'menu'
 	},  {
 		xtype: 'container',
 		layout: 'fit',
