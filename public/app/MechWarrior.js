@@ -61,7 +61,17 @@ Ext.define('MW.MechWarrior', {
 			keyboardControls: this.keyboardControls
 		});
 		var life = this.getMenu().getLife().getController();
-		life.takeDamage(100);
+		life.takeDamage(150);
+		function sleep(millis, callback) {
+			setTimeout(function()
+				{ callback(); }
+				, millis);
+		}
+		sleep(5000, function () {
+			debugger;
+			life.restoreShield(100);
+		});
+
 		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
 			// initialises the level manager
 			var levelManager = Ext.create('MW.manager.Level', {

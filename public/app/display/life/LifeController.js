@@ -25,20 +25,18 @@ Ext.define('MW.display.life.LifeController', {
 	/**
 	 * Restores a certain amount to the shield.
 	 *
-	 * @param shield The shield view.
 	 * @param amount The amount to restore.
 	 */
-	restoreShield: function (shield, amount) {
-		shield.fireEvent('restore', amount);
+	restoreShield: function (amount) {
+		this.getView().getShield().fireEvent('restore', amount);
 	},
 	/**
 	 * Restores a certain amount to the health.
 	 *
-	 * @param health The health view.
 	 * @param amount The amount to restore.
 	 */
-	restoreHealth: function (health, amount) {
-		health.fireEvent('restore', amount);
+	restoreHealth: function (amount) {
+		this.getView().getHealth().fireEvent('restore', amount);
 	},
 	/**
 	 * Restores both the shield and health to full.
@@ -56,7 +54,7 @@ Ext.define('MW.display.life.LifeController', {
 	reviveShield: function (shield) {
 		// calculate the amount to restore and then revive the shield
 		var amount = shield.getShield() - shield.getController().getCurrentShield();
-		this.restoreShield(shield, amount);
+		this.restoreShield(amount);
 	},
 	/**
 	 * Restores the health to full.
@@ -66,6 +64,6 @@ Ext.define('MW.display.life.LifeController', {
 	reviveHealth: function (health) {
 		// calculate the amount to restore and then revive the health
 		var amount = health.getHealth() - health.getController().getCurrentHealth();
-		this.restoreHealth(health, amount);
+		this.restoreHealth(amount);
 	}
 });

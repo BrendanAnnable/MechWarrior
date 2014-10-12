@@ -8,6 +8,8 @@ Ext.define('MW.display.life.shield.ShieldController', {
     clip: null,
     points: null,
 	currentShield: 0,
+	maxWidth: 100,
+	maxHeight: 5,
     control: {
         '*': {
             'afterrender': 'onAfterRender',
@@ -34,7 +36,7 @@ Ext.define('MW.display.life.shield.ShieldController', {
 	        linejoin: 'round'
         });
         // create a clipping rectangle to change the bar width easily
-        this.clip = draw.rect(100, 100).fill('none');
+        this.clip = draw.rect(this.maxWidth, this.maxHeight).fill('none');
         // create the gradient for the fill effect
         var gradient = draw.gradient('linear', function (stop) {
             stop.at({offset: 0, color: view.getFillColor().getDarker(10).getHex()});
@@ -57,9 +59,29 @@ Ext.define('MW.display.life.shield.ShieldController', {
 	},
 	/**
 	 * This method updates the shield bar width to correctly display the shield.
+	 *
+	 * @param previousShield The previous shield amount.
+	 * @param shield The total shield amount.
 	 */
-	updateShieldDisplay: function () {
-		// todo
+	updateShieldDisplay: function (previousShield, shield) {
+		var from = previousShield / shield * 100;                               // calculate the starting x value
+		var to = this.currentShield / shield * 100;                             // calculate the x value to move
+		var x = from;                                                           // instantiate x to the starting value
+		var steps = 1;                                                          // the steps to take per iteration
+		var time = 2;                                                           // the maximum time to deplete
+		function updateClock () {                                               // the method used upon each interval
+			x = from >= to ? x - steps : x + steps;                             // update the x value
+			if ((from >= to && x <= to) || (from <= to && x >=to)) {            // check if the shield has updated
+				Ext.TaskManager.stop(task);                                     // stop running the task
+			}
+			this.clip.move(-(this.maxWidth - x), 0);                            // move the clipping to its new position
+			this.fill.clipWith(this.clip);                                      // clip the fill with the clipping
+		}
+		var task = Ext.TaskManager.start({                                      // run the animation update
+			run: updateClock,                                                   // the function used to animate
+			interval: time * 1000 / (Math.abs((to - from)) * steps),            // how often the function is run
+			scope: this                                                         // the scope parameter
+		});
 	},
 	/**
 	 * An event fired when the shield is depleted to match the damage taken.
@@ -67,8 +89,9 @@ Ext.define('MW.display.life.shield.ShieldController', {
 	 * @param damage The amount of damage taken.
 	 */
 	onTakeDamage: function (damage) {
-		this.currentShield = Math.max(0, this.currentShield - damage);      // remove a certain amount of shield
-		this.updateShieldDisplay();                                         // update the shield display
+		var previousShield = this.currentShield;                                // store the previous shield value
+		this.currentShield = Math.max(0, this.currentShield - damage);          // remove a certain amount of shield
+		this.updateShieldDisplay(previousShield, this.getView().getShield());   // update the shield display
 	},
 	/**
 	 * An event fired when the shield is restored by a certain amount.
@@ -76,8 +99,10 @@ Ext.define('MW.display.life.shield.ShieldController', {
 	 * @param amount The amount to restore.
 	 */
 	onRestore: function (amount) {
-		var shield = this.getView().getShield();                            // get the maximum shield
-		this.currentShield = Math.min(shield, this.currentShield + amount); // restore a certain amount of shield
-		this.updateShieldDisplay();                                         // update the shield display
+		var previousShield = this.currentShield;                                // store the previous shield value
+		var shield = this.getView().getShield();                                // get the maximum shield
+		this.currentShield = Math.min(shield, this.currentShield + amount);     // restore a certain amount of shield
+		debugger;
+		this.updateShieldDisplay(previousShield, shield);                       // update the shield display
 	}
 });
