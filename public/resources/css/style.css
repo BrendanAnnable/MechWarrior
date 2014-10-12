@@ -10,6 +10,5 @@ body {
 .health, .shield, .life {
     right: 0;
     left: 0;
-    height: 100%;
     margin: 0 auto;
 }

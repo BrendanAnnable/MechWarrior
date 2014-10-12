@@ -9,7 +9,6 @@ Ext.define('MW.display.radar.Radar', {
 	],
 	controller: 'Radar',
 	layout: 'fit',
-	height: '100%', // enables scaling
 	id: 'radar',
 	initComponent: function () {
 		this.callParent(arguments);

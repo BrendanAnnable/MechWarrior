@@ -33,7 +33,7 @@ Ext.define('MW.MechWarrior', {
 	},
 	setup: function () {
 		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
-		var menu = this.getMenu();
+		var menu = this.getMenu().getEl().dom;                          // get the HTML from the menu
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
 			speed: 0.5
@@ -60,6 +60,8 @@ Ext.define('MW.MechWarrior', {
 		var audioManager = Ext.create('MW.manager.Audio', {
 			keyboardControls: this.keyboardControls
 		});
+		var life = this.getMenu().getLife().getController();
+		life.takeDamage(100);
 		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
 			// initialises the level manager
 			var levelManager = Ext.create('MW.manager.Level', {

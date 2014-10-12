@@ -19,7 +19,7 @@ Ext.define('MW.view.ViewportController', {
 	 */
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
-		var menu = this.lookupReference('menu').getEl().dom;
+		var menu = this.lookupReference('menu');
 		this.setCanvas(canvas);
 		this.game = Ext.create('MW.MechWarrior', {
             canvas: canvas,

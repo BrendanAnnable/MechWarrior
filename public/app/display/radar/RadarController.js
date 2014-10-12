@@ -20,7 +20,7 @@ Ext.define('MW.display.radar.RadarController', {
 		this.initConfig(config);
 	},
 	/**
-	 * Called when the shield has been rendered.
+	 * Called when the radar has been rendered.
 	 */
 	onAfterRender: function () {
 		var view = this.getView();

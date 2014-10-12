@@ -13,5 +13,6 @@ Ext.define('FourJS.util.SVG', {
 	autoEl: {
 		tag: 'svg',
 		preserveAspectRatio: 'xMinYMin meet'
-	}
+	},
+	height: '100%' // enables scaling
 });
