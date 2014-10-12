@@ -136,5 +136,20 @@ Ext.define('FourJS.object.Object', {
 			}
 		}
 		return null;
+	},
+	clone: function (object) {
+		if (object === undefined) {
+			object = Ext.create('FourJS.object.Object', {
+				name: this.getName(),
+				position: mat4.clone(this.getPosition()),
+				renderable: this.getRenderable()
+			});
+		}
+		var children = this.getChildren();
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			object.addChild(child.clone());
+		}
+		return object;
 	}
 });

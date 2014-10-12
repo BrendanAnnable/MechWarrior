@@ -30,5 +30,15 @@ Ext.define('FourJS.object.Mesh', {
     },
 	setColor: function (r, g, b, a) {
 		this.getMaterial().getColor().setColor(r, g, b, a);
+	},
+	clone: function (object) {
+		if (object === undefined) {
+			object = Ext.create('FourJS.object.Mesh', {
+				geometry: this.getGeometry(),
+				material: this.getMaterial()
+			});
+		}
+
+		return this.callParent([object]);
 	}
 });
