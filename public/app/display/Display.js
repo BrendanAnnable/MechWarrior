@@ -13,7 +13,9 @@ Ext.define('MW.display.Display', {
         this.callParent(arguments);
         this.add(Ext.create('MW.display.radar.Radar', {
 	        x: 20,
-	        y: 30
+	        y: 30,
+	        strokeColor: '#fff',
+	        strokeWidth: 1.5
         }));
         this.add(Ext.create('MW.display.life.Life', {
             y: 50

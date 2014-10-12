@@ -27,14 +27,14 @@ Ext.define('MW.display.radar.RadarController', {
 		var radius = this.getRadius();
 		var diameter = radius * 2;
 		// create an svg element to draw on with a view box
-		var draw = SVG('radar').viewbox(0, 0, diameter, diameter);
+		var draw = SVG('radar').size('20%', '20%').viewbox(0, 0, diameter, diameter);
 		// create the clipping path for the edge
 		var edgeClip = draw.rect(radius, (radius + diameter) / 1.8);
 		// create the edge of the circle
 		draw.circle(diameter).fill('none').stroke({
 			color: view.getStrokeColor(),
 			width: view.getStrokeWidth()
-		}).clipWith(edgeClip);
+		}).clipWith(edgeClip).move(1, 1);
 		var fillColor = view.getFillColor();                    // get the fill colour of the radar
 		var space = this.getSpace();                            // get the space between the edge and the circle
 		var translate = space / 2;                              // calculate the amount to translate the circle

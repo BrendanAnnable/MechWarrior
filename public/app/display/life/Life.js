@@ -12,7 +12,13 @@ Ext.define('MW.display.life.Life', {
     cls: 'life',
     initComponent: function () {
         this.callParent(arguments);
-        this.add(Ext.widget('Shield'));
-        this.add(Ext.widget('Health'));
+        this.add(Ext.widget('Shield', {
+	        strokeColor: '#6ffaff',
+	        strokeWidth: 0.3
+        }));
+        this.add(Ext.widget('Health', {
+	        strokeColor: '#fff',
+	        strokeWidth: 0.2
+        }));
     }
 });

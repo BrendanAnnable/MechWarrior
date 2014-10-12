@@ -22,12 +22,14 @@ Ext.define('MW.display.life.shield.ShieldController', {
      */
     onAfterRender: function () {
         var view = this.getView();
+	    var dimensions = view.getDimensions();
         // create an svg element to draw on with a view box of 100 x 100
-        var draw = SVG('shield').viewbox(0, 0, 100, 5);
+        var draw = SVG('shield').size(dimensions.width, dimensions.height).viewbox(0, 0, 100, 5);
         // create the outline of the shield and its specified colour and width
         this.outline = draw.polygon(this.points).fill('none').stroke({
             color: view.getStrokeColor(),
-            width: view.getStrokeWidth()
+            width: view.getStrokeWidth(),
+	        linejoin: 'round'
         });
         // create a clipping rectangle to change the bar width easily
         this.clip = draw.rect(100, 100).fill('none');

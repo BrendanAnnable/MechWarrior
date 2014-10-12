@@ -7,24 +7,9 @@ body {
 	z-index: 5;
 }
 
-.radar {
-	width: 20%;
-	height: 20%;
-	/*background: url('../image/menu/radar.png') no-repeat top left / contain;
-	margin: 1%;*/
-}
-
 .health, .shield, .life {
     right: 0;
     left: 0;
     height: 100%;
     margin: 0 auto;
-}
-
-.shield {
-    width: 60%;
-}
-
-.health {
-    width: 49%;
 }

@@ -21,8 +21,9 @@ Ext.define('MW.display.life.health.HealthController', {
      */
     onAfterRender: function () {
         var view = this.getView();
+	    var dimensions = view.getDimensions();
         // create an svg element to draw on with a view box of 100 x 100
-        var draw = SVG('health').viewbox(0, 0, 100, 2.5);
+        var draw = SVG('health').size(dimensions.width, dimensions.height).viewbox(0, 0, 100, 2.5);
         // create the outline of the shield and its specified colour and width
         this.outline = draw.polygon(this.points).fill('none').stroke({
             color: view.getStrokeColor(),
