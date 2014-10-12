@@ -18,11 +18,17 @@ uniform vec3 uLightColor;
 uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 uniform bool useLighting;
-// TODO: uniform bool useFog;
 uniform bool useEnvironmentMap;
 uniform float reflectivity;
 uniform mat4 uWorldTransform;
 uniform vec4 uWorldEyeVec;
+
+uniform bool uUseFog;
+uniform vec4 uFogColor;
+uniform float uFogDensity;
+uniform float uFogEasing;
+uniform float uFogHeight;
+
 
 // The linearly interpolated values from the vertex shader
 varying vec4 vModelPosition;
@@ -84,24 +90,14 @@ void main(void) {
         gl_FragColor *= vec4(lighting, 1.0);
     }
 
-	bool useFog = true;
-	if (useFog) {
-		// add some fog
-		float density = 0.10;
-		// falloff speed
-		float easing = 0.7;
-		// height of fog
-		float height = -2.0;
+	if (uUseFog) {
 		// gives fog based on distance from camera and height from ground
-		float fogFactor = exp2(-pow(density * vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-easing * vWorldPosition.y - height)));
+		float fogFactor = exp2(-pow(uFogDensity* vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-uFogEasing * vWorldPosition.y - uFogHeight)));
 		// clamp between 0 and 1
 		fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-		// fog colour
-		vec4 fogColor = vec4(0.2, 0.0, 0.3, 1.0);
-
 		// linearly blend current color with fog
-		gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
+		gl_FragColor = mix(uFogColor, gl_FragColor, fogFactor);
 	}
 
 	// for debugging

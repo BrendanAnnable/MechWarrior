@@ -97,6 +97,12 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			shaderProgram.uWorldTransform = gl.getUniformLocation(shaderProgram, "uWorldTransform");
 			shaderProgram.uWorldEyeVec = gl.getUniformLocation(shaderProgram, "uWorldEyeVec");
 
+			shaderProgram.uUseFog = gl.getUniformLocation(shaderProgram, "uUseFog");
+			shaderProgram.uFogColor = gl.getUniformLocation(shaderProgram, "uFogColor");
+			shaderProgram.uFogDensity = gl.getUniformLocation(shaderProgram, "uFogDensity");
+			shaderProgram.uFogEasing = gl.getUniformLocation(shaderProgram, "uFogEasing");
+			shaderProgram.uFogHeight = gl.getUniformLocation(shaderProgram, "uFogHeight");
+
             this.setShaderProgram(shaderProgram);
             this.fireEvent('loaded');
         });
@@ -145,8 +151,22 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		gl.uniform4fv(shaderProgram.uWorldEyeVec, worldEyeVec);
 
 		this.updateLighting(gl, scene, shaderProgram, cursor, camera);
+		this.updateFog(gl, scene, shaderProgram, cursor, camera);
 
 		this.renderObject(gl, scene, shaderProgram, cursor, camera);
+	},
+	updateFog: function (gl, scene, shaderProgram, cursor, camera) {
+		var fog = scene.getFog();
+		if (fog === null) {
+			gl.uniform1i(shaderProgram.uUseFog, 0);
+			return;
+		}
+
+		gl.uniform1i(shaderProgram.uUseFog, 1);
+		gl.uniform4fv(shaderProgram.uFogColor, fog.getColor().getArray());
+		gl.uniform1f(shaderProgram.uFogDensity, fog.getDensity());
+		gl.uniform1f(shaderProgram.uFogEasing, fog.getEasing());
+		gl.uniform1f(shaderProgram.uFogHeight, fog.getHeight());
 	},
 	updateLighting: function (gl, scene, shaderProgram, cursor, camera) {
 		var lights = scene.getLights();
