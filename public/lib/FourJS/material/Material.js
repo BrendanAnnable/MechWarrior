@@ -17,11 +17,7 @@ Ext.define('FourJS.material.Material', {
     constructor: function (config) {
         this.initConfig(config);
         if (this.getColor() === null) {
-            this.setColor(Ext.create('FourJS.util.Color', {
-                r: 1,
-                g: 1,
-                b: 1
-            }));
+            this.setColor(Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1}));
         }
     },
     /**

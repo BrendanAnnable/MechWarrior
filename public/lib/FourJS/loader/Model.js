@@ -18,7 +18,7 @@ Ext.define('FourJS.loader.Model', {
 			    scope: this,
 			    success: function (response) {
 				    // Decode the JSON response
-					resolve(me.superclass.load(response.responseText));
+					resolve(me.superclass.load(url, response.responseText));
 			    }
 		    });
 	    });
