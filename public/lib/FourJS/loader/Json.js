@@ -79,16 +79,16 @@ Ext.define('FourJS.loader.Json', {
 		var materialArray = [];
 		for (var i = 0; i < materials.length; i++) {
 			var material = materials[i];
-			var newMaterial = Ext.create('FourJS.material.Phong', {
-				reflectivity: 0.4
-			});
+			var newMaterial = Ext.create('FourJS.material.Phong');
 			for (var j = 0; j < material.properties.length; j++) {
 				var property = material.properties[j];
 				switch (property.key) {
 					case '$tex.file':
-						newMaterial.setTexture(Ext.create('FourJS.loader.Texture', {
-							url: baseUrl + property.value
-						}));
+						if (newMaterial.getTexture() === null) {
+							newMaterial.setTexture(Ext.create('FourJS.loader.Texture', {
+								url: baseUrl + property.value
+							}));
+						}
 						break;
 				}
 			}

@@ -10,6 +10,12 @@ Ext.define('MW.level.genesis.GenesisController', {
         this.callParent(arguments);
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
+		// add a hacky gui slider
+		var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+		var f = GUI.addFolder("Robot");
+		f.add(material, '_reflectivity', 0, 1).step(0.01);
+		f.add(material, '_wireframe');
+		f.add(material, '_useLighting');
         var face = this.createFace(assetManager, player);           // create the face model
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
 
