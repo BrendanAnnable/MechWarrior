@@ -35,5 +35,19 @@ Ext.define('FourJS.material.Material', {
 	 */
 	hasEnvironmentMap: function () {
 		return this.hasConfig('environmentMap') && this.getEnvironmentMap() !== null;
+	},
+	clone: function (object) {
+		if (object === undefined) {
+			object = Ext.create('FourJS.material.Material', {
+				color: this.getColor(),
+				opacity: this.getOpacity(),
+				transparent: this.getTransparent(),
+				useLighting: this.getUseLighting(),
+				reflectivity: this.getReflectivity(),
+				wireframe: this.getWireframe()
+			});
+		}
+
+		return object;
 	}
 });

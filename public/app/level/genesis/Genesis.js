@@ -35,7 +35,27 @@ Ext.define('MW.level.genesis.Genesis', {
         var directionalLight2 = Ext.create('FourJS.light.DirectionalLight', {
             color: Ext.create('FourJS.util.Color', {r: 0.5, g: 0, b: 0.0})
         });
+
         directionalLight2.translate(25, 10, 0);
+
+		// Add some GUI sliders
+		var f = GUI.addFolder('Lights');
+		var acolor = ambientLight.getColor();
+		var af = f.addFolder('AmbientLight');
+		af.add(acolor, '_r', 0, 1).step(0.01);
+		af.add(acolor, '_g', 0, 1).step(0.01);
+		af.add(acolor, '_b', 0, 1).step(0.01);
+		var color = directionalLight.getColor();
+		var df = f.addFolder('DirectionalLight1');
+		df.add(color, '_r', 0, 1).step(0.01);
+		df.add(color, '_g', 0, 1).step(0.01);
+		df.add(color, '_b', 0, 1).step(0.01);
+		var color2 = directionalLight2.getColor();
+		var df2 = f.addFolder('DirectionalLight2');
+		df2.add(color2, '_r', 0, 1).step(0.01);
+		df2.add(color2, '_g', 0, 1).step(0.01);
+		df2.add(color2, '_b', 0, 1).step(0.01);
+
         // add all the lights to the level
         this.addChild(ambientLight);
         this.addChild(directionalLight);
