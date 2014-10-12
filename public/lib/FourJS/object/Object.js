@@ -36,6 +36,10 @@ Ext.define('FourJS.object.Object', {
 		var position = this.getPosition();
 		mat4.translate(position, position, vec3.fromValues(x, y, z));
 	},
+	scale: function (x, y, z) {
+		var position = this.getPosition();
+		mat4.scale(position, position, vec3.fromValues(x, y, z));
+	},
 	getTranslation: function () {
 		var position = this.getPosition();
 		return mat4.col(position, 3, 3);
