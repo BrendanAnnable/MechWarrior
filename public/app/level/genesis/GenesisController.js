@@ -34,7 +34,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         */
 
         var cb1 = this.createCityBlock(assetManager);
-        cb1.translate(-20, 0.1, -20);
+        cb1.translate(-20, 0.1, -50);
         this.getLevel().addObstacle(cb1);
 
         /*                                                //no support for multiple objects yet :(
@@ -42,6 +42,9 @@ Ext.define('MW.level.genesis.GenesisController', {
         cb2.translate(-20, 20, -20);
         this.getLevel().addObstacle(cb2);
         */
+
+		var car = this.createCar(assetManager);
+		this.getLevel().addObstacle(car);
 
         var player2 = this.createPlayer(false, 'player2');         // create a test player
         // mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
@@ -53,9 +56,15 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
     createHouse: function (assetManager) {
         var house = assetManager.getAsset('house');
-        house.translate(0, 50, 0); //this works
+        house.translate(0, 50, 0);
         return house;
     },
+	createCar: function (assetManager) {
+		var car = assetManager.getAsset('car');
+		car.translate(0, 0, -10);
+		car.rotateY(-Math.PI / 2);
+		return car;
+	},
     createCityBlock: function (assetManager) {
         var ret = assetManager.getAsset('cityblock');
         //cityblock.translate(0, 10, 0);

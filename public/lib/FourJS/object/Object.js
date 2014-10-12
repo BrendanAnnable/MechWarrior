@@ -40,6 +40,22 @@ Ext.define('FourJS.object.Object', {
 		var position = this.getPosition();
 		mat4.scale(position, position, vec3.fromValues(x, y, z));
 	},
+	rotate: function (rad, axis) {
+		var position = this.getPosition();
+		mat4.rotate(position, position, rad, axis);
+	},
+	rotateX: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateX(position, position, rad);
+	},
+	rotateY: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateY(position, position, rad);
+	},
+	rotateZ: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateZ(position, position, rad);
+	},
 	getTranslation: function () {
 		var position = this.getPosition();
 		return mat4.col(position, 3, 3);
