@@ -3,6 +3,9 @@
  */
 Ext.define('FourJS.util.manager.Asset', {
 	alias: 'AssetManager',
+	requires: [
+		'FourJS.object.Object'
+	],
 	assets: null,
 	constructor: function (config) {
         this.initConfig(config);
@@ -29,9 +32,14 @@ Ext.define('FourJS.util.manager.Asset', {
 	 * Retrieves a particular asset from the manager.
 	 *
 	 * @param key The key that refers to the asset being retrieved.
-	 * @returns {*}
+	 * @param clone Whether to clone the returned asset
+	 * @returns {*} The asset
 	 */
-	getAsset: function (key) {
-		return this.assets[key];
+	getAsset: function (key, clone) {
+		var asset = this.assets[key];
+		if (asset instanceof FourJS.object.Object && clone !== false) {
+			asset = asset.clone();
+		}
+		return asset;
 	}
 });
