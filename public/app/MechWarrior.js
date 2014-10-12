@@ -60,6 +60,11 @@ Ext.define('MW.MechWarrior', {
 		var audioManager = Ext.create('MW.manager.Audio', {
 			keyboardControls: this.keyboardControls
 		});
+		var radar = this.getMenu().getRadar().getController();
+		radar.addSpot('something', {
+			x: 1,
+			y: 1
+		});
 		var life = this.getMenu().getLife().getController();
 		life.takeDamage(150);
 		function sleep(millis, callback) {

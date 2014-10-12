@@ -4,6 +4,7 @@
 Ext.define('FourJS.util.svg.SVGController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.SVG',
+	draw: null,
 	fill: null,
 	clip: null,
 	maxWidth: 0,

@@ -8,8 +8,14 @@ Ext.define('MW.display.radar.Radar', {
 		'MW.display.radar.RadarController'
 	],
 	controller: 'Radar',
+	config: {
+		defaultObjectColor: null    // The colour of the dots
+	},
 	layout: 'fit',
 	id: 'radar',
+	init: function (config) {
+		this.initConfig(config);
+	},
 	initComponent: function () {
 		this.callParent(arguments);
 		if (this.getDimensions() === null) {
