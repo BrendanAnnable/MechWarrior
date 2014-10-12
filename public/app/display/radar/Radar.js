@@ -9,11 +9,12 @@ Ext.define('MW.display.radar.Radar', {
 	],
 	controller: 'Radar',
 	layout: 'fit',
+	height: '100%', // enables scaling
 	id: 'radar',
 	initComponent: function () {
 		this.callParent(arguments);
 		if (this.getDimensions() === null) {
-			this.setDimensions({width: '20%', height: '20%'});
+			this.setDimensions({width: '10%', height: '10%'});
 		}
 		if (this.getFillColor() === null) {
 			this.setFillColor(Ext.create('FourJS.util.Color', {r: 255, g: 255, b: 255, a: 0.6}));

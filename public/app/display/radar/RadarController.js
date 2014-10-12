@@ -24,10 +24,11 @@ Ext.define('MW.display.radar.RadarController', {
 	 */
 	onAfterRender: function () {
 		var view = this.getView();
+		var dimensions = view.getDimensions();
 		var radius = this.getRadius();
 		var diameter = radius * 2;
 		// create an svg element to draw on with a view box
-		var draw = SVG('radar').size('20%', '20%').viewbox(0, 0, diameter, diameter);
+		var draw = SVG('radar').size(dimensions.width, dimensions.height).viewbox(0, 0, diameter, diameter);
 		// create the clipping path for the edge
 		var edgeClip = draw.rect(radius, (radius + diameter) / 1.8);
 		// create the edge of the circle
