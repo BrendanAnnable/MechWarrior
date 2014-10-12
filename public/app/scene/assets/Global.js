@@ -33,6 +33,13 @@ Ext.define('MW.scene.assets.Global', {
 				FourJS.geometry.Geometry.scaleAll(face, [0.05, 0.05, -0.05]);
             }),
 
+            this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
+                assetManager.addAsset('cube', cube);
+                cube.setName('cube');
+                FourJS.geometry.Geometry.scaleAll(cube, [1, 1, 1]);
+                cube.translate(0,1,0);
+            }),
+
 //            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
 //                assetManager.addAsset('destroyedCar', destroyedCar);
 //                destroyedCar.name = 'destroyedCar';
