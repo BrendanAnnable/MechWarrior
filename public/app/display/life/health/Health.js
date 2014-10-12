@@ -3,7 +3,7 @@
  */
 Ext.define('MW.display.life.health.Health', {
     alias: 'widget.Health',
-	extend: 'FourJS.util.SVG',
+	extend: 'FourJS.util.svg.SVG',
     requires: [
         'MW.display.life.health.HealthController'
     ],

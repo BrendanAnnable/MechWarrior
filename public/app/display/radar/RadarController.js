@@ -2,10 +2,9 @@
  * @author Monica Olejniczak
  */
 Ext.define('MW.display.radar.RadarController', {
-	extend: 'Ext.app.ViewController',
+	extend: 'FourJS.util.svg.SVGController',
 	alias: 'controller.Radar',
 	circle: null,
-	clip: null,
 	config: {
 		radius: 50,
 		space: 10       // The amount of space between the edge and circle

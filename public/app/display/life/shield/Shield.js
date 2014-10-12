@@ -3,7 +3,7 @@
  */
 Ext.define('MW.display.life.shield.Shield', {
     alias: 'widget.Shield',
-	extend: 'FourJS.util.SVG',
+	extend: 'FourJS.util.svg.SVG',
     requires: [
         'MW.display.life.shield.ShieldController'
     ],

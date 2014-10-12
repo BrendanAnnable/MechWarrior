@@ -3,7 +3,7 @@
  */
 Ext.define('MW.display.radar.Radar', {
     alias: 'widget.Radar',
-    extend: 'FourJS.util.SVG',
+    extend: 'FourJS.util.svg.SVG',
 	requires: [
 		'MW.display.radar.RadarController'
 	],

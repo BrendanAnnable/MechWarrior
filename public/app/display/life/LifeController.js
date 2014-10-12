@@ -8,17 +8,21 @@ Ext.define('MW.display.life.LifeController', {
 		var view = this.getView();
 		var shield = view.getShield();
 		var currentShield = shield.getController().getCurrentShield();
-		var health = view.getShield();
+		var health = view.getHealth();
 		if (currentShield - damage > 0) {                       // check if only the shield will be damaged
 			shield.fireEvent('takedamage', damage);             // damage the shield
 		} else {                                                // the shield will not be damaged
 			if (currentShield === 0) {                          // check if the shield is already depleted
-				health.fireEvent('takeDamage', damage);         // damage the health
+				health.fireEvent('takedamage', damage);         // damage the health
 			} else {                                            // both the shield and health will be damaged (overflow)
 				// the shield is depleted
-				shield.fireEvent('takeDamage', currentShield);
-				// the health takes the rest of the damage
-				health.fireEvent('takeDamage', damage - currentShield);
+				shield.fireEvent('takedamage', currentShield);
+				// begin a delayed task
+				var task = new Ext.util.DelayedTask(function () {
+					// the health takes the rest of the damage
+					health.fireEvent('takedamage', damage - currentShield);
+				});
+				task.delay(shield.getController().getTime());   // delay the health depletion by how long the shield will take
 			}
 		}
 	},

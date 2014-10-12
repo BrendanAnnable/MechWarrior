@@ -1,7 +1,7 @@
 /**
  * @author Monica Olejniczak
  */
-Ext.define('FourJS.util.SVG', {
+Ext.define('FourJS.util.svg.SVG', {
 	alias: 'SVG',
 	extend: 'Ext.container.Container',
 	config: {

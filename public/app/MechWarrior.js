@@ -68,8 +68,11 @@ Ext.define('MW.MechWarrior', {
 				, millis);
 		}
 		sleep(5000, function () {
-			debugger;
-			life.restoreShield(100);
+			life.takeDamage(1000);
+		});
+
+		sleep(10000, function () {
+			life.restoreShield(250);
 		});
 
 		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
