@@ -9,6 +9,7 @@ Ext.define('MW.display.radar.Radar', {
 	],
 	controller: 'Radar',
 	config: {
+		defaultObjectRadius: 2,     // The radius of the dots
 		defaultObjectColor: null    // The colour of the dots
 	},
 	layout: 'fit',

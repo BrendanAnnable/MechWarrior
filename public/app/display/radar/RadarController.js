@@ -43,31 +43,32 @@ Ext.define('MW.display.radar.RadarController', {
 	 * @param diameter The diameter of the radar.
 	 */
 	renderComponents: function (view, draw, radius, diameter) {
-		var space = this.getSpace();                                // get the space between the edge and the circle
-		var radarDiameter = diameter - space;                       // calculate the diameter of the radar
-		var centreRadius = this.getCentreRadius();                  // get the radius of the centre dot
-		var centre = radius - centreRadius;                         // calculate the actual centre of the radar
-		this.centre = {x: centre, y: centre};                       // assign the centre to the member variable
-		this.renderRadar(view, draw, radarDiameter, space);         // renders the radar
-		this.renderOuterEdge(view, draw, radius, diameter);         // renders the outer edge of the radar
-		this.renderCentre(view, draw, centre, centreRadius * 2);    // renders the centre dot of the radar
-		this.renderRing(view, draw, radarDiameter / 3);             // renders the smaller ring of the radar
-		this.renderRing(view, draw, radarDiameter / 1.5);           // renders the larger ring of the radar
-		this.renderUpFace(view, draw, centre, radarDiameter);       // renders the up bound part of the radar
-		this.renderBottomEdge(view, draw, radius, diameter);        // renders the bottom edge of the radar
+		var space = this.getSpace();                                    // get the space between the edge and the circle
+		var radarDiameter = diameter - space;                           // calculate the diameter of the radar
+		var centreRadius = this.getCentreRadius();                      // get the radius of the centre dot
+		var centre = radius - centreRadius;                             // calculate the actual centre of the radar
+		this.centre = {x: centre, y: centre};                           // assign the centre to the member variable
+		this.renderRadar(view, draw, diameter, radarDiameter, space);   // renders the radar
+		this.renderOuterEdge(view, draw, radius, diameter);             // renders the outer edge of the radar
+		this.renderCentre(view, draw, centre, centreRadius * 2);        // renders the centre dot of the radar
+		this.renderRing(view, draw, radarDiameter / 3);                 // renders the smaller ring of the radar
+		this.renderRing(view, draw, radarDiameter / 1.5);               // renders the larger ring of the radar
+		this.renderUpFace(view, draw, centre, radarDiameter);           // renders the up bound part of the radar
+		this.renderBottomEdge(view, draw, radius, diameter);            // renders the bottom edge of the radar
 	},
 	/**
 	 * Renders the radar.
 	 *
 	 * @param view The radar view.
 	 * @param draw The SVG being drawn on.
-	 * @param diameter The diameter of the radar.
+	 * @param diameter The diameter of the whole radar.
+	 * @param radarDiameter The diameter of the radar.
 	 * @param space The space between the outer edge and the radar.
 	 */
-	renderRadar: function (view, draw, diameter, space) {
-		var translate = space * 0.5;                                // calculate the amount to translate the radar
-		var fillColor = view.getFillColor();                        // get the fill colour of the radar
-		this.radar = draw.circle(diameter).fill({                   // draw the radar
+	renderRadar: function (view, draw, diameter, radarDiameter, space) {
+		var translate = space * 0.5;                                    // calculate the amount to translate the radar
+		var fillColor = view.getFillColor();                            // get the fill colour of the radar
+		this.radar = draw.circle(radarDiameter).fill({                  // draw the radar
 			color: fillColor.getHex(),
 			opacity: fillColor.getOpacity()
 		}).stroke({
@@ -162,16 +163,20 @@ Ext.define('MW.display.radar.RadarController', {
 		return this.getSpace() * 0.5 + ((this.radar.width() - width) / 2);
 	},
 	/**
+	 * Adds a circle to the radar at a certain position.
 	 *
-	 * @param key
-	 * @param [position]
-	 * @param [color]
+	 * @param key The name of the circle to refer by.
+	 * @param [position] An optional position to set the circle in.
+	 * @param [diameter] An optional diameter of the circle.
+	 * @param [color] An optional colour to pass in.
 	 */
-	addSpot: function (key, position, color) {
+	addCircle: function (key, position, diameter, color) {
+		var view = this.getView();
 		position = position || {};
-		color = color === undefined ? this.getView().getDefaultObjectColor().getHex() : color.getHex();
-		this.objects[key] = this.draw.circle(this.radar.width() * 0.05).fill({
+		color = color === undefined ? view.getDefaultObjectColor().getHex() : color.getHex();
+		diameter = diameter || view.getDefaultObjectRadius() * 2;
+		this.objects[key] = this.draw.circle(diameter).fill({
 			color: color
-		}).move(position.x || this.centre.x, position.y || this.centre.y);
+		}).move(position.x || this.centre.x, position.y || this.centre.y).clipWith(this.radar.clone());
 	}
 });
