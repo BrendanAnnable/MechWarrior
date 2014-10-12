@@ -4,9 +4,9 @@
 Ext.define('MW.display.radar.RadarController', {
 	extend: 'FourJS.util.svg.SVGController',
 	alias: 'controller.Radar',
-	radar: null,
-	centre: null,
-	objects: null,
+	radar: null,            // The radar drawing.
+	centre: null,           // The centre of the radar.
+	objects: null,          // The actual objects on the radar.
 	config: {
 		radius: 50,         // The radius of the radar.
 		space: 10,          // The amount of space between the edge and circle.
@@ -175,8 +175,13 @@ Ext.define('MW.display.radar.RadarController', {
 		position = position || {};
 		color = color === undefined ? view.getDefaultObjectColor().getHex() : color.getHex();
 		diameter = diameter || view.getDefaultObjectRadius() * 2;
+		// create and draw the circle object
 		this.objects[key] = this.draw.circle(diameter).fill({
 			color: color
 		}).move(position.x || this.centre.x, position.y || this.centre.y).clipWith(this.radar.clone());
+	},
+	removeObject: function (key) {
+		this.objects[key].remove();
+		delete this.objects[key];
 	}
 });

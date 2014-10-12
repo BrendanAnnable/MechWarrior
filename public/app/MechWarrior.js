@@ -71,6 +71,7 @@ Ext.define('MW.MechWarrior', {
 		}
 		sleep(5000, function () {
 			life.takeDamage(1000);
+			radar.removeObject('something');
 		});
 
 		sleep(10000, function () {
