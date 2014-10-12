@@ -17,11 +17,7 @@ Ext.define('FourJS.material.Material', {
     constructor: function (config) {
         this.initConfig(config);
         if (this.getColor() === null) {
-            this.setColor(Ext.create('FourJS.util.Color', {
-                r: 1,
-                g: 1,
-                b: 1
-            }));
+            this.setColor(Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1}));
         }
     },
     /**
@@ -39,5 +35,19 @@ Ext.define('FourJS.material.Material', {
 	 */
 	hasEnvironmentMap: function () {
 		return this.hasConfig('environmentMap') && this.getEnvironmentMap() !== null;
+	},
+	clone: function (object) {
+		if (object === undefined) {
+			object = Ext.create('FourJS.material.Material', {
+				color: this.getColor(),
+				opacity: this.getOpacity(),
+				transparent: this.getTransparent(),
+				useLighting: this.getUseLighting(),
+				reflectivity: this.getReflectivity(),
+				wireframe: this.getWireframe()
+			});
+		}
+
+		return object;
 	}
 });

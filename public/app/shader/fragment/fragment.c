@@ -48,13 +48,14 @@ void main(void) {
         gl_FragColor = textureCube(uEnvironmentMap, normalize(vModelPosition.xyz));
     } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
-    } else if (reflectivity > 0.0) {
-    	vec3 worldViewVec = vWorldPosition.xyz - uWorldEyeVec.xyz;
-		vec3 reflectVec = reflect(worldViewVec, normalize(vWorldNormal.xyz));
-        gl_FragColor = textureCube(uEnvironmentMap, reflectVec);
-    	gl_FragColor = mix(vColor, gl_FragColor, reflectivity);
     } else {
 		gl_FragColor = vColor;
+    }
+
+    if (reflectivity > 0.0) {
+    	vec3 worldViewVec = vWorldPosition.xyz - uWorldEyeVec.xyz;
+		vec3 reflectVec = reflect(worldViewVec, normalize(vWorldNormal.xyz));
+    	gl_FragColor = mix(gl_FragColor, textureCube(uEnvironmentMap, reflectVec), reflectivity);
     }
 
     if (useLighting) {

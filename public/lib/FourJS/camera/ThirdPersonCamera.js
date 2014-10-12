@@ -25,6 +25,9 @@ Ext.define('FourJS.camera.ThirdPersonCamera', {
 			endControlPoint: vec3.fromValues(0, 0, 1),
 			dimensions: 3
 		});
+		if (this.config.name === null) {
+			this.setName('ThirdPersonCamera');
+		}
 	},
 	getPosition: function () {
 		var position = mat4.create();

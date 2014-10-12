@@ -19,6 +19,7 @@ Ext.define('MW.view.ViewportController', {
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
 		this.setCanvas(canvas);
+		this.gui = window.GUI = new dat.GUI();
 		this.game = Ext.create('MW.MechWarrior', {
             canvas: canvas
         });

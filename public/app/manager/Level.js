@@ -59,7 +59,7 @@ Ext.define('MW.manager.Level', {
      * @returns {boolean}
      */
     hasLevel: function (key) {
-        var asset = this.getAsset(key);
+        var asset = this.getAsset(key, false);
         return asset !== undefined && asset !== null;
     },
     /**
@@ -80,6 +80,6 @@ Ext.define('MW.manager.Level', {
                 this.addScene(name, Ext.create(level));
             }
         }
-        this.setActiveScene(this.getAsset(name)); // set the active scene to the level
+        this.setActiveScene(this.getAsset(name, false)); // set the active scene to the level
     }
 });
