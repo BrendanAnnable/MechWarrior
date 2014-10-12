@@ -13,11 +13,38 @@ Ext.define('MW.level.genesis.GenesisController', {
         var face = this.createFace(assetManager, player);           // create the face model
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
 
-        var house = this.createHouse(assetManager);
-        this.getLevel().addObstacle(house);
+        //var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
+        //this.getLevel().addObstacle(house);                       // good as a reference
+
+        /*
+        var genx = 0; //the root orientation of all the cityblocks
+        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+        var genz = 0; //the root oreintation of all cityblocks
+        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+        var blocksize=10; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+
+        var cityblock = [];
+        for(var i=0;i<nocityblocks;i++) {
+            for(var j=0;j<nocityblocks;j++) {
+                cityblock[i][j] = this.createCityBlock(assetManager);
+                (cityblock[i][j]).translate(genx+blocksize*i,geny,genz+blocksize*j);
+                this.getLevel().addObstacle((cityblock[i][j]);
+            }
+        }
+        */
+
+        var cb1 = this.createCityBlock(assetManager);
+        cb1.translate(-20, 0.1, -20);
+        this.getLevel().addObstacle(cb1);
+
+        /*                                                //no support for multiple objects yet :(
+        var cb2 = this.createCityBlock(assetManager);
+        cb2.translate(-20, 20, -20);
+        this.getLevel().addObstacle(cb2);
+        */
 
         var player2 = this.createPlayer(false, 'player2');         // create a test player
-//		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
+        // mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
         player2.translate(0, 0, -20);
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);
@@ -26,8 +53,13 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
     createHouse: function (assetManager) {
         var house = assetManager.getAsset('house');
-        house.translate(0, 10, 0);
+        house.translate(0, 50, 0); //this works
         return house;
+    },
+    createCityBlock: function (assetManager) {
+        var ret = assetManager.getAsset('cityblock');
+        //cityblock.translate(0, 10, 0);
+        return ret;
     },
     createFace: function (assetManager, player) {
         var face = assetManager.getAsset('face');

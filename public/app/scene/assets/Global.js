@@ -35,6 +35,9 @@ Ext.define('MW.scene.assets.Global', {
             this.loadModelAsset(this.getModelPath('house.json')).then(function (house) {
                 assetManager.addAsset('house', house);
             }),
+            this.loadModelAsset(this.getModelPath('cityblock/cityblock.json')).then(function (cityblock) {
+                assetManager.addAsset('cityblock', cityblock);
+            }),
 
 
 //            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
