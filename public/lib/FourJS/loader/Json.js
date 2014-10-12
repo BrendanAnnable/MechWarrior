@@ -4,22 +4,32 @@
 Ext.define('FourJS.loader.Json', {
 	alias: 'JsonLoader',
 	extend: 'FourJS.loader.Loader',
+	requires: [
+		'FourJS.object.Mesh',
+		'FourJS.util.Color',
+		'FourJS.geometry.Geometry',
+		'FourJS.material.Phong',
+		'FourJS.loader.Texture'
+	],
 	/**
 	 * Loads a model synchronously
 	 *
 	 * @param json The JSON text to decode
 	 */
-	load: function (json) {
+	load: function (url, json) {
+		var baseUrl = url.substr(0, url.lastIndexOf("/") + 1);
 		var model = Ext.decode(json);
 		// Get the model root
 		var root = model.rootnode;
+		// Get the materials array
+		var materials = this.parseMaterials(baseUrl, model.materials);
 		// Get the meshes array
-		var meshes = this.parseMeshes(model.meshes);
+		var meshes = this.parseMeshes(model.meshes, materials);
 		// Loop meshes array
 		var model = this.loadModel(root, meshes);
 		return model;
 	},
-	parseMeshes: function (meshes) {
+	parseMeshes: function (meshes, materials) {
 		var meshArray = [];
 
 		for (var i = 0; i < meshes.length; i++) {
@@ -50,20 +60,41 @@ Ext.define('FourJS.loader.Json', {
 			geometry.setVertices(vertices);
 			geometry.setNormals(normals);
 			geometry.setFaces(mesh.faces);
+			// TODO: this is a hack! these should be stored somewhere properly
+			geometry.getFlattenedTextureCoordinates = function () {
+				return new Float32Array((mesh.texturecoords && mesh.texturecoords[0]) || []);
+			};
 			meshArray.push(Ext.create('FourJS.object.Mesh', {
 				geometry: geometry,
-				material: Ext.create('FourJS.material.Phong', {
-					color: Ext.create('FourJS.util.Color', {
-						r: 1,
-						g: 1,
-						b: 1
-					}),
+				material: materials[mesh.materialindex] || Ext.create('FourJS.material.Phong', {
+					color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1}),
 					reflectivity: 1
 				})
 			}));
 		}
 
 		return meshArray;
+	},
+	parseMaterials: function (baseUrl, materials) {
+		var materialArray = [];
+		for (var i = 0; i < materials.length; i++) {
+			var material = materials[i];
+			var newMaterial = Ext.create('FourJS.material.Phong', {
+				reflectivity: 0.4
+			});
+			for (var j = 0; j < material.properties.length; j++) {
+				var property = material.properties[j];
+				switch (property.key) {
+					case '$tex.file':
+						newMaterial.setTexture(Ext.create('FourJS.loader.Texture', {
+							url: baseUrl + property.value
+						}));
+						break;
+				}
+			}
+			materialArray.push(newMaterial);
+		}
+		return materialArray;
 	},
 	loadModel: function (node, meshes) {
 		var object = Ext.create('FourJS.object.Object');
