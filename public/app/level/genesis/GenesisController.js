@@ -20,14 +20,43 @@ Ext.define('MW.level.genesis.GenesisController', {
         var face = this.createFace(assetManager, player);           // create the face model
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
 
-        var simpleCity = this.loadSimpleCity(assetManager);
 
-      for(var object in simpleCity)this.getLevel().addObstacle(object);
 
-//      this.getLevel().addObstacle(simpleCity)
 
-//      var building = this.loadBuilding(assetManager, xLocation, yLocation);
-//      this.getLevel().addObstacle(building);                          // add the cube as an obstacle to the level
+
+        // this method not working yet for some reason
+//        var simpleCity = this.loadSimpleCity(assetManager);
+//
+//        for (var i = 0; i < simpleCity.length; i++) {
+//
+//            this.getLevel().addObstacle(simpleCity[i]);
+//
+//        }
+
+
+        var simpleCity = [];
+
+        var building1 = this.loadBuilding(assetManager, 0, 0, 20, 20,20);
+        simpleCity.push(building1);
+
+        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 5,1);
+        simpleCity.push(building2);
+
+        var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
+        simpleCity.push(building3);
+
+        var building4 = this.loadBuilding(assetManager, 100, -100, 1, 5,1);
+        simpleCity.push(building4);
+        var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
+        simpleCity.push(building5);
+
+
+        for (var i = 0; i < simpleCity.length; i++) {
+
+            this.getLevel().addObstacle(simpleCity[i]);
+
+        }
+
 
 
         var player2 = this.createPlayer(false, 'player2');         // create a test player
@@ -88,28 +117,28 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 
         // central park
-        var centralPark = this.loadBuilding(assetManager,0,0,100,100,900);
+        var centralPark = this.loadBuilding(assetManager,0,0,100,900,100);
         cityObjects.push(centralPark);
 
 
        // north-west park
         //this.loadPark()
-        var nwPark = this.loadBuilding(assetManager,56,-56,100,100,900);
+        var nwPark = this.loadBuilding(assetManager,106,-106,100,900,100);
        cityObjects.push(nwPark);
 
         // north-east park
         //this.loadPark()
-        var nePark = this.loadBuilding(assetManager,-56,-56,100,100,900);
+        var nePark = this.loadBuilding(assetManager,-106,-106,100,900,100);
         cityObjects.push(nePark);
 
         //south-east park
         //this.loadPark()
-        var sePark = this.loadBuilding(assetManager,56,-56,100,100,900);
+        var sePark = this.loadBuilding(assetManager,106,-106,100,900,100);
        cityObjects.push(sePark);
 
         // south-west park
         //this.loadPark()
-        var swPark = this.loadBuilding(assetManager,56,56,100,100,900);
+        var swPark = this.loadBuilding(assetManager,106,106,100,900,100);
        cityObjects.push(swPark);
 
 
@@ -135,35 +164,35 @@ Ext.define('MW.level.genesis.GenesisController', {
         // small 1
         var smallZOne = 56+smallBuildingSize*0.5;
         var smallXOne = 50-smallBuildingSize*0.5;
-        var smallOne = this.loadBuilding(assetManager,smallZOne,smallXOne,smallBuildingSize,smallBuildingSize,100);
+        var smallOne = this.loadBuilding(assetManager,smallZOne,smallXOne,smallBuildingSize,100, smallBuildingSize);
        cityObjects.push(smallOne);
 
 
        // small 2
         var smallZTwo = smallZOne+smallBuildingSize+roadWidth;
         var smallXTwo = smallXOne;
-        var smallTwo = this.loadBuilding(assetManager,smallZTwo,smallXTwo,smallBuildingSize,smallBuildingSize,100);
+        var smallTwo = this.loadBuilding(assetManager,smallZTwo,smallXTwo,smallBuildingSize,100, smallBuildingSize);
        cityObjects.push(smallTwo);
 
 
        // small 3
         var smallZThree = smallZTwo+smallBuildingSize+roadWidth;
         var smallXThree = smallXOne;
-        var smallThree = this.loadBuilding(assetManager,smallZThree,smallXThree,smallBuildingSize,smallBuildingSize,100);
+        var smallThree = this.loadBuilding(assetManager,smallZThree,smallXThree,smallBuildingSize,100, smallBuildingSize);
        cityObjects.push(smallThree);
 
 
         // small 4
         var smallZFour = smallZOne;
         var smallXFour = smallXOne+smallBuildingSize+roadWidth;
-        var smallFour = this.loadBuilding(assetManager,smallZFour,smallXFour,smallBuildingSize,smallBuildingSize,100);
+        var smallFour = this.loadBuilding(assetManager,smallZFour,smallXFour,smallBuildingSize,100, smallBuildingSize);
        cityObjects.push(smallFour);
 
 
        // small 5
         var smallZFive = smallZOne;
         var smallXFive = smallXOne+smallBuildingSize+roadWidth;
-        var smallFive = this.loadBuilding(assetManager,smallZFive,smallXFive,smallBuildingSize,smallBuildingSize,100);
+        var smallFive = this.loadBuilding(assetManager,smallZFive,smallXFive,smallBuildingSize,100, smallBuildingSize);
        cityObjects.push(smallFive);
 
 
@@ -171,7 +200,7 @@ Ext.define('MW.level.genesis.GenesisController', {
        //medium
         var mediumZ = -smallBuildingSize+2*roadWidth+0.5*mediumBuildingSize;
         var mediumX = -0.5*mediumBuildingSize;
-        var medium = this.loadBuilding(assetManager,mediumZ,mediumX,smallBuildingSize,smallBuildingSize,400);
+        var medium = this.loadBuilding(assetManager,mediumZ,mediumX,mediumBuildingSize,400, mediumBuildingSize);
        cityObjects.push(medium);
 
 
@@ -230,19 +259,14 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
 
 
-    loadBuilding: function (assetManager, xLocation, zLocation, length, width, height) {
+    loadBuilding: function (assetManager, xLocation, zLocation, length, height, width) {
         var building = assetManager.getAsset('cube');
-        FourJS.geometry.Geometry.scaleAll(building, [length, width, height]);
+        FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
         building.translate(xLocation,0,zLocation);
         return building;
 
     }
 
-
-//    createBuilding: function(){
-//        var building = Ext.create('MW.level.City.Building');
-//        return building;
-//    }
 
 
 });
