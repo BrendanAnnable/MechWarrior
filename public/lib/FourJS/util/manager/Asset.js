@@ -1,5 +1,6 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('FourJS.util.manager.Asset', {
 	alias: 'AssetManager',

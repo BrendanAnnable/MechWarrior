@@ -1,5 +1,6 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('MW.level.genesis.GenesisController', {
     extend: 'MW.level.LevelController',
@@ -84,11 +85,11 @@ Ext.define('MW.level.genesis.GenesisController', {
         var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
 
         var cityblock = [];
-        for(var i=0;i<nocityblocks;i++) {
+        for (var i = 0; i < nocityblocks; i++) {
 			cityblock[i] = [];
-            for(var j=0;j<nocityblocks;j++) {
+            for(var j = 0; j < nocityblocks; j++) {
                 cityblock[i][j] = this.createCityBlock(assetManager);
-                (cityblock[i][j]).translate(genx+blocksize*i,geny,genz+blocksize*j);
+                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
                 this.getLevel().addObstacle(cityblock[i][j]);
             }
         }
