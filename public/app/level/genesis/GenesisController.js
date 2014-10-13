@@ -13,6 +13,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		// add a hacky gui slider
 		var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
 		var f = GUI.addFolder("Robot");
+		material.setReflectivity(0.4);
 		f.add(material, '_reflectivity', 0, 1).step(0.01);
 		f.add(material, '_wireframe');
 		f.add(material, '_useLighting');
