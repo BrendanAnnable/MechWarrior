@@ -24,7 +24,7 @@ Ext.define('MW.scene.assets.Global', {
 		    this.loadModelAsset(this.getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
                 bullet.setName('bullet');
-				FourJS.geometry.Geometry.scaleAll(bullet, [5, 5, 5]);
+				FourJS.geometry.Geometry.scaleAll(bullet, [2, 2, 2]);
 		    }),
 
             this.loadModelAsset(this.getModelPath('face.json')).then(function (face) {
@@ -32,6 +32,16 @@ Ext.define('MW.scene.assets.Global', {
                 face.setName('face');
 				FourJS.geometry.Geometry.scaleAll(face, [0.05, 0.05, -0.05]);
             }),
+            this.loadModelAsset(this.getModelPath('house.json')).then(function (house) {
+                assetManager.addAsset('house', house);
+            }),
+            this.loadModelAsset(this.getModelPath('cityblock/cityblock.json')).then(function (cityblock) {
+                assetManager.addAsset('cityblock', cityblock);
+            }),
+			this.loadModelAsset(this.getModelPath('textured_car/5car.json')).then(function (car) {
+				assetManager.addAsset('car', car);
+			}),
+
 
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
                 assetManager.addAsset('cube', cube);
