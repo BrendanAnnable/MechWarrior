@@ -32,7 +32,9 @@ window.__karma__.loaded = function() {};
 
 Ext.Loader.setConfig({
 	paths: {
-		'MW': 'base/public/app'
+		'MW': 'base/public/app',
+		'FourJS': 'base/public/lib/FourJS',
+		'PhysJS': 'base/public/lib/PhysJS'
 	}
 });
 

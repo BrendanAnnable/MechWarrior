@@ -11,8 +11,12 @@ module.exports = function (config) {
 			{pattern: 'public/resources/js/lib/gl-matrix-patch.js', included: true},
 			{pattern: 'public/extjs/build/ext-all-debug.js', included: true},
 			{pattern: 'public/app/**/*.js', included: false},
+			{pattern: 'public/lib/**/*.js', included: false},
 			{pattern: 'test/app/**/*.js', included: false},
-			{pattern: 'test/test-main.js', included: true}
+			{pattern: 'test/FourJS/**/*.js', included: false},
+			{pattern: 'test/PhysJS/**/*.js', included: false},
+			{pattern: 'test/test-main.js', included: true},
+			{pattern: 'test/matchers.js', included: true}
 		],
 		exclude: [ ],
 		// preprocess matching files before serving them to the browser

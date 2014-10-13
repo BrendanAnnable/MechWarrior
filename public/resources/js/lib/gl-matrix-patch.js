@@ -4,14 +4,16 @@
  * Patch to add various helpers methods to the gl-matrix library.
  */
 
+var GLMAT_EPSILON = 0.000001;
+
 /**
  * Return a vec4 reference to the given column vector of a mat4
  *
  * Editing the returned vector will edit the original matrix in place
  *
- * @param a The mat4 to get the column of
- * @param col The index of the column (0-indexed)
- * @returns A vec4 reference to the column vector
+ * @param {mat4} a The mat4 to get the column of
+ * @param {int} col The index of the column (0-indexed)
+ * @returns {vec4} A vec4 reference to the column vector
  */
 mat4.col = function (a, col, rows) {
 	if (rows === undefined) {
@@ -260,8 +262,7 @@ vec4.fromMat4 = function (a) {
 	return point;
 };
 
-mat4.fromVec4Cols = function (v1, v2, v3, v4) {
-	var out = mat4.zeros();
+mat4.fromVec4Cols = function (out, v1, v2, v3, v4) {
 	out[0] = v1[0];
 	out[1] = v1[1];
 	out[2] = v1[2];
@@ -316,4 +317,105 @@ mat4.print = function (a, n) {
 		+ a02.toFixed(n) + ", " + a12.toFixed(n) + ", " + a22.toFixed(n) + ", " + a32.toFixed(n) + "\n"
 		+ a03.toFixed(n) + ", " + a13.toFixed(n) + ", " + a23.toFixed(n) + ", " + a33.toFixed(n)
 	);
+};
+
+vec3.equal = function (a, b) {
+	return a[0] == b[0] && a[1] == b[1] && a[2] == b[2];
+};
+
+vec3.close = function (a, b) {
+	return Math.abs(a[0] - b[0]) < GLMAT_EPSILON
+		&& Math.abs(a[1] - b[1]) < GLMAT_EPSILON
+		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON;
+};
+
+vec4.close = function (a, b) {
+	return Math.abs(a[0] - b[0]) < GLMAT_EPSILON
+		&& Math.abs(a[1] - b[1]) < GLMAT_EPSILON
+		&& Math.abs(a[2] - b[2]) < GLMAT_EPSILON
+		&& Math.abs(a[3] - b[3]) < GLMAT_EPSILON;
+};
+
+mat4.fromValues = function(a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p) {
+	return new Float32Array([
+		a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p
+	]);
+};
+
+/**
+ * Computes the cross product of two vec4's
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a the first operand
+ * @param {vec4} b the second operand
+ * @returns {vec4} out
+ */
+vec4.cross = function(out, a, b) {
+	var ax = a[0], ay = a[1], az = a[2],
+		bx = b[0], by = b[1], bz = b[2];
+
+	out[0] = ay * bz - az * by;
+	out[1] = az * bx - ax * bz;
+	out[2] = ax * by - ay * bx;
+	return out;
+};
+
+
+/**
+ * Linearly interpolate two vectors based on the given factor.
+ *
+ * Uses the following formula component-wise: a * (1 - f) + b * f
+ *
+ * @param {vec4} out the receiving vector
+ * @param {vec4} a the first operand
+ * @param {vec4} b the second operand
+ * @param {Number} factor
+ * @returns {vec4} out
+ */
+vec4.blend = function (out, a, b, factor) {
+	var rem = 1 - factor;
+	out[0] = a[0] * rem + b[0] * factor;
+	out[1] = a[1] * rem + b[1] * factor;
+	out[2] = a[2] * rem + b[2] * factor;
+	out[3] = a[3] * rem + b[3] * factor;
+	return out;
+};
+
+/**
+ * Linearly interpolate two bases based on the given factor.
+ *
+ * Uses the following formula component-wise: a * (1 - f) + b * f
+ *
+ * Note: Ensures the first 3 columns remain normalized
+ *
+ * @param {mat4} out The mat4 to put the interpolated basis in
+ * @param {mat4} a The first basis
+ * @param {mat4} b The second basis
+ * @param {Number} factor
+ * @returns {mat4} The interpolated basis
+ */
+mat4.blend = function (out, a, b, factor) {
+	var x = mat4.col(out, 0);
+	var y = mat4.col(out, 1);
+	var z = mat4.col(out, 2);
+	var t = mat4.col(out, 3);
+	vec4.blend(x, mat4.col(a, 0), mat4.col(b, 0), factor);
+	vec4.blend(y, mat4.col(a, 1), mat4.col(b, 1), factor);
+	vec4.blend(z, mat4.col(a, 2), mat4.col(b, 2), factor);
+	vec4.blend(t, mat4.col(a, 3), mat4.col(b, 3), factor);
+	vec4.normalize(x, x);
+	vec4.normalize(y, y);
+	vec4.normalize(z, z);
+	return out;
+};
+
+/**
+ * Calculate the distance between two bases. Uses just their translations.
+ *
+ * @param a The first basis
+ * @param b The second basis
+ * @returns {Number} The distance between their translations
+ */
+mat4.distance = function (a, b) {
+	return vec4.distance(mat4.col(a, 3), mat4.col(b, 3));
 };
