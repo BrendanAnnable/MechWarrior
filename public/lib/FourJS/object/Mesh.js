@@ -39,6 +39,9 @@ Ext.define('FourJS.object.Mesh', {
 			});
 		}
 
+		FourJS.object.Object.prototype.clone.call(this, object);
+
+		return object;
 		return this.callParent([object]);
 	}
 });
