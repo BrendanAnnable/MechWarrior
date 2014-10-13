@@ -43,6 +43,10 @@ Ext.define('MW.scene.assets.Global', {
 			}),
 
 
+			this.loadModelAsset(this.getModelPath('sphere.json')).then(function (sphere) {
+				assetManager.addAsset('sphere', sphere);
+				sphere.setName('sphere');
+			}),
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
                 assetManager.addAsset('cube', cube);
                 cube.setName('cube');
