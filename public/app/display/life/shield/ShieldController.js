@@ -27,12 +27,6 @@ Ext.define('MW.display.life.shield.ShieldController', {
 	    var dimensions = view.getDimensions();
         // create an svg element to draw on with a view box of 100 x 100
         this.draw = SVG('shield').size(dimensions.width, dimensions.height).viewbox(0, 0, 100, 5);
-        // create the outline of the shield and its specified colour and width
-	    this.draw.polygon(this.points).fill('none').stroke({
-            color: view.getStrokeColor(),
-            width: view.getStrokeWidth(),
-	        linejoin: 'round'
-        });
         // create a clipping rectangle to change the bar width easily
         this.clip = this.draw.rect(this.maxWidth, this.maxHeight).fill('none');
         // create the gradient for the fill effect
@@ -46,6 +40,12 @@ Ext.define('MW.display.life.shield.ShieldController', {
             color: gradient,
             opacity: view.getFillColor().getOpacity()
         });
+	    // create the outline of the shield and its specified colour and width
+	    this.draw.polygon(this.points).fill('none').stroke({
+		    color: view.getStrokeColor(),
+		    width: view.getStrokeWidth(),
+		    linejoin: 'round'
+	    });
     },
 	/**
 	 * An accessor method that returns the current shield.

@@ -27,11 +27,6 @@ Ext.define('MW.display.life.health.HealthController', {
 	    var dimensions = view.getDimensions();
         // create an svg element to draw on with a view box of 100 x 100
         this.draw = SVG('health').size(dimensions.width, dimensions.height).viewbox(0, 0, 100, 2.5);
-        // create the outline of the health and its specified colour and width
-	    this.draw.polygon(this.points).fill('none').stroke({
-            color: view.getStrokeColor(),
-            width: view.getStrokeWidth()
-        });
         // create a clipping rectangle to change the bar width easily
         this.clip = this.draw.rect(100, 100).fill('none');
         // create the gradient for the fill effect
@@ -46,6 +41,11 @@ Ext.define('MW.display.life.health.HealthController', {
             color: gradient,
             opacity: view.getFillColor().getOpacity()
         });
+	    // create the outline of the health and its specified colour and width
+	    this.draw.polygon(this.points).fill('none').stroke({
+		    color: view.getStrokeColor(),
+		    width: view.getStrokeWidth()
+	    });
     },
 	/**
 	 * An accessor method that returns the current health.
