@@ -11,35 +11,31 @@ Ext.define('MW.level.genesis.GenesisController', {
         this.callParent(arguments);
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
-		// add a hacky gui slider
+        player.translate(0, 0, -30);
+
+        // add a hacky gui slider
 		var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
 		var f = GUI.addFolder("Robot");
 		f.add(material, '_reflectivity', 0, 1).step(0.01);
 		f.add(material, '_wireframe');
 		f.add(material, '_useLighting');
-        var face = this.createFace(assetManager, player);           // create the face model
+        var face = this.createFace(assetManager, player, 7000);           // create the face model
+        var anotherface = this.createFace(assetManager, player, 3000);           // create the face model
+
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
-
-
-
-
-
-        // this method not working yet for some reason
-//        var simpleCity = this.loadSimpleCity(assetManager);
-//
-//        for (var i = 0; i < simpleCity.length; i++) {
-//
-//            this.getLevel().addObstacle(simpleCity[i]);
-//
-//        }
+        this.getLevel().addObstacle(anotherface);                          // add the face as an obstacle to the level
 
 
         var simpleCity = [];
 
-        var building1 = this.loadBuilding(assetManager, 0, 0, 20, 20,20);
+        var building1 = this.loadBuilding(assetManager, 0, 0, 10, 20,10);
         simpleCity.push(building1);
 
-        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 5,1);
+//        var material = Ext.create('FourJS.material.Basic');
+//        // create the mesh with the newly created geometry and material
+//        this.setMaterial(material);
+
+        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 20, 1);
         simpleCity.push(building2);
 
         var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
@@ -50,6 +46,14 @@ Ext.define('MW.level.genesis.GenesisController', {
         var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
         simpleCity.push(building5);
 
+        var box1 = this.loadBox(assetManager, 30, -30, 1, 1,1);
+        simpleCity.push(box1);
+
+        var box2 = this.loadBox(assetManager, 40, -30, 1, 1,1);
+        simpleCity.push(box2);
+
+        var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
+        simpleCity.push(box3);
 
         for (var i = 0; i < simpleCity.length; i++) {
 
@@ -57,17 +61,26 @@ Ext.define('MW.level.genesis.GenesisController', {
 
         }
 
+//       var build= Ext.create('MW.level.City.Building', {
+//
+////            xCoord: 10,
+////            zCoord:10
+//
+//        });
+//
+//        this.getLevel().addObstacle(build);
+//
 
 
         var player2 = this.createPlayer(false, 'player2');         // create a test player
 //		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
-        player2.translate(0, 0, -20);
+        player2.translate(0, 0, -50);
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);
         // add mouse event to the controller
         this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
     },
-    createFace: function (assetManager, player) {
+    createFace: function (assetManager, player, period) {
         var face = assetManager.getAsset('face');
         var spline = Ext.create('FourJS.util.math.HermiteSpline', {
             points: [
@@ -82,7 +95,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         // TODO: I hacked this in for now, need moving to a generic place
         face.getPosition = function () {
             var position = this._position;
-            var period = 7000;
+//            var period = 7000;
             var time = (Date.now() / period) % 1;
 
             var up = vec3.fromValues(0, 1, 0);
@@ -106,148 +119,6 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
 
 
-    // SimpleCity
-//    loadSimpleCity: function(assetManager, xCoord, zCoord){
-   loadSimpleCity: function(assetManager){
-
-       var cityObjects = [];
-
-    // road length
-        var roadWidth = 6;
-
-
-        // central park
-        var centralPark = this.loadBuilding(assetManager,0,0,100,900,100);
-        cityObjects.push(centralPark);
-
-
-       // north-west park
-        //this.loadPark()
-        var nwPark = this.loadBuilding(assetManager,106,-106,100,900,100);
-       cityObjects.push(nwPark);
-
-        // north-east park
-        //this.loadPark()
-        var nePark = this.loadBuilding(assetManager,-106,-106,100,900,100);
-        cityObjects.push(nePark);
-
-        //south-east park
-        //this.loadPark()
-        var sePark = this.loadBuilding(assetManager,106,-106,100,900,100);
-       cityObjects.push(sePark);
-
-        // south-west park
-        //this.loadPark()
-        var swPark = this.loadBuilding(assetManager,106,106,100,900,100);
-       cityObjects.push(swPark);
-
-
-
-        // building sector
-
-        ///////////////
-        //           //
-        //   x xxx   //
-        //   x xxx   //
-        //   x x x   //
-        //           //
-        ///////////////
-
-        // North Sector
-
-        // building size limits
-        // 3(building size)+2(roadLength)=100
-        var smallBuildingSize = 100-(2*roadWidth);
-        var mediumBuildingSize = 2*smallBuildingSize+roadWidth;
-
-
-        // small 1
-        var smallZOne = 56+smallBuildingSize*0.5;
-        var smallXOne = 50-smallBuildingSize*0.5;
-        var smallOne = this.loadBuilding(assetManager,smallZOne,smallXOne,smallBuildingSize,100, smallBuildingSize);
-       cityObjects.push(smallOne);
-
-
-       // small 2
-        var smallZTwo = smallZOne+smallBuildingSize+roadWidth;
-        var smallXTwo = smallXOne;
-        var smallTwo = this.loadBuilding(assetManager,smallZTwo,smallXTwo,smallBuildingSize,100, smallBuildingSize);
-       cityObjects.push(smallTwo);
-
-
-       // small 3
-        var smallZThree = smallZTwo+smallBuildingSize+roadWidth;
-        var smallXThree = smallXOne;
-        var smallThree = this.loadBuilding(assetManager,smallZThree,smallXThree,smallBuildingSize,100, smallBuildingSize);
-       cityObjects.push(smallThree);
-
-
-        // small 4
-        var smallZFour = smallZOne;
-        var smallXFour = smallXOne+smallBuildingSize+roadWidth;
-        var smallFour = this.loadBuilding(assetManager,smallZFour,smallXFour,smallBuildingSize,100, smallBuildingSize);
-       cityObjects.push(smallFour);
-
-
-       // small 5
-        var smallZFive = smallZOne;
-        var smallXFive = smallXOne+smallBuildingSize+roadWidth;
-        var smallFive = this.loadBuilding(assetManager,smallZFive,smallXFive,smallBuildingSize,100, smallBuildingSize);
-       cityObjects.push(smallFive);
-
-
-
-       //medium
-        var mediumZ = -smallBuildingSize+2*roadWidth+0.5*mediumBuildingSize;
-        var mediumX = -0.5*mediumBuildingSize;
-        var medium = this.loadBuilding(assetManager,mediumZ,mediumX,mediumBuildingSize,400, mediumBuildingSize);
-       cityObjects.push(medium);
-
-
-
-
-
-       // South Sector
-        // East Sector
-        // West Sector
-
-
-
-        return cityObjects;
-    },
-
-
-//    // a straight street is a row of buildings that begins at bottom left corner at (xPos, yPos) on an angle theta
-//    loadStraightStreet: function(assetManager, xPos, yPos, theta, streetWidth, streetLength){
-//
-//        var sidewalkWidth = 2;
-//
-//        var minBuildingLength = 10+3;
-//        var maxBuildingLength = 150;
-//
-////        var minBuildingWidth = 10;
-////        var maxBuildingWidth = 150;
-//
-//        var buildingWidth = streetWidth - 2*sidewalkWidth;
-//
-//        var minBuildingHeight = 10;
-//        var maxBuildingHeight = 1000;
-//
-//        var minBuildingsOnStreet = streetLength / maxBuildingLength;
-//        var maxBuildingsOnStreet = streetLength / minBuildingLength;
-//
-//        //  while(maxBuildingsOnStreet*minBuildingLength+)
-//
-//
-//        // this hasn't taken into account sidewalks
-//
-//        var numBuildings = randomIntegerInRange(minBuildingsOnStreet, maxBuildingsOnStreet);
-//
-//            var totalSidewalkWidth = 2*numBuildings+2;
-//
-//    },
-
-
 
 
     /**
@@ -260,13 +131,19 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 
     loadBuilding: function (assetManager, xLocation, zLocation, length, height, width) {
+        var building = assetManager.getAsset('building');
+        FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
+        building.translate(xLocation,0,zLocation);
+        return building;
+
+    },
+    loadBox: function (assetManager, xLocation, zLocation, length, height, width) {
         var building = assetManager.getAsset('cube');
         FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
         building.translate(xLocation,0,zLocation);
         return building;
 
     }
-
 
 
 });
