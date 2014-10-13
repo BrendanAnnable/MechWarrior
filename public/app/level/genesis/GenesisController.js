@@ -55,7 +55,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
         var player2 = this.createPlayer(false, 'player2');         // create a test player
         // mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
-        player2.translate(0, 0, -20);
+        player2.translate(5, 0, -10);
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);
         // add mouse event to the controller

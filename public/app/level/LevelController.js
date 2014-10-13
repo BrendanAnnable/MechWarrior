@@ -196,7 +196,7 @@ Ext.define('MW.level.LevelController', {
 					//mat4.copyRotation(head.getPosition(), mat4.createRotateX(mouseControls.getPitch()));
 
 
-                    mat4.copyRotation(head.getPosition(), mat4.createRotateZ(Date.now() / 360));
+                    mat4.copyRotation(head.getPosition(), mat4.createRotateY(Date.now() / 360));
 
                     //var T = 5000; // period in ms
                     //var scal = 1+ Math.abs(Math.sin(2*Date.now()/T ));
