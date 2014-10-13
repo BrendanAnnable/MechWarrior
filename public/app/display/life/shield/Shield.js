@@ -11,7 +11,6 @@ Ext.define('MW.display.life.shield.Shield', {
     config: {
 	    shield: 0
     },
-	layout: 'fit',
     cls: 'shield',
     id: 'shield',
     initComponent: function () {

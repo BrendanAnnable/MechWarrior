@@ -12,7 +12,7 @@ Ext.define('MW.display.radar.Radar', {
 		defaultObjectRadius: 2,     // The radius of the dots
 		defaultObjectColor: null    // The colour of the dots
 	},
-	layout: 'fit',
+	//layout: 'fit',
 	id: 'radar',
 	init: function (config) {
 		this.initConfig(config);

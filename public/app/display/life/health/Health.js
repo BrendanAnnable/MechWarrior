@@ -11,7 +11,6 @@ Ext.define('MW.display.life.health.Health', {
 	config: {
 		health: 0
 	},
-    layout: 'fit',
     cls: 'health',
     id: 'health',
     initComponent: function () {
