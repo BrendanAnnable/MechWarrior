@@ -78,6 +78,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
             shaderProgram.useTextureUniform = gl.getUniformLocation(shaderProgram, "useTexture");
             shaderProgram.useLightingUniform = gl.getUniformLocation(shaderProgram, "useLighting");
 			shaderProgram.useEnvironmentMapUniform = gl.getUniformLocation(shaderProgram, "useEnvironmentMap");
+			shaderProgram.reflectivity = gl.getUniformLocation(shaderProgram, "reflectivity");
 
             shaderProgram.uAmbientLightColor = gl.getUniformLocation(shaderProgram, "uAmbientLightColor");
 
@@ -94,6 +95,13 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			shaderProgram.uEnvironmentMap = gl.getUniformLocation(shaderProgram, "uEnvironmentMap");
 
 			shaderProgram.uWorldTransform = gl.getUniformLocation(shaderProgram, "uWorldTransform");
+			shaderProgram.uWorldEyeVec = gl.getUniformLocation(shaderProgram, "uWorldEyeVec");
+
+			shaderProgram.uUseFog = gl.getUniformLocation(shaderProgram, "uUseFog");
+			shaderProgram.uFogColor = gl.getUniformLocation(shaderProgram, "uFogColor");
+			shaderProgram.uFogDensity = gl.getUniformLocation(shaderProgram, "uFogDensity");
+			shaderProgram.uFogEasing = gl.getUniformLocation(shaderProgram, "uFogEasing");
+			shaderProgram.uFogHeight = gl.getUniformLocation(shaderProgram, "uFogHeight");
 
             this.setShaderProgram(shaderProgram);
             this.fireEvent('loaded');
@@ -134,14 +142,31 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		// Transform from camera space to world space
 		mat4.multiply(cursor, cursor, camera.getPositionInverse());
 
-
 		var shaderProgram = this.getShaderProgram();
-		var worldTransform = mat4.clone(cursor);
+		var cameraPosition = camera.getPosition();
+		var worldTransform = mat4.clone(cameraPosition);
 		gl.uniformMatrix4fv(shaderProgram.uWorldTransform, false, worldTransform);
 
+		var worldEyeVec = mat4.translateVector(cameraPosition);
+		gl.uniform4fv(shaderProgram.uWorldEyeVec, worldEyeVec);
+
 		this.updateLighting(gl, scene, shaderProgram, cursor, camera);
+		this.updateFog(gl, scene, shaderProgram, cursor, camera);
 
 		this.renderObject(gl, scene, shaderProgram, cursor, camera);
+	},
+	updateFog: function (gl, scene, shaderProgram, cursor, camera) {
+		var fog = scene.getFog();
+		if (fog === null) {
+			gl.uniform1i(shaderProgram.uUseFog, 0);
+			return;
+		}
+
+		gl.uniform1i(shaderProgram.uUseFog, 1);
+		gl.uniform4fv(shaderProgram.uFogColor, fog.getColor().getArray());
+		gl.uniform1f(shaderProgram.uFogDensity, fog.getDensity());
+		gl.uniform1f(shaderProgram.uFogEasing, fog.getEasing());
+		gl.uniform1f(shaderProgram.uFogHeight, fog.getHeight());
 	},
 	updateLighting: function (gl, scene, shaderProgram, cursor, camera) {
 		var lights = scene.getLights();
@@ -221,25 +246,20 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 
             gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
 
-            if (useTexture) {
-	            var texture = material.getTexture();
-	            if (texture !== null && texture.isLoaded() && object.__webglTexture === undefined) {
-		            object.__webglTexture = this.loadTexture(gl, object, texture);
-	            }
-            }
-
 			if (useEnvironmentMap) {
 				var environmentMap = material.getEnvironmentMap();
-				if (environmentMap.isLoaded()) {
-					if (object.__webglEnvironmentMap === undefined) {
-						object.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
-					}
-					this.applyEnvironmentMap(gl, object, shaderProgram);
-					gl.uniform1i(shaderProgram.useTextureUniform, 0);
-					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
+				if (material.__webglEnvironmentMap === undefined) {
+					material.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
 				}
+				this.applyEnvironmentMap(gl, object, shaderProgram);
+				gl.uniform1i(shaderProgram.useTextureUniform, 0);
+				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
 			}
-			else if (useTexture && material.getTexture().isLoaded()) {
+			else if (useTexture) {
+				var texture = material.getTexture();
+				if (texture !== null && material.__webglTexture === undefined) {
+					material.__webglTexture = this.loadTexture(gl, object, texture);
+				}
                 this.applyTexture(gl, object, shaderProgram);
                 gl.uniform1i(shaderProgram.useTextureUniform, 1);
 				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
@@ -250,11 +270,14 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 			}
 
             gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
+			gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
 
 			// Update the WebGL uniforms and then draw the object on the screen
 			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
 			var wireframe = material && material.getWireframe();
-			gl.drawElements(wireframe ? gl.LINE_LOOP : gl.TRIANGLES, object.__webglFaceBuffer.numItems, gl.UNSIGNED_SHORT, 0);
+			var type = wireframe ? gl.LINE_LOOP : gl.TRIANGLES;
+			var numItems = object.getGeometry().__webglFaceBuffer.numItems;
+			gl.drawElements(type, numItems, gl.UNSIGNED_SHORT, 0);
 		}
 
 		this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);
@@ -269,17 +292,18 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
     bindBuffers: function (gl, object, shaderProgram) {
         this.checkBuffer(gl, object);
         // Update the object position
-        var vertexBuffer = object.__webglVertexBuffer;
+		var geometry = object.getGeometry();
+        var vertexBuffer = geometry.__webglVertexBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, vertexBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         // Update the object normals
-        var normalBuffer = object.__webglNormalBuffer;
+        var normalBuffer = geometry.__webglNormalBuffer;
         gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
         gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, normalBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
         // Update the object faces
-        var faceBuffer = object.__webglFaceBuffer;
+        var faceBuffer = geometry.__webglFaceBuffer;
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, faceBuffer);
     },
     /**
@@ -289,23 +313,26 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
      * @param object The object to render
      */
     checkBuffer: function (gl, object) {
-        if (object.__webglBuffers !== true) {
+		var geometry = object.getGeometry();
+        if (geometry.__webglBuffers !== true) {
             // attach the buffers to the current child object
-            var geometry = object.getGeometry();
-            object.__webglVertexBuffer = Ext.create('FourJS.buffer.Vertex').load(gl, geometry);
-            object.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
-            object.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
-			if (object.hasMaterial()) {
-				var material = object.getMaterial();
+			geometry.__webglVertexBuffer = Ext.create('FourJS.buffer.Vertex').load(gl, geometry);
+            geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
+            geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
+			geometry.__webglBuffers = true;
+        }
+		if (object.hasMaterial()) {
+			var material = object.getMaterial();
+			if (material.__webglBuffers !== true) {
 				if (material.hasTexture()) {
-					object.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
+					material.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
 				}
 				if (material.hasEnvironmentMap()) {
-					object.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
+					material.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
 				}
+				material.__webglBuffers = true;
 			}
-			object.__webglBuffers = true;
-        }
+		}
     },
     /**
      * Applies a texture to an object.
@@ -317,14 +344,18 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
     applyTexture: function (gl, object, shaderProgram) {
         gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
         // Update the object texture
-        var textureCoordinateBuffer = object.__webglTextureCoordinateBuffer;
-		var texture = object.__webglTexture;
+		var material = object.getMaterial();
+        var textureCoordinateBuffer = material.__webglTextureCoordinateBuffer;
+		var texture = material.__webglTexture;
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
         gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.uniform1i(shaderProgram.samplerUniform, 0);
     },
+	getDefaultTexture: function (){
+		return new Uint8Array([0, 0, 0, 255]);
+	},
     /**
      * Loads a texture into WebGL
      *
@@ -336,17 +367,29 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
         var glTexture = gl.createTexture();
         glTexture.image = texture.getImage();
         gl.bindTexture(gl.TEXTURE_2D, glTexture);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glTexture.image);
-	    if (texture.isRepeatable()) {
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-	    } else {
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-		    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
-	    }
-	    gl.generateMipmap(gl.TEXTURE_2D);
-        gl.bindTexture(gl.TEXTURE_2D, null);
+		// load default texture
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.getDefaultTexture());
+
+		function loaded() {
+			gl.bindTexture(gl.TEXTURE_2D, glTexture);
+			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, glTexture.image);
+			if (texture.isRepeatable()) {
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+			} else {
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+				gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			}
+			gl.generateMipmap(gl.TEXTURE_2D);
+		}
+
+		if (texture.isLoaded()) {
+			loaded();
+		} else {
+			texture.on('load', loaded, this);
+		}
+
         return glTexture;
     },
 	/**
@@ -359,8 +402,9 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 	applyEnvironmentMap: function (gl, object, shaderProgram) { // todo too tired to fix dis
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		// Update the object texture
-		var textureCoordinateBuffer = object.__webglEnvironmentCoordinateBuffer;
-		var texture = object.__webglEnvironmentMap;
+		var material = object.getMaterial();
+		var textureCoordinateBuffer = material.__webglEnvironmentCoordinateBuffer;
+		var texture = material.__webglEnvironmentMap;
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
 		gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
 		gl.activeTexture(gl.TEXTURE1);
@@ -377,6 +421,7 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 	loadEnvironmentMap: function (gl, object, map) {
 		var texture = gl.createTexture();
 		gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 		gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
@@ -393,12 +438,24 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 
 		var faces = object.faces;
 		for (var i = 0; i < faces.length; i++) {
-			var image = faces[i][0];
 			var face = faces[i][1];
-			gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
-			gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-			gl.bindTexture(gl.TEXTURE_CUBE_MAP, null);
+			gl.texImage2D(face, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, this.getDefaultTexture());
+		}
+
+		function loaded() {
+			for (var i = 0; i < faces.length; i++) {
+				var image = faces[i][0];
+				var face = faces[i][1];
+				gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+				gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+				gl.texImage2D(face, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			}
+		}
+
+		if (map.isLoaded()) {
+			loaded();
+		} else {
+			map.on('load', loaded, this);
 		}
 
 		return texture;

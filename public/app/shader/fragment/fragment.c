@@ -19,10 +19,22 @@ uniform vec4 uDiffuseColor;
 uniform bool useTexture;
 uniform bool useLighting;
 uniform bool useEnvironmentMap;
+uniform float reflectivity;
+uniform mat4 uWorldTransform;
+uniform vec4 uWorldEyeVec;
+
+uniform bool uUseFog;
+uniform vec4 uFogColor;
+uniform float uFogDensity;
+uniform float uFogEasing;
+uniform float uFogHeight;
+
 
 // The linearly interpolated values from the vertex shader
-varying vec3 vRawPosition;
-varying vec3 vRawNormal;
+varying vec4 vModelPosition;
+varying vec4 vWorldPosition;
+varying vec4 vModelNormal;
+varying vec4 vWorldNormal;
 varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
@@ -39,11 +51,17 @@ void main(void) {
 
     // Colour the pixel based on the original colour and the various lighting factors
     if (useEnvironmentMap) {
-        gl_FragColor = textureCube(uEnvironmentMap, normalize(vRawPosition));
+        gl_FragColor = textureCube(uEnvironmentMap, normalize(vModelPosition.xyz));
     } else if (useTexture) {
         gl_FragColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
     } else {
-    	gl_FragColor = vColor;
+		gl_FragColor = vColor;
+    }
+
+    if (reflectivity > 0.0) {
+    	vec3 worldViewVec = vWorldPosition.xyz - uWorldEyeVec.xyz;
+		vec3 reflectVec = reflect(worldViewVec, normalize(vWorldNormal.xyz));
+    	gl_FragColor = mix(gl_FragColor, textureCube(uEnvironmentMap, reflectVec), reflectivity);
     }
 
     if (useLighting) {
@@ -72,26 +90,19 @@ void main(void) {
         gl_FragColor *= vec4(lighting, 1.0);
     }
 
-	// add some fog
-	float density = 0.10;
-	// falloff speed
-	float easing = 0.3;
-	// height of fog
-	float height = -5.0;
-	// gives fog based on distance from camera and height from ground
-	float fogFactor = exp2(-pow(density * vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-easing * vRawPosition.y - height)));
-	// clamp between 0 and 1
-	fogFactor = clamp(fogFactor, 0.0, 1.0);
+	if (uUseFog) {
+		// gives fog based on distance from camera and height from ground
+		float fogFactor = exp2(-pow(uFogDensity* vPosition.z, 2.0)) + (1.0 / (1.0 + exp2(-uFogEasing * vWorldPosition.y - uFogHeight)));
+		// clamp between 0 and 1
+		fogFactor = clamp(fogFactor, 0.0, 1.0);
 
-	// fog colour
-	vec4 fogColor = vec4(0.2, 0.0, 0.3, 1.0);
-
-	// linearly blend current color with fog
-	gl_FragColor = mix(fogColor, gl_FragColor, fogFactor);
+		// linearly blend current color with fog
+		gl_FragColor = mix(uFogColor, gl_FragColor, fogFactor);
+	}
 
 	// for debugging
 //	gl_FragColor = vec4(normal, 1);
-//	gl_FragColor = vec4(vRawNormal, 1);
+//	gl_FragColor = vec4(vWorldNormal, 1);
 //	gl_FragColor = vec4(vLightDirection);
 
 }

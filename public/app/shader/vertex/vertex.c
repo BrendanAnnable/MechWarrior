@@ -19,8 +19,10 @@ uniform bool useTexture;
 
 // Varying variables which are linearly interpolated and given to the fragment shader
 //varying vec4 vColor;
-varying vec3 vRawPosition;
-varying vec3 vRawNormal;
+varying vec4 vModelPosition;
+varying vec4 vWorldPosition;
+varying vec4 vModelNormal;
+varying vec4 vWorldNormal;
 varying vec4 vPosition;
 varying vec3 vNormal;
 varying vec4 vColor;
@@ -30,13 +32,19 @@ varying vec4 vLightDirection;
 void main(void) {
  //	vColor = aVertexColor;
 
- 	// Convert position to camera-space
- 	vPosition = uMVMatrix * vec4(aVertexPosition, 1.0);
- 	vRawPosition = aVertexPosition;
+ 	// model space
+ 	vModelPosition = vec4(aVertexPosition, 1.0);
+ 	// camera space
+ 	vPosition = uMVMatrix * vModelPosition;
+ 	// world space
+ 	vWorldPosition = uWorldTransform * vPosition;
 
- 	// Convert normal to camera-space
- 	vNormal = uNMatrix * aVertexNormal;
- 	vRawNormal = aVertexNormal;
+ 	// model space
+ 	vModelNormal = vec4(aVertexNormal, 0);
+ 	// camera space
+ 	vNormal = uNMatrix * vModelNormal.xyz;
+ 	// world space
+ 	vWorldNormal = uWorldTransform * vec4(vNormal, 0);
 
     vLightDirection = uWorldTransform * vec4(1.0, 1.0, 0.0, 0.0);
 

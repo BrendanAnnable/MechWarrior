@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FourJS.light.DirectionalLight', {
 	extend: 'FourJS.light.Light',
 	config: {
@@ -8,6 +11,9 @@ Ext.define('FourJS.light.DirectionalLight', {
 		if (this.config.target === null) {
 			// by default point at an object at the origin
 			this.setTarget(Ext.create('FourJS.object.Object'));
+		}
+		if (this.config.name === null) {
+			this.setName('DirectionalLight');
 		}
 	}
 });

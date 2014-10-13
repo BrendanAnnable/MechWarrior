@@ -1,13 +1,15 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('MW.level.LevelController', {
     alias: 'LevelController',
     requires: [
         'PhysJS.PhysicsEngine',
         'MW.character.Player',
-	    'FourJS.camera.ThirdPersonCamera'
-    ],
+		'FourJS.camera.PerspectiveCamera',
+		'FourJS.camera.ThirdPersonCamera'
+	],
     physics: null,
     config: {
         level: null,
@@ -56,10 +58,10 @@ Ext.define('MW.level.LevelController', {
     createPlayer: function (active, name) {
         var playerAsset = this.getAssetManager().getAsset('player');
         var player = Ext.create('MW.character.Player', {
-            name: name || playerAsset.name,
-            geometry: playerAsset.geometry,
-            material: playerAsset.material
+            name: name || playerAsset.getName()
         });
+		player.addChild(playerAsset);
+		player.addBoundingBox();
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player
@@ -190,6 +192,19 @@ Ext.define('MW.level.LevelController', {
                 var position = player.getPosition();
                 // rotate player to face camera
                 mat4.copyRotation(position, mat4.createRotateY(mouseControls.getYaw()));
+				var head = player.getChild("Head");
+				if (head !== null) {                                                                                    // moves the head
+					//mat4.copyRotation(head.getPosition(), mat4.createRotateX(mouseControls.getPitch()));
+
+
+                    mat4.copyRotation(head.getPosition(), mat4.createRotateY(Date.now() / 360));
+
+                    //var T = 5000; // period in ms
+                    //var scal = 1+ Math.abs(Math.sin(2*Date.now()/T ));
+                    //mat4.scale(head.getPosition(), mat4.create(), vec3.fromValues(scal, scal, scal)); //mat4.create() makes an identity trix
+                        //mat4.scale = function(out, a, v) {
+
+				}
             }
         }
         else {

@@ -3,7 +3,10 @@
  */
 Ext.define('MW.projectile.Projectile', {
 	alias: 'Projectile',
-	extend: 'FourJS.object.Mesh',
+	extend: 'FourJS.object.Object',
+	requires: [
+		'FourJS.geometry.Geometry'
+	],
     mixins: {
         physics: 'PhysJS.DynamicObject'
     },
@@ -18,7 +21,6 @@ Ext.define('MW.projectile.Projectile', {
 	constructor: function (config) {
 		this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);     // call the physics constructor to initialise the mixin
-		this.computeBoundingBox(this.getGeometry().getVertices());
 		var velocity = this.getInitialVelocity();               // get the initial velocity of the projectile
 
         var pitch = this.getPitch();                            // gets the angle the projectile is fired from
@@ -37,5 +39,8 @@ Ext.define('MW.projectile.Projectile', {
 		var vy = velocity * Math.cos(pitch);               	    // calculate the y component in velocity
 		var vz = velocity * Math.sin(pitch) * Math.sin(-yaw);   // calculate the z component in velocity
 		this.setVelocity(vec3.fromValues(vx, vy, vz));		    // sets the velocity vector based on the components
+	},
+	addBoundingBox: function () {
+		this.setBoundingBox(FourJS.geometry.Geometry.getBoundingBox(this));
 	}
 });

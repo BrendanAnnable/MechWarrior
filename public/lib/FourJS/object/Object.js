@@ -1,5 +1,6 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('FourJS.object.Object', {
 	alias: 'Object',
@@ -35,6 +36,26 @@ Ext.define('FourJS.object.Object', {
 	translate: function (x, y, z) {
 		var position = this.getPosition();
 		mat4.translate(position, position, vec3.fromValues(x, y, z));
+	},
+	scale: function (x, y, z) {
+		var position = this.getPosition();
+		mat4.scale(position, position, vec3.fromValues(x, y, z));
+	},
+	rotate: function (rad, axis) {
+		var position = this.getPosition();
+		mat4.rotate(position, position, rad, axis);
+	},
+	rotateX: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateX(position, position, rad);
+	},
+	rotateY: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateY(position, position, rad);
+	},
+	rotateZ: function (rad) {
+		var position = this.getPosition();
+		mat4.rotateZ(position, position, rad);
 	},
 	getTranslation: function () {
 		var position = this.getPosition();
@@ -115,5 +136,37 @@ Ext.define('FourJS.object.Object', {
             result = result.concat(children[i].getAllChildren());
         }
         return result;
-    }
+    },
+	getChild: function (name) {
+		var children = this.getChildren();
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+
+			if (child.getName() === name) {
+				return child;
+			}
+
+			child = children[i].getChild(name);
+
+			if (child !== null) {
+				return child;
+			}
+		}
+		return null;
+	},
+	clone: function (object) {
+		if (object === undefined) {
+			object = Ext.create('FourJS.object.Object', {
+				name: this.getName(),
+				position: mat4.clone(this.getPosition()),
+				renderable: this.getRenderable()
+			});
+		}
+		var children = this.getChildren();
+		for (var i = 0; i < children.length; i++) {
+			var child = children[i];
+			object.addChild(child.clone());
+		}
+		return object;
+	}
 });

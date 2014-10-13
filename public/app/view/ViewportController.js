@@ -21,6 +21,7 @@ Ext.define('MW.view.ViewportController', {
 		var canvas = container.getEl().dom;
 		var menu = this.lookupReference('menu');
 		this.setCanvas(canvas);
+		this.gui = window.GUI = new dat.GUI();
 		this.game = Ext.create('MW.MechWarrior', {
             canvas: canvas,
 			menu: menu

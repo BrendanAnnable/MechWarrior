@@ -1,9 +1,13 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('MW.scene.assets.Global', {
 	alias: 'GlobalAssets',
 	extend: 'MW.scene.assets.Assets',
+	requires: [
+		'FourJS.geometry.Geometry'
+	],
 	/**
 	 * Loads the models and other assets required for the game to begin.
 	 *
@@ -16,24 +20,47 @@ Ext.define('MW.scene.assets.Global', {
         //load models
             this.loadModelAsset(this.getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player); // addAsset(key,Asset)
-                player.name = 'player';
-                /*player.material.getColor().setR(1);
-                player.material.getColor().setG(1);
-                player.material.getColor().setB(1);*/
+                player.setName('player');
 		    }),
 		    this.loadModelAsset(this.getModelPath('bullet.json')).then(function (bullet) {
 			    assetManager.addAsset('bullet', bullet);
-                bullet.name = 'bullet';
-                bullet.geometry.scale(vec3.fromValues(5, 5, 5));
+                bullet.setName('bullet');
+				FourJS.geometry.Geometry.scaleAll(bullet, [2, 2, 2]);
 		    }),
 
             this.loadModelAsset(this.getModelPath('face.json')).then(function (face) {
                 assetManager.addAsset('face', face);
-                face.name = 'face';
-                face.geometry.scale([0.05, 0.05, 0.05]);
-				face.geometry.translate([0, 2, 0]);
-				face.geometry.rotateY(Math.PI);
+                face.setName('face');
+				FourJS.geometry.Geometry.scaleAll(face, [0.05, 0.05, -0.05]);
             }),
+            this.loadModelAsset(this.getModelPath('house.json')).then(function (house) {
+                assetManager.addAsset('house', house);
+            }),
+            this.loadModelAsset(this.getModelPath('cityblock/cityblock.json')).then(function (cityblock) {
+                assetManager.addAsset('cityblock', cityblock);
+            }),
+			this.loadModelAsset(this.getModelPath('textured_car/5car.json')).then(function (car) {
+				assetManager.addAsset('car', car);
+			}),
+
+
+			this.loadModelAsset(this.getModelPath('sphere.json')).then(function (sphere) {
+				assetManager.addAsset('sphere', sphere);
+				sphere.setName('sphere');
+			}),
+            this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
+                assetManager.addAsset('cube', cube);
+                cube.setName('cube');
+                FourJS.geometry.Geometry.scaleAll(cube, [1, 1, 1]);
+                cube.translate(0,1,0);
+            }),
+            this.loadModelAsset(this.getModelPath('cube.json')).then(function (building) {
+                assetManager.addAsset('building', building);
+                building.setName('building');
+                FourJS.geometry.Geometry.scaleAll(building, [1, 1, 1]);
+                building.translate(0,1,0);
+            }),
+
 
 //            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
 //                assetManager.addAsset('destroyedCar', destroyedCar);
@@ -58,21 +85,7 @@ Ext.define('MW.scene.assets.Global', {
 	 * @returns {Promise}
 	 */
 	loadModelAsset: function (url) {
-		return new Promise(function (resolve) {
-			Ext.create('FourJS.loader.Model').load(url).then(function (geometry) {
-				resolve ({
-					name: 'name',
-					geometry: geometry,
-					material: Ext.create('FourJS.material.Phong', {
-						color: Ext.create('FourJS.util.Color', {
-							r: 1,
-							g: 1,
-							b: 1
-						})
-					})
-				});
-			});
-		});
+		return Ext.create('FourJS.loader.Model').load(url);
 	},
 
     /**

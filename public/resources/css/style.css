@@ -4,7 +4,11 @@ body {
 }
 
 .menu {
-	z-index: 5;
+	z-index: 1;
+}
+
+.dg.ac {
+    z-index: 5 !important;
 }
 
 .health, .shield, .life {

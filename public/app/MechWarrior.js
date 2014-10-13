@@ -19,6 +19,7 @@ Ext.define('MW.MechWarrior', {
 	camera: null,
 	mouseControls: null,
 	keyboardControls: null,
+	stats: null,
     config: {
         canvas: null,
 	    menu: null,
@@ -33,6 +34,12 @@ Ext.define('MW.MechWarrior', {
 	},
 	setup: function () {
 		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
+		var stats = this.stats = new Stats();
+		stats.setMode(0); // 0: fps, 1: ms
+		stats.domElement.style.position = 'absolute';
+		stats.domElement.style.left = '0px';
+		stats.domElement.style.top = '0px';
+		document.body.appendChild(stats.domElement);
 		var menu = this.getMenu().getEl().dom;                          // get the HTML from the menu
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
@@ -108,6 +115,7 @@ Ext.define('MW.MechWarrior', {
 	 * @param mouseControls
 	 */
 	update: function (sceneManager, keyboardControls, mouseControls) {
+		this.stats.begin();
 		// get the active scene from the manager
 		var scene = sceneManager.getActiveScene();
         var sceneController = sceneManager.getController(scene.getName());
@@ -115,6 +123,7 @@ Ext.define('MW.MechWarrior', {
 		// render the scene from the given camera
 		this.renderer.render(scene, scene.getActiveCamera());
 		// request to render the next frame
+		this.stats.end();
 		requestAnimationFrame(Ext.bind(this.update, this, [sceneManager, keyboardControls, mouseControls]));
 	}
 });

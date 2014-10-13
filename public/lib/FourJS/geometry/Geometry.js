@@ -12,10 +12,18 @@ Ext.define('FourJS.geometry.Geometry', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
-		this.setVertices([]);
-		this.setColors([]);
-		this.setNormals([]);
-		this.setFaces([]);
+		if (this.config.vertices === null) {
+			this.setVertices([]);
+		}
+		if (this.config.colors === null) {
+			this.setColors([]);
+		}
+		if (this.config.normals === null) {
+			this.setNormals([]);
+		}
+		if (this.config.faces === null) {
+			this.setFaces([]);
+		}
 	},
 	center: function () {
 		var boundingBox = this.getBoundingBox();
@@ -140,6 +148,35 @@ Ext.define('FourJS.geometry.Geometry', {
 		var normals = this.getNormals();
 		for (var i = 0; i < normals.length; i++) {
 			vec3.negate(normals[i], normals[i]);
+		}
+	},
+	statics: {
+		getBoundingBox: function (object) {
+			var points = [];
+			var children = object.getAllChildren();
+			children.push(object); // include self
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.isMesh && child.getGeometry()) {
+					points = points.concat(child.getGeometry().getVertices());
+				}
+			}
+			return Ext.create('PhysJS.util.math.BoundingBox', {
+				points: points
+			});
+		},
+		scaleAll: function (object, scale) {
+			var children = object.getAllChildren();
+			children.push(object); // include self
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				if (child.isMesh && child.getGeometry()) {
+					var vertices = child.getGeometry().getVertices();
+					for (var j = 0; j < vertices.length; j++) {
+						vec3.multiply(vertices[j], vertices[j], scale);
+					}
+				}
+			}
 		}
 	}
 });
