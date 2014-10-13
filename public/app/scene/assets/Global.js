@@ -1,5 +1,6 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('MW.scene.assets.Global', {
 	alias: 'GlobalAssets',

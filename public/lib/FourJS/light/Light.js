@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FourJS.light.Light', {
 	extend: 'FourJS.object.Object',
 	requires: [

@@ -1,3 +1,6 @@
+/**
+ * @author Brendan Annable
+ */
 Ext.define('FourJS.light.DirectionalLight', {
 	extend: 'FourJS.light.Light',
 	config: {

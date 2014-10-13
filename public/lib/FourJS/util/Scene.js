@@ -1,5 +1,5 @@
 /**
- * @autbor Brendan Annable
+ * @author Brendan Annable
  * @author Monica Olejniczak
  */
 Ext.define('FourJS.util.Scene', {

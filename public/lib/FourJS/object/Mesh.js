@@ -1,5 +1,6 @@
 /**
  * @author Monica Olejniczak
+ * @author Brendan Annable
  */
 Ext.define('FourJS.object.Mesh', {
     alias: 'Mesh',
