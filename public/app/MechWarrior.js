@@ -38,7 +38,7 @@ Ext.define('MW.MechWarrior', {
 		stats.setMode(0); // 0: fps, 1: ms
 		stats.domElement.style.position = 'absolute';
 		stats.domElement.style.left = '0px';
-		stats.domElement.style.top = '0px';
+		stats.domElement.style.bottom = '0px';
 		document.body.appendChild(stats.domElement);
 		var menu = this.getMenu().getEl().dom;                          // get the HTML from the menu
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
