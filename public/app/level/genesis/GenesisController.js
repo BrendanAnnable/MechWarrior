@@ -11,7 +11,8 @@ Ext.define('MW.level.genesis.GenesisController', {
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
 		// add a hacky gui slider
-		var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+		//var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
 		var f = GUI.addFolder("Robot");
 		material.setReflectivity(0.4);
 		f.add(material, '_reflectivity', 0, 1).step(0.01);
