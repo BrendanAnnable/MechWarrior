@@ -9,7 +9,8 @@ Ext.define('MW.view.ViewportController', {
     ],
 	game: null,
 	config: {
-		canvas: null       // The HTML canvas used for drawing on
+		canvas: null,   // The HTML canvas used for drawing on
+		menu: null      // The menu including the HUD
 	},
 	/**
 	 * Callback that is run after the DOM has been rendered.
@@ -18,10 +19,12 @@ Ext.define('MW.view.ViewportController', {
 	 */
 	onAfterRender: function (container) {
 		var canvas = container.getEl().dom;
+		var menu = this.lookupReference('menu');
 		this.setCanvas(canvas);
 		this.gui = window.GUI = new dat.GUI();
 		this.game = Ext.create('MW.MechWarrior', {
-            canvas: canvas
+            canvas: canvas,
+			menu: menu
         });
 	},
 	/**

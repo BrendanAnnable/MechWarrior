@@ -22,6 +22,7 @@ Ext.define('MW.MechWarrior', {
 	stats: null,
     config: {
         canvas: null,
+	    menu: null,
 		defaultLevel: 'Genesis'
     },
 	/**
@@ -33,20 +34,19 @@ Ext.define('MW.MechWarrior', {
 	},
 	setup: function () {
 		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
-
 		var stats = this.stats = new Stats();
 		stats.setMode(0); // 0: fps, 1: ms
 		stats.domElement.style.position = 'absolute';
 		stats.domElement.style.left = '0px';
 		stats.domElement.style.top = '0px';
 		document.body.appendChild(stats.domElement);
-
+		var menu = this.getMenu().getEl().dom;                          // get the HTML from the menu
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
 			speed: 0.5
 		});
 		this.mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
-			element: canvas
+			element: menu
 		});
 
 		// Setup WebGL
@@ -67,6 +67,24 @@ Ext.define('MW.MechWarrior', {
 		var audioManager = Ext.create('MW.manager.Audio', {
 			keyboardControls: this.keyboardControls
 		});
+		var radar = this.getMenu().getRadar().getController();
+		radar.addCircle('something');
+		var life = this.getMenu().getLife().getController();
+		life.takeDamage(150);
+		function sleep(millis, callback) {
+			setTimeout(function()
+				{ callback(); }
+				, millis);
+		}
+		sleep(5000, function () {
+			life.takeDamage(1000);
+			radar.removeObject('something');
+		});
+
+		sleep(10000, function () {
+			life.restoreShield(250);
+		});
+
 		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
 			// initialises the level manager
 			var levelManager = Ext.create('MW.manager.Level', {

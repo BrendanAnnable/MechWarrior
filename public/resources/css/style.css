@@ -3,3 +3,16 @@ body {
 	background-color: #000 !important;
 }
 
+.menu {
+	z-index: 1;
+}
+
+.dg.ac {
+    z-index: 5 !important;
+}
+
+.health, .shield, .life {
+    right: 0;
+    left: 0;
+    margin: 0 auto;
+}
