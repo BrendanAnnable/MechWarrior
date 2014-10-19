@@ -73,11 +73,11 @@ Ext.define('PhysJS.PhysicsEngine', {
             }
 
 			// run collision detection twice, in case object was moved into another object
-			for (var i = 0; i < 2; i++) {
+			for (var i = 0; i < 1; i++) {
 				var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
 				if (collidedObject !== null) {
 					this.fireEvent('collision', object, collidedObject);
-					this.resolveCollision(candidatePosition, object, collidedObject);
+//					this.resolveCollision(candidatePosition, object, collidedObject);
 				}
 				mat4.copy(position, candidatePosition);
 			}

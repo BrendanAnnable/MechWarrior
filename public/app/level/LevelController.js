@@ -7,10 +7,12 @@ Ext.define('MW.level.LevelController', {
     requires: [
         'PhysJS.PhysicsEngine',
         'MW.character.Player',
+		'MW.game.MultiPlayer',
 		'FourJS.camera.PerspectiveCamera',
 		'FourJS.camera.ThirdPersonCamera'
 	],
     physics: null,
+	mp: null,
     config: {
         level: null,
         activePlayer: null,
@@ -23,7 +25,7 @@ Ext.define('MW.level.LevelController', {
     },
     constructor: function (config) {
         this.initConfig(config);
-        this.setPlayers([]);                                        // set the players to an empty array
+        this.setPlayers({});                                        // set the players to an empty array
         this.setProjectiles([]);                                    // set the projectiles to an empty array
         this.setupManagers();                                       // setup the manager configs
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
@@ -33,6 +35,14 @@ Ext.define('MW.level.LevelController', {
             collision: this.onCollision,
             scope: this
         });
+		this.mp = Ext.create('MW.game.MultiPlayer');
+		this.mp.on({
+			gameState: this.onGameState,
+			playerConnect: this.onPlayerConnect,
+			playerDisconnect: this.onPlayerDisconnect,
+			playerUpdate: this.onPlayerUpdate,
+			scope: this
+		});
         this.getLevel().setActiveCamera(Ext.create('FourJS.camera.PerspectiveCamera'));
     },
     /**
@@ -48,6 +58,39 @@ Ext.define('MW.level.LevelController', {
             this.setWeaponManager(Ext.create('MW.manager.Weapon'));
         }
     },
+	onGameState: function (message) {
+		this.reset();
+		var activePlayer = message.player;
+		var statePlayers = message.players;
+		for (var i = 0; i < statePlayers.length; i++) {
+			var statePlayer = statePlayers[i];
+			if (statePlayer.id !== activePlayer.id) {
+				this.createPlayer(false, statePlayer.name);
+			}
+		}
+	},
+	onPlayerConnect: function (message) {
+		var player = this.createPlayer(false, message.player.name);
+	},
+	onPlayerDisconnect: function (message) {
+		var player = this.getPlayer(message.player.name);
+		this.removePlayer(this.getLevel(), player);
+	},
+	onPlayerUpdate: function (message) {
+		var player = this.getPlayer(message.player.name);
+		if (player !== null) {
+			mat4.copy(player.getPosition(), message.player.position);
+		}
+	},
+	reset: function () {
+		var activePlayer = this.getActivePlayer();
+		var level = this.getLevel();
+		var players = this.getPlayers();
+		Ext.Object.each(players, function (name, player) {
+			this.removePlayer(level, player);
+		}, this);
+		this.addPlayer(level, activePlayer);
+	},
     /**
      * Creates a player using the asset manager.
      *
@@ -108,7 +151,7 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to add.
      */
     addPlayer: function (level, player) {
-        this.getPlayers().push(player);     // adds the player to the array
+        this.getPlayers()[player.getName()] = player;     // adds the player to the array
         level.addChild(player);             // adds the player to the level
     },
 	/**
@@ -137,6 +180,10 @@ Ext.define('MW.level.LevelController', {
 			this._activePlayer = player;
 		}
 	},
+	getPlayer: function (playerName) {
+		var players = this.getPlayers();
+		return playerName in players ? players[playerName] : null;
+	},
     /**
      * Removes a player from the specified level.
      *
@@ -144,8 +191,10 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to remove
      */
     removePlayer: function (level, player) {
-        Ext.Array.remove(this.getPlayers(), player);
-        level.removeChild(player);
+		if (player !== null) {
+			delete this.getPlayers()[player.getName()];
+			level.removeChild(player);
+		}
     },
     /**
      * Adds a projectile to the level when the user clicks the left mouse button.
@@ -219,6 +268,7 @@ Ext.define('MW.level.LevelController', {
         this.physics.update();
         // keep skybox at constant distance from player (pretty sure there is a better way than this?)
         mat4.copyTranslation(level.getSkybox().getPosition(), camera.getPosition());
+		this.mp.update(this.getActivePlayer());
     }
 
 });

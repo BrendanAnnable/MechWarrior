@@ -25,6 +25,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
         this.getLevel().addObstacle(anotherface);                          // add the face as an obstacle to the level
+
 		var sphere = this.createSphere(assetManager);           // create the face model
 		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
 
@@ -107,10 +108,10 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var car = this.createCar(assetManager);
 		this.getLevel().addObstacle(car);
 
-        var player2 = this.createPlayer(false, 'player2');         // create a test player
+//        var player2 = this.createPlayer(false, 'player2');         // create a test player
 //		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
         // mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
-        player2.translate(5, 0, -10);
+//        player2.translate(5, 0, -10);
 
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);

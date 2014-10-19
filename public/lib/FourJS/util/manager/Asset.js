@@ -33,7 +33,7 @@ Ext.define('FourJS.util.manager.Asset', {
 	 * Retrieves a particular asset from the manager.
 	 *
 	 * @param key The key that refers to the asset being retrieved.
-	 * @param clone Whether to clone the returned asset
+	 * @param [clone] Whether to clone the returned asset
 	 * @returns {*} The asset
 	 */
 	getAsset: function (key, clone) {
