@@ -18,8 +18,7 @@ Ext.define('MW.display.Display', {
 		    x: 20,
 		    y: 30,
 		    strokeColor: '#fff',
-		    strokeWidth: 1.5,
-		    defaultObjectColor: Ext.create('FourJS.util.Color', {r: 0, g: 85, b: 150, a: 0.7})
+		    strokeWidth: 1.5
 	    });
 	    // create the life
 	    this.life = Ext.create('MW.display.life.Life', {

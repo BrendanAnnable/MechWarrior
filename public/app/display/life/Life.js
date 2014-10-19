@@ -21,7 +21,7 @@ Ext.define('MW.display.life.Life', {
 	    this.shield = Ext.widget('Shield', {
 		    shield: 250, // todo get from player
 		    strokeColor: '#6ffaff',
-		    strokeWidth: 0.3
+		    strokeWidth: 0.2
 	    });
 	    // create the health bar
 	    this.health = Ext.widget('Health', {
