@@ -13,6 +13,7 @@ Ext.define('MW.manager.Level', {
     levels: null,
     config: {
         controllers: null,
+        menu: null,
         mouseControls: null,
         keyboardControls: null,
         assetManager: null,
@@ -39,6 +40,7 @@ Ext.define('MW.manager.Level', {
         this.addAsset(key, level);
         this.getControllers()[key] = Ext.create(level.getController(), {
             level: level,
+            menu: this.getMenu(),
             keyboardControls: this.getKeyboardControls(),
             mouseControls: this.getMouseControls(),
             assetManager: this.getAssetManager(),

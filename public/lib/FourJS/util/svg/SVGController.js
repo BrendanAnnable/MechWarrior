@@ -15,13 +15,13 @@ Ext.define('FourJS.util.svg.SVGController', {
 	 * This method updates the fill display with the appropriate values.
 	 *
 	 * @param previousValue The previously stored value of the fill.
-	 * @param currentValue The current value of the fill.
+	 * @param newValue The new value of the fill.
 	 * @param maxValue The max fill value.
 	 */
-	updateFillDisplay: function (previousValue, currentValue, maxValue) {
+	updateFillDisplay: function (previousValue, newValue, maxValue) {
 		if (this.fill !== null) {                                           // check if the fill exists
 			var from = previousValue / maxValue * 100;                      // calculate the starting x value
-			var to = currentValue / maxValue * 100;                         // calculate the x value to move
+			var to = newValue / maxValue * 100;                         // calculate the x value to move
 			var x = from;                                                   // instantiate x to the starting value
 			function updateClock () {                                       // the method used upon each interval
 				x = from >= to ? x - this.steps : x + this.steps;           // update the x value
