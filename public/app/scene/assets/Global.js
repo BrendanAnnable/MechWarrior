@@ -49,11 +49,18 @@ Ext.define('MW.scene.assets.Global', {
 				assetManager.addAsset('sphere', sphere);
 				sphere.setName('sphere');
 			}),
+
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
                 assetManager.addAsset('cube', cube);
                 cube.setName('cube');
                 FourJS.geometry.Geometry.scaleAll(cube, [1, 1, 1]);
                 cube.translate(0,1,0);
+            }),
+            this.loadModelAsset(this.getModelPath('crate/crate.json')).then(function (crate) {
+                assetManager.addAsset('crate', crate);
+                crate.setName('crate');
+                FourJS.geometry.Geometry.scaleAll(crate, [1, 1, 1]);
+                crate.translate(0,1,0);
             }),
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (building) {
                 assetManager.addAsset('building', building);

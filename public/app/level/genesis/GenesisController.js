@@ -39,7 +39,9 @@ Ext.define('MW.level.genesis.GenesisController', {
 //        // create the mesh with the newly created geometry and material
 //        this.setMaterial(material);
 
-        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 20, 1);
+
+
+        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 5, 1);
         simpleCity.push(building2);
 
         var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
@@ -49,15 +51,21 @@ Ext.define('MW.level.genesis.GenesisController', {
         simpleCity.push(building4);
         var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
         simpleCity.push(building5);
-
-        var box1 = this.loadBox(assetManager, 30, -30, 1, 1,1);
+//
+        var box1 = this.loadCrate(assetManager, 30, -30, 1, 1,1);
         simpleCity.push(box1);
 
-        var box2 = this.loadBox(assetManager, 40, -30, 1, 1,1);
+        var box2 = this.loadCrate(assetManager, 40, -30, 1, 1,1);
         simpleCity.push(box2);
 
-        var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
+        var box3 = this.loadCrate(assetManager, 30, -40, 1, 1,1);
         simpleCity.push(box3);
+//
+//
+//        var box0 = this.loadCube(assetManager, 0, 0, 1, 1,1);
+//        simpleCity.push(box0);
+        var box0 = this.loadCrate(assetManager, 0, 0, 1, 1,1);
+        simpleCity.push(box0);
 
         // scaling with the Geometry method scales all objects with that model.
 //        var eastWall = this.loadWall(assetManager, 100,0,100,3,1, Math.PI/2,0);
@@ -73,7 +81,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 //        simpleCity.push(northWall);
 
         // but when i scale and rotate those walls arent showing
-
+//
         var eastWall = this.loadWall(assetManager, 120,0,100,5,1, Math.PI/2,1);
         simpleCity.push(eastWall);
 
@@ -85,10 +93,12 @@ Ext.define('MW.level.genesis.GenesisController', {
 
         var northWall = this.loadWall(assetManager, 0,-120,100,5,1, Math.PI,1);
         simpleCity.push(northWall);
+//
+//        var testWall = this.loadWall(assetManager, 120,0,100,5,1, Math.PI,1);
+//        simpleCity.push(testWall);
 
-        var eastWall2 = this.loadWall(assetManager, 120,0,100,5,1, Math.PI,1);
-        simpleCity.push(eastWall2);
-
+//        var material = this.level.getSkybox.material;
+//        northWall.setMaterial(material);
 
         for (var i = 0; i < simpleCity.length; i++) {
 
@@ -230,11 +240,18 @@ Ext.define('MW.level.genesis.GenesisController', {
         return building;
 
     },
-    loadBox: function (assetManager, xLocation, zLocation, length, height, width) {
-        var building = assetManager.getAsset('cube');
-        FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
-        building.translate(xLocation,0,zLocation);
-        return building;
+    loadCrate: function (assetManager, xLocation, zLocation, length, height, width) {
+        var crate = assetManager.getAsset('crate');
+        FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
+        crate.translate(xLocation,0,zLocation);
+        return crate;
+
+    },
+    loadCube: function (assetManager, xLocation, zLocation, length, height, width) {
+        var crate = assetManager.getAsset('cube');
+        FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
+        crate.translate(xLocation,0,zLocation);
+        return crate;
 
     },
     loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
