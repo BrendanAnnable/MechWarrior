@@ -61,6 +61,12 @@ Ext.define('MW.scene.assets.Global', {
                 FourJS.geometry.Geometry.scaleAll(building, [1, 1, 1]);
                 building.translate(0,1,0);
             }),
+            this.loadModelAsset(this.getModelPath('cube.json')).then(function (wall) {
+                assetManager.addAsset('wall', wall);
+                wall.setName('wall');
+                FourJS.geometry.Geometry.scaleAll(wall, [1, 1, 1]);
+                wall.translate(0,1,0);
+            }),
 
 
 //            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {

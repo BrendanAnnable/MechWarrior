@@ -59,6 +59,37 @@ Ext.define('MW.level.genesis.GenesisController', {
         var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
         simpleCity.push(box3);
 
+        // scaling with the Geometry method scales all objects with that model.
+//        var eastWall = this.loadWall(assetManager, 100,0,100,3,1, Math.PI/2,0);
+//        simpleCity.push(eastWall);
+//
+//        var westWall = this.loadWall(assetManager, -100,0,100,3,1,Math.PI/2,0);
+//        simpleCity.push(westWall);
+//
+//        var southWall = this.loadWall(assetManager, 0,100,100,3,1, Math.PI,0);
+//        simpleCity.push(southWall);
+//
+//        var northWall = this.loadWall(assetManager, 0,-100,100,3,1, Math.PI,0);
+//        simpleCity.push(northWall);
+
+        // but when i scale and rotate those walls arent showing
+
+        var eastWall = this.loadWall(assetManager, 120,0,100,5,1, Math.PI/2,1);
+        simpleCity.push(eastWall);
+
+        var westWall = this.loadWall(assetManager, -120,0,100,5,1,Math.PI/2,1);
+        simpleCity.push(westWall);
+
+        var southWall = this.loadWall(assetManager, 0,120,100,5,1, Math.PI,1);
+        simpleCity.push(southWall);
+
+        var northWall = this.loadWall(assetManager, 0,-120,100,5,1, Math.PI,1);
+        simpleCity.push(northWall);
+
+        var eastWall2 = this.loadWall(assetManager, 120,0,100,5,1, Math.PI,1);
+        simpleCity.push(eastWall2);
+
+
         for (var i = 0; i < simpleCity.length; i++) {
 
             this.getLevel().addObstacle(simpleCity[i]);
@@ -205,7 +236,24 @@ Ext.define('MW.level.genesis.GenesisController', {
         building.translate(xLocation,0,zLocation);
         return building;
 
+    },
+    loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
+        var wall = assetManager.getAsset('wall');
+//        wall.rotateY(orientation);
+
+        if (scaleMethod == 0) {
+
+        FourJS.geometry.Geometry.scaleAll(wall, [length, height, width]);
+        }
+        else {
+            wall.scale(length, height, width);
+        }
+        wall.rotateY(orientation);
+        wall.translate(xLocation,0,zLocation);
+        return wall;
+
     }
+
 
 
 });
