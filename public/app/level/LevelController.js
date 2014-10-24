@@ -31,10 +31,6 @@ Ext.define('MW.level.LevelController', {
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
             scene: this.getLevel()
         });
-        this.physics.on({
-            collision: this.onCollision,
-            scope: this
-        });
 		this.mp = Ext.create('MW.game.MultiPlayer');
 		this.mp.on({
 			gameState: this.onGameState,
