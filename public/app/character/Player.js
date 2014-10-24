@@ -47,11 +47,7 @@ Ext.define('MW.character.Player', {
 				depth: radii[2] * 2
 			}),
 			material: Ext.create('FourJS.material.Phong', {
-				color: Ext.create('FourJS.util.Color', {
-					r: 1,
-					g: 1,
-					b: 1
-				}),
+				color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1}),
 				useLighting: false,
 				wireframe: true
 			})
@@ -66,16 +62,15 @@ Ext.define('MW.character.Player', {
      * Adds events to the player.
      *
      * @param keyboardControls The keyboard controls for the player.
-     * @param life The life controller.
      */
-    onLoadEvents: function (keyboardControls, life) {
+    onLoadEvents: function (keyboardControls) {
         keyboardControls.on('jump', this.onJump, this);
-        this.on('takeDamage', Ext.bind('onTakeDamage', this, [life]), this);
-        this.on('restoreShield', Ext.bind('onRestoreShield', this, [life]), this);
-        this.on('restoreHealth', Ext.bind('onRestoreHealth', this, [life]), this);
-        this.on('revive', Ext.bind('onRevive', this, [life]), this);
-        this.on('reviveShield', Ext.bind('onReviveShield', this, [life]), this);
-        this.on('reviveHealth', Ext.bind('reviveHealth', this, [life]), this);
+        this.on('takeDamage', this.onTakeDamage, this);
+        this.on('restoreShield', this.onRestoreShield, this);
+        this.on('restoreHealth', this.onRestoreHealth, this);
+        this.on('revive', this.onRevive, this);
+        this.on('reviveShield', this.onReviveShield, this);
+        this.on('reviveHealth', this.onReviveHealth, this);
     },
     /**
      * Removes events from the player.
@@ -107,6 +102,7 @@ Ext.define('MW.character.Player', {
         // get the previous and maximum shield values
         var previousShield = this.currentShield;
         var maximumShield = this.getMaximumShield();
+        debugger;
         // check if only the shield will be damaged
         if (previousShield - damage >= 0) {
             // damage the shield and update the display
@@ -119,7 +115,8 @@ Ext.define('MW.character.Player', {
             // check if the shield is already depleted
             if (previousShield === 0) {
                 // damage the health and update the display
-                this.currentHealth = Math.max(0, this.currentHealth - damage);
+                debugger;
+                this.currentHealth -= Math.max(0, damage);
                 life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
             } else {
                 // both the shield and health will be damaged (overflow)
@@ -129,7 +126,7 @@ Ext.define('MW.character.Player', {
                 // begin a delayed task
                 var task = new Ext.util.DelayedTask(function () {
                     // damage the health and update the display
-                    this.currentHealth = Math.max(0, damage - previousShield);
+                    this.currentHealth -= Math.max(0, damage - previousShield);
                     life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
                 }, this);
                 // delay the health depletion by how long the shield will take

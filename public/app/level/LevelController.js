@@ -216,14 +216,14 @@ Ext.define('MW.level.LevelController', {
 			}
             var life = this.getMenu().getLife().getController();
             // add the event listeners to the new active player
-            player.onLoadEvents(keyboardControls, life);
+            player.onLoadEvents(keyboardControls);
 			// set a new target on the active camera if it is third person
 			var camera = this.getLevel().getActiveCamera();
 			if (camera instanceof FourJS.camera.ThirdPersonCamera) {
 				camera.setTarget(player);
 			}
-            player.onTakeDamage(life, 500);
-            //player.fireEvent('takeDamage', life, 150);
+            //player.onTakeDamage(life, 500);
+            player.fireEvent('takeDamage', life, 500);
             function sleep(millis, callback) {setTimeout(function () {
                     callback();
                 }, millis);
