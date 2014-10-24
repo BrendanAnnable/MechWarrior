@@ -20,6 +20,7 @@ Ext.define('MW.scene.assets.Global', {
         //load models
             this.loadModelAsset(this.getModelPath('mech.json')).then(function (player) {
 			    assetManager.addAsset('player', player); // addAsset(key,Asset)
+				FourJS.geometry.Geometry.scaleAll(player, [1.5, 1.5, 1.5]);
                 player.setName('player');
 		    }),
 		    this.loadModelAsset(this.getModelPath('bullet.json')).then(function (bullet) {
