@@ -32,5 +32,14 @@ Ext.define('PhysJS.DynamicObject', {
 		}
 		this.setAcceleration(vec3.create());
 		this.setLastPosition(mat4.create());
+	},
+	getBoundingBox: function (){
+		var boundingBox = this._boundingBox;
+		if (boundingBox === null) {
+			// TODO: uncouple from FourJS
+			boundingBox = FourJS.geometry.Geometry.getBoundingBox(this);
+			this.setBoundingBox(boundingBox);
+		}
+		return boundingBox;
 	}
 });

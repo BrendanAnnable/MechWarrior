@@ -23,9 +23,7 @@ Ext.define('MW.character.Player', {
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
 	},
-	addBoundingBox: function () {
-		this.setBoundingBox(FourJS.geometry.Geometry.getBoundingBox(this));
-
+	/*addBoundingBox: function () {
 		// attach a visual bounding box for debugging purposes
 		// TODO: make this generic and put it somewhere
 		var boundingBox = this.getBoundingBox();
@@ -51,7 +49,7 @@ Ext.define('MW.character.Player', {
 		this.box = box;
 		this.box.setRenderable(false);
 		this.addChild(box);
-	},
+	},*/
 	/**
 	 * Adds velocity to the player when the user presses the space bar.
 	 */
