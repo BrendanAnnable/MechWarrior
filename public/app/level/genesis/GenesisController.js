@@ -29,41 +29,51 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var sphere = this.createSphere(assetManager);           // create the face model
 		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
 
+		var car = this.createCar(assetManager);
+		this.getLevel().addObstacle(car);
 
-        var simpleCity = [];
+		//this.addCities(assetManager);
 
-        var building1 = this.loadBuilding(assetManager, 0, 30, 10, 20,10);
-        simpleCity.push(building1);
+        // creates a third person camera to the level with the player as the target
+        this.createThirdPersonCamera(player, true);
+        // add mouse event to the controller
+        this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
+    },
+	addCities: function (assetManager) {
+		var simpleCity = [];
+
+		var building1 = this.loadBuilding(assetManager, 0, 30, 10, 20,10);
+		simpleCity.push(building1);
 
 //        var material = Ext.create('FourJS.material.Basic');
 //        // create the mesh with the newly created geometry and material
 //        this.setMaterial(material);
 
-        var building2 = this.loadBuilding(assetManager, 100, 100, 1, 20, 1);
-        simpleCity.push(building2);
+		var building2 = this.loadBuilding(assetManager, 100, 100, 1, 20, 1);
+		simpleCity.push(building2);
 
-        var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
-        simpleCity.push(building3);
+		var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
+		simpleCity.push(building3);
 
-        var building4 = this.loadBuilding(assetManager, 100, -100, 1, 5,1);
-        simpleCity.push(building4);
-        var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
-        simpleCity.push(building5);
+		var building4 = this.loadBuilding(assetManager, 100, -100, 1, 5,1);
+		simpleCity.push(building4);
+		var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
+		simpleCity.push(building5);
 
-        var box1 = this.loadBox(assetManager, 30, -30, 1, 1,1);
-        simpleCity.push(box1);
+		var box1 = this.loadBox(assetManager, 30, -30, 1, 1,1);
+		simpleCity.push(box1);
 
-        var box2 = this.loadBox(assetManager, 40, -30, 1, 1,1);
-        simpleCity.push(box2);
+		var box2 = this.loadBox(assetManager, 40, -30, 1, 1,1);
+		simpleCity.push(box2);
 
-        var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
-        simpleCity.push(box3);
+		var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
+		simpleCity.push(box3);
 
-        for (var i = 0; i < simpleCity.length; i++) {
+		for (var i = 0; i < simpleCity.length; i++) {
 
-            this.getLevel().addObstacle(simpleCity[i]);
+			this.getLevel().addObstacle(simpleCity[i]);
 
-        }
+		}
 
 //       var build= Ext.create('MW.level.City.Building', {
 //
@@ -76,49 +86,35 @@ Ext.define('MW.level.genesis.GenesisController', {
 //
 
 
-        //var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
-        //this.getLevel().addObstacle(house);                       // good as a reference
+		//var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
+		//this.getLevel().addObstacle(house);                       // good as a reference
 
-        var genx = 0; //the root orientation of all the cityblocks
-        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-        var genz = 0; //the root oreintation of all cityblocks
-        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
-        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+		var genx = 0; //the root orientation of all the cityblocks
+		var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+		var genz = 0; //the root oreintation of all cityblocks
+		var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+		var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
 
-        var cityblock = [];
-        for (var i = 0; i < nocityblocks; i++) {
+		var cityblock = [];
+		for (var i = 0; i < nocityblocks; i++) {
 			cityblock[i] = [];
-            for(var j = 0; j < nocityblocks; j++) {
-                cityblock[i][j] = this.createCityBlock(assetManager);
-                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
-                this.getLevel().addObstacle(cityblock[i][j]);
-            }
-        }
+			for(var j = 0; j < nocityblocks; j++) {
+				cityblock[i][j] = this.createCityBlock(assetManager);
+				cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
+				this.getLevel().addObstacle(cityblock[i][j]);
+			}
+		}
 
-        var cb1 = this.createCityBlock(assetManager);
-        cb1.translate(-20, 0.1, -50);
-        this.getLevel().addObstacle(cb1);
+		var cb1 = this.createCityBlock(assetManager);
+		cb1.translate(-20, 0.1, -50);
+		this.getLevel().addObstacle(cb1);
 
-        /*                                                //no support for multiple objects yet :(
-        var cb2 = this.createCityBlock(assetManager);
-        cb2.translate(-20, 20, -20);
-        this.getLevel().addObstacle(cb2);
-        */
-
-		var car = this.createCar(assetManager);
-		this.getLevel().addObstacle(car);
-
-//        var player2 = this.createPlayer(false, 'player2');         // create a test player
-//		mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
-        // mat4.rotateX(player2.getPosition(), player2.getPosition(), Math.PI/4);
-//        player2.translate(5, 0, -10);
-
-        // creates a third person camera to the level with the player as the target
-        this.createThirdPersonCamera(player, true);
-        // add mouse event to the controller
-        this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
-    },
-
+		/*                                                //no support for multiple objects yet :(
+		 var cb2 = this.createCityBlock(assetManager);
+		 cb2.translate(-20, 20, -20);
+		 this.getLevel().addObstacle(cb2);
+		 */
+	},
 	createSphere: function (assetManager) {
 		var sphere = assetManager.getAsset('sphere');
 		sphere.translate(10, -3, 0);

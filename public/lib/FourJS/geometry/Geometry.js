@@ -165,6 +165,16 @@ Ext.define('FourJS.geometry.Geometry', {
 				points: points
 			});
 		},
+		/**
+		 * Permanently scale the geometry of ALL objects hich uses this geometry.
+		 *
+		 * Also scales children geometries.
+		 *
+		 * Not to be used to scale a single object. Use Object.scale instead.
+		 *
+		 * @param object The object to scale
+		 * @param scale
+		 */
 		scaleAll: function (object, scale) {
 			var children = object.getAllChildren();
 			children.push(object); // include self

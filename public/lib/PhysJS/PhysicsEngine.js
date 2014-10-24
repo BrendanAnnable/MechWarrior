@@ -22,22 +22,23 @@ Ext.define('PhysJS.PhysicsEngine', {
 		var timeStep = now - this.lastTime;
 
 		// update all objects in the scene
-        this.updateObject(this.getScene(), timeStep);
+		var sceneChildren = this.getScene().getAllChildren(); // TODO: stop doing this every frame
+        this.updateObject(this.getScene(), timeStep, sceneChildren);
 
 		// store last updated time
         this.lastTime = now;
     },
-    updateObject: function (object, timeStep) {
+    updateObject: function (object, timeStep, sceneChildren) {
 		// update object's position
-        this.updateObjectPosition(object, timeStep);
+        this.updateObjectPosition(object, timeStep, sceneChildren);
 
 		// recursively update all children
         var children = object.getChildren();
         for (var i = 0; i < children.length; i++) {
-            this.updateObject(children[i], timeStep);
+            this.updateObject(children[i], timeStep, sceneChildren);
         }
     },
-	updateObjectPosition: function (object, timeStep) {
+	updateObjectPosition: function (object, timeStep, sceneChildren) {
 		// See http://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
 		// and http://buildnewgames.com/gamephysics/
 		if (object.isDynamicObject) {
@@ -73,14 +74,16 @@ Ext.define('PhysJS.PhysicsEngine', {
             }
 
 			// run collision detection twice, in case object was moved into another object
-			for (var i = 0; i < 1; i++) {
-				var collidedObject = this.hasCollided(object, candidatePosition, this.getScene());
+			//for (var i = 0; i < 1; i++) {
+				var collidedObject = this.hasCollided(object, candidatePosition, sceneChildren);
 				if (collidedObject !== null) {
-					this.fireEvent('collision', object, collidedObject);
+					// fire collision events on both objects
+					object.fireEvent('collision', collidedObject);
+					collidedObject.fireEvent('collision', object);
 //					this.resolveCollision(candidatePosition, object, collidedObject);
 				}
 				mat4.copy(position, candidatePosition);
-			}
+			//}
 
 			vec3.scale(acceleration, force, mass);
 			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
@@ -89,30 +92,25 @@ Ext.define('PhysJS.PhysicsEngine', {
 			vec3.add(velocity, velocity, c);
         }
 	},
-    hasCollided: function (object, position, scene) {
-        var children = scene.getAllChildren();
-        for (var i = 0; i < children.length; i++) {
-            var child = children[i];
+    hasCollided: function (object, position, sceneChildren) {
+        for (var i = 0; i < sceneChildren.length; i++) {
+            var child = sceneChildren[i];
             // if child object moving and object is not the child
             if (child.isDynamicObject && child !== object) {
-				var objectsBBox = object.getBoundingBox();
-                var childsBBox = child.getBoundingBox();
+				var objectBox = object.getBoundingBox();
+                var childBox = child.getBoundingBox();
 
-                // if object's bounding box is defined and child's bounding box is defined and object is the player
-				if (objectsBBox && childsBBox && object.getName() === 'player') {
+				// set the bounding box positions (middle point) to be at their positions in the world
+				objectBox.setPosition(object.getWorldPosition());
+				childBox.setPosition(child.getWorldPosition());
 
-					// set the bounding box positions (middle point) to be at their positions in the world
-                    objectsBBox.setPosition(object.getWorldPosition());
-					childsBBox.setPosition(child.getWorldPosition());
-
-					var results = PhysJS.util.math.BoundingBox.intersects(objectsBBox, childsBBox);
-					if (results.intersects) {
-						object.box.setColor(1, 0, 0, 1);
-						return child;
-					}
-					else {
-						object.box.setColor(1, 1, 1, 1);
-					}
+				var results = PhysJS.util.math.BoundingBox.intersects(objectBox, childBox);
+				if (results.intersects) {
+//						object.box.setColor(1, 0, 0, 1);
+					return child;
+				}
+				else {
+//						object.box.setColor(1, 1, 1, 1);
 				}
             }
         }

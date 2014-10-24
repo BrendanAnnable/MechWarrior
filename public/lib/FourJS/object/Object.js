@@ -4,6 +4,9 @@
  */
 Ext.define('FourJS.object.Object', {
 	alias: 'Object',
+	mixins: {
+		observable: 'Ext.util.Observable'
+	},
 	positionInverse: null,
 	worldPosition: null,
 	worldPositionInverse: null,
@@ -16,6 +19,7 @@ Ext.define('FourJS.object.Object', {
 	},
 	constructor: function (config) {
 		this.initConfig(config);
+		this.mixins.observable.constructor.call(this, config);
         if (this.config.position === null) {
             this.setPosition(mat4.create());
         }
@@ -137,6 +141,12 @@ Ext.define('FourJS.object.Object', {
         }
         return result;
     },
+	/**
+	 * Searches for a child object with the given name
+	 *
+	 * @param name The name to search for
+	 * @returns {*} The child if found, null otherwise
+	 */
 	getChild: function (name) {
 		var children = this.getChildren();
 		for (var i = 0; i < children.length; i++) {
@@ -154,18 +164,31 @@ Ext.define('FourJS.object.Object', {
 		}
 		return null;
 	},
-	clone: function (object) {
+	/**
+	 * Clones the object object into the passed in object.
+	 *
+	 * @param [object] The object to copy the data into, if not given it will be created
+	 * @param recursive Whether to clone children
+	 * @returns {*} The cloned object
+	 */
+	clone: function (object, recursive) {
 		if (object === undefined) {
+			// object not given, create one
 			object = Ext.create('FourJS.object.Object', {
 				name: this.getName(),
 				position: mat4.clone(this.getPosition()),
 				renderable: this.getRenderable()
 			});
 		}
+		// clone children
 		var children = this.getChildren();
 		for (var i = 0; i < children.length; i++) {
 			var child = children[i];
-			object.addChild(child.clone());
+			if (recursive) {
+				object.addChild(child.clone());
+			} else {
+				object.addChild(child);
+			}
 		}
 		return object;
 	}

@@ -7,7 +7,6 @@ Ext.define('MW.character.Player', {
 	extend: 'FourJS.object.Object',
 	box: null, // TODO: hack
 	mixins: {
-        observable: 'Ext.util.Observable',
 		physics: 'PhysJS.DynamicObject'
 	},
     requires: [
@@ -33,9 +32,7 @@ Ext.define('MW.character.Player', {
     /**
      * Adds a bounding box to the player.
      */
-	addBoundingBox: function () {
-		this.setBoundingBox(FourJS.geometry.Geometry.getBoundingBox(this));
-
+	/*addBoundingBox: function () {
 		// attach a visual bounding box for debugging purposes
 		// TODO: make this generic and put it somewhere
 		var boundingBox = this.getBoundingBox();
@@ -57,7 +54,7 @@ Ext.define('MW.character.Player', {
 		this.box = box;
 		this.box.setRenderable(false);
 		this.addChild(box);
-	},
+	},*/
     /**
      * Adds events to the player.
      *
