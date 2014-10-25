@@ -59,9 +59,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var sphere = this.createSphere(assetManager);           // create the face model
 		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
 
-		var car = this.createCar(assetManager);
-		this.getLevel().addObstacle(car);
-
 		this.addCities(assetManager);
 
         // creates a third person camera to the level with the player as the target
@@ -117,8 +114,19 @@ Ext.define('MW.level.genesis.GenesisController', {
         var northWall = this.loadWall(assetManager, 0,-150,150,20,1, Math.PI,1);
         simpleCity.push(northWall);
 
+        var car1 = this.createCar(assetManager, -50, 0, 0);
+        simpleCity.push(car1);
+        var car2 = this.createCar(assetManager, -50, 0, 10);
+        simpleCity.push(car2);
+        var car3 = this.createCar(assetManager, -50, 0, 20);
+        simpleCity.push(car3);
+        var car4 = this.createCar(assetManager, -50, 0, 30);
+        simpleCity.push(car4);
+        var car5 = this.createCar(assetManager, -50, 0, 40);
+        simpleCity.push(car5);
 
-		for (var i = 0; i < simpleCity.length; i++) {
+
+        for (var i = 0; i < simpleCity.length; i++) {
 
 			this.getLevel().addObstacle(simpleCity[i]);
 
@@ -177,12 +185,6 @@ Ext.define('MW.level.genesis.GenesisController', {
         house.translate(0, 50, 0);
         return house;
     },
-	createCar: function (assetManager) {
-		var car = assetManager.getAsset('car');
-		car.translate(0, 0, -10);
-		car.rotateY(-Math.PI / 2);
-		return car;
-	},
     createCityBlock: function (assetManager) {
         var ret = assetManager.getAsset('cityblock');
         //cityblock.translate(0, 10, 0);
@@ -237,6 +239,17 @@ Ext.define('MW.level.genesis.GenesisController', {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
 
+    createCar: function (assetManager, xLocation,yLocation, zLocation) {
+        var carAsset = assetManager.getAsset('car');
+        var car = Ext.create('MW.level.City.Car', {
+            name: name || carAsset.getName()
+        });
+        car.addChild(carAsset);
+        car.setPosition(mat4.create());
+        car.translate(xLocation,yLocation,zLocation);
+        car.rotateY(-Math.PI / 2);
+        return car;
+    },
 
     loadBuilding: function (assetManager, xLocation, yLocation, zLocation, length, height, width) {
         var buildingAsset = assetManager.getAsset('building');

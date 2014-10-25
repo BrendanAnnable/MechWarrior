@@ -85,7 +85,6 @@ Ext.define('MW.scene.assets.Global', {
                 assetManager.addAsset('car', car);
                 car.setName('car');
                 FourJS.geometry.Geometry.scaleAll(car, [2, 2, 2]);
-                car.translate(-50, 0, 0);
             }),
 
         // load sounds
