@@ -14,9 +14,9 @@ Ext.define('MW.level.genesis.Genesis', {
 	constructor: function () {
 		this.callParent(arguments);
         this.setName('Genesis');
-        var width = 200;
-        var height = 200;
-        var depth = 200;
+        var width = 300;
+        var height = 300;
+        var depth = 300;
         this.setDimensions(width, height, depth);
         this.createSkybox({
             upUrl: "/resources/image/skybox/urban/up.png",

@@ -13,7 +13,37 @@ Ext.define('MW.level.genesis.GenesisController', {
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
 		// add a hacky gui slider
-		//var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+
+        var lev = GUI.addFolder("Level");
+        var thisLevel = this.getLevel();
+        var thisController = this;
+
+        //TODO: dunno why this doesnt work
+//        var playersBoundingBoxController = lev.add(thisController, '_renderPlayersBoundingBoxes');
+//        playersBoundingBoxController.onChange(function() {
+////            debugger;
+////            if(player.getRenderBoundingBox()===false) {
+////                player.addBoundingBox();
+////            }
+////            else if (player.getRenderBoundingBox()===true){
+////                player.removeBoundingBox();
+//////                player.getBoundingBox().setRenderable(false);
+////            }
+////            else{}
+//            thisController.togglePlayersBoundingBoxesRenderable();
+//            console.log(thisController);
+//            debugger;
+//        });
+
+        var obstaclesBoundingBoxController = lev.add(thisLevel, '_renderObstaclesBoundingBoxes');
+        obstaclesBoundingBoxController.onChange(function() {
+           thisLevel.toggleObstaclesBoundingBoxesRenderable();
+            console.log(thisLevel);
+            debugger;
+        });
+
+
+        //var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
 		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
 		var f = GUI.addFolder("Robot");
 		material.setReflectivity(0.4);
@@ -42,32 +72,51 @@ Ext.define('MW.level.genesis.GenesisController', {
 	addCities: function (assetManager) {
 		var simpleCity = [];
 
-		var building1 = this.loadBuilding(assetManager, 0, 30, 10, 20,10);
-		simpleCity.push(building1);
+        //load buildings
+//		var building1 = this.loadBuilding(assetManager, 0, 0, 30, 5, 50,5);
+//		simpleCity.push(building1);
 
-//        var material = Ext.create('FourJS.material.Basic');
-//        // create the mesh with the newly created geometry and material
-//        this.setMaterial(material);
+        var building2 = this.loadBuilding(assetManager, 100,0, 100, 2, 5, 2);
+        simpleCity.push(building2);
 
-		var building2 = this.loadBuilding(assetManager, 100, 100, 1, 20, 1);
-		simpleCity.push(building2);
-
-		var building3 = this.loadBuilding(assetManager, -100, 100, 1, 5,1);
+		var building3 = this.loadBuilding(assetManager, -100,0, 100, 2, 5, 2);
 		simpleCity.push(building3);
 
-		var building4 = this.loadBuilding(assetManager, 100, -100, 1, 5,1);
-		simpleCity.push(building4);
-		var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
-		simpleCity.push(building5);
+        var building4 = this.loadBuilding(assetManager, 100,0, -100, 2, 5, 2);
+        simpleCity.push(building4);
+        var building5 = this.loadBuilding(assetManager, -100,0, -100, 2, 5, 2);
+        simpleCity.push(building5);
 
-		var box1 = this.loadBox(assetManager, 30, -30, 1, 1,1);
-		simpleCity.push(box1);
+        // load crates
+        var crate1 = this.loadCrate(assetManager, 30,0, -30, 1, 1,1);
+        simpleCity.push(crate1);
 
-		var box2 = this.loadBox(assetManager, 40, -30, 1, 1,1);
-		simpleCity.push(box2);
+        var crate2 = this.loadCrate(assetManager, 40,0, -30, 1, 1,1);
+        simpleCity.push(crate2);
 
-		var box3 = this.loadBox(assetManager, 30, -40, 1, 1,1);
-		simpleCity.push(box3);
+        var crate3 = this.loadCrate(assetManager, 30,0, -40, 1, 1,1);
+        simpleCity.push(crate3);
+
+        var crate0 = this.loadCrate(assetManager, 0,0, 10, 1, 1,1);
+        simpleCity.push(crate0);
+        var crate01 = this.loadCrate(assetManager, 0,0, 5, 1, 1,1);
+        simpleCity.push(crate01);
+//        var testCrate = this.createCrate(true);                       // create an active player
+
+
+        // load walls
+        var eastWall = this.loadWall(assetManager, 150,0,150,20,1, Math.PI/2,1);
+        simpleCity.push(eastWall);
+
+        var westWall = this.loadWall(assetManager, -150,0,150,20,1,Math.PI/2,1);
+        simpleCity.push(westWall);
+
+        var southWall = this.loadWall(assetManager, 0,150,150,20,1, Math.PI,1);
+        simpleCity.push(southWall);
+
+        var northWall = this.loadWall(assetManager, 0,-150,150,20,1, Math.PI,1);
+        simpleCity.push(northWall);
+
 
 		for (var i = 0; i < simpleCity.length; i++) {
 
@@ -86,35 +135,36 @@ Ext.define('MW.level.genesis.GenesisController', {
 //
 
 
-		//var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
-		//this.getLevel().addObstacle(house);                       // good as a reference
+        //var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
+        //this.getLevel().addObstacle(house);                       // good as a reference
 
-		var genx = 0; //the root orientation of all the cityblocks
-		var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-		var genz = 0; //the root oreintation of all cityblocks
-		var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
-		var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+        var genx = 0; //the root orientation of all the cityblocks
+        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+        var genz = 0; //the root oreintation of all cityblocks
+        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
 
-		var cityblock = [];
-		for (var i = 0; i < nocityblocks; i++) {
-			cityblock[i] = [];
-			for(var j = 0; j < nocityblocks; j++) {
-				cityblock[i][j] = this.createCityBlock(assetManager);
-				cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
-				this.getLevel().addObstacle(cityblock[i][j]);
-			}
-		}
+        var cityblock = [];
+        for (var i = 0; i < nocityblocks; i++) {
+            cityblock[i] = [];
+            for(var j = 0; j < nocityblocks; j++) {
+                cityblock[i][j] = this.createCityBlock(assetManager);
+                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
+                this.getLevel().addObstacle(cityblock[i][j]);
+            }
+        }
 
-		var cb1 = this.createCityBlock(assetManager);
-		cb1.translate(-20, 0.1, -50);
-		this.getLevel().addObstacle(cb1);
+        var cb1 = this.createCityBlock(assetManager);
+        cb1.translate(-20, 0.1, -50);
+        this.getLevel().addObstacle(cb1);
 
-		/*                                                //no support for multiple objects yet :(
-		 var cb2 = this.createCityBlock(assetManager);
-		 cb2.translate(-20, 20, -20);
-		 this.getLevel().addObstacle(cb2);
-		 */
-	},
+        /*                                                //no support for multiple objects yet :(
+         var cb2 = this.createCityBlock(assetManager);
+         cb2.translate(-20, 20, -20);
+         this.getLevel().addObstacle(cb2);
+         */
+    },
+
 	createSphere: function (assetManager) {
 		var sphere = assetManager.getAsset('sphere');
 		sphere.translate(10, -3, 0);
@@ -188,20 +238,67 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
 
 
-    loadBuilding: function (assetManager, xLocation, zLocation, length, height, width) {
-        var building = assetManager.getAsset('building');
+    loadBuilding: function (assetManager, xLocation, yLocation, zLocation, length, height, width) {
+        var buildingAsset = assetManager.getAsset('building');
+        var building = Ext.create('MW.level.City.Building', {
+            name: name || buildingAsset.getName()
+        });
+        building.addChild(buildingAsset);
+        building.setPosition(mat4.create());
         FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
-        building.translate(xLocation,0,zLocation);
+
+//        building.scale(length, height, width);
+        building.translate(xLocation,yLocation,zLocation);
+//        building.addBoundingBox();
+
         return building;
 
     },
-    loadBox: function (assetManager, xLocation, zLocation, length, height, width) {
-        var building = assetManager.getAsset('cube');
-        FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
-        building.translate(xLocation,0,zLocation);
-        return building;
+    loadCrate: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
+        var crateAsset = assetManager.getAsset('crate');
+        var crate = Ext.create('MW.level.City.Crate', {
+            name: name || crateAsset.getName()
+        });
+        crate.addChild(crateAsset);
+        crate.setPosition(mat4.create());
+        crate.scale(length, height, width);
+        crate.translate(xLocation,yLocation,zLocation);
+//        crate.addBoundingBox();
+        return crate;
+
+    },
+
+    loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
+        var wallAsset = assetManager.getAsset('wall');
+        var wall = Ext.create('MW.level.City.Wall', {
+            name: name || wallAsset.getName()
+        });
+
+        wall.addChild(wallAsset);
+        wall.setPosition(mat4.create());
+
+        wall.translate(xLocation,0,zLocation);
+        wall.rotateY(orientation);
+
+        if (scaleMethod == 0) {
+
+        FourJS.geometry.Geometry.scaleAll(wall, [length, height, width]);
+        }
+        else {
+            wall.scale(length, height, width);
+        }
+//        wall.addBoundingBox();
+        return wall;
+    },
+
+    loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
+        var crate = assetManager.getAsset('cube');
+        FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
+        crate.translate(xLocation,yLocation,zLocation);
+        return crate;
 
     }
+
 
 
 });

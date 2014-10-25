@@ -14,6 +14,10 @@ Ext.define('MW.scene.assets.Global', {
 	 * @param assetManager The asset manager to add assets to.
 	 * @returns {*}
 	 */
+
+     //TODO: needs ability to load assets with materials/textures.
+
+
 	load: function (assetManager) {
 		return Promise.all([
 
@@ -49,11 +53,18 @@ Ext.define('MW.scene.assets.Global', {
 				assetManager.addAsset('sphere', sphere);
 				sphere.setName('sphere');
 			}),
+
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (cube) {
                 assetManager.addAsset('cube', cube);
                 cube.setName('cube');
                 FourJS.geometry.Geometry.scaleAll(cube, [1, 1, 1]);
                 cube.translate(0,1,0);
+            }),
+            this.loadModelAsset(this.getModelPath('crate/crate.json')).then(function (crate) {
+                assetManager.addAsset('crate', crate);
+                crate.setName('crate');
+                FourJS.geometry.Geometry.scaleAll(crate, [1, 1, 1]);
+                crate.translate(0,1,0);
             }),
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (building) {
                 assetManager.addAsset('building', building);
@@ -61,15 +72,21 @@ Ext.define('MW.scene.assets.Global', {
                 FourJS.geometry.Geometry.scaleAll(building, [1, 1, 1]);
                 building.translate(0,1,0);
             }),
+            this.loadModelAsset(this.getModelPath('cube.json')).then(function (wall) {
+                assetManager.addAsset('wall', wall);
+                wall.setName('wall');
+                FourJS.geometry.Geometry.scaleAll(wall, [1, 1, 1]);
+                wall.translate(0,1,0);
+            }),
 
 
-//            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
-//                assetManager.addAsset('destroyedCar', destroyedCar);
-//                destroyedCar.name = 'destroyedCar';
-//                destroyedCar.geometry.scale([0.05, 0.05, 0.05]);
-//                destroyedCar.geometry.translate([0, 2, 0]);
-//                destroyedCar.geometry.rotateY(Math.PI);
-//            }),
+            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
+//            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
+                assetManager.addAsset('car', car);
+                car.setName('car');
+                FourJS.geometry.Geometry.scaleAll(car, [2, 2, 2]);
+                car.translate(-50, 0, 0);
+            }),
 
         // load sounds
 	        this.loadSoundAsset(this.getSoundPath('bullet.mp3')).then(function (sound) {
