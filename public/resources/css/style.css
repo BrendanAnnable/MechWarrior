@@ -23,7 +23,29 @@ body {
     height: 50%;
     right: 0;
     bottom: 0;
-    background: url('../image/hud/counter.png') no-repeat bottom right / 100%;
+	background: -webkit-linear-gradient(left top, transparent 0%, transparent 50%, #01182d 85%, #000 100%);          /* For Safari 5.1 to 6.0 */
+	background: -o-linear-gradient(bottom right, transparent 0%, transparent 50%, #01182d 85%, #000 100%);           /* For Opera 11.1 to 12.0 */
+	background: -moz-linear-gradient(bottom right, transparent 0%, transparent 50%, #01182d 85%, #000 100%);         /* For Firefox 3.6 to 15 */
+	background: linear-gradient(to bottom right, transparent 0%, transparent 50%, #01182d 85%, #000 90%, #000 100%); /* Standard syntax (must be last) */
     color: #fff;
-    font: 5vw 'Ubuntu'
+    font: 5vw 'Ubuntu';
+}
+
+.counter-image {
+	width: 50%;
+	height: 50%;
+	right: 0;
+	bottom: 0;
+	background: url('../image/hud/counter.png') no-repeat bottom right / contain;
+}
+
+.counter-image:before {
+	content: '';
+	position: absolute;
+	width: 100%;
+	height: 100%;
+	background: -webkit-linear-gradient(left top, transparent 0%, transparent 50%, #000 85%, #000 100%);
+	background: -o-linear-gradient(bottom right, transparent 0%, transparent 50%, #000 85%, #000 100%);
+	background: -moz-linear-gradient(bottom right,transparent 0%, transparent 50%, #000 85%, #000 100%);
+	background: linear-gradient(to bottom right, transparent 0%, transparent 50%, #000 85%, #000 100%);
 }

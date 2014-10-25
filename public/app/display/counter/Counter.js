@@ -11,19 +11,24 @@ Ext.define('MW.display.counter.Counter', {
     config: {
         maximum: 10
     },
-    cls: 'counter',
-    items: [{
-        xtype: 'component',
-        itemId: 'counter',
-        tpl: '{current}/{maximum}',
-        data: {
-            current: 0,
-            maximum: 0
-        },
-        style: {
-            position: 'absolute',
-            right: '1.2em',
-            bottom: '0.6em'
-        }
-    }]
+	cls: 'counter',
+	layout: 'absolute',
+	items: [{
+		xtype: 'container',
+		cls: 'counter-image',
+		items: [{
+			xtype: 'component',
+			itemId: 'counter',
+			tpl: '{current}/{maximum}',
+			data: {
+				current: 0,
+				maximum: 0
+			},
+			style: {
+				position: 'absolute',
+				right: '1em',
+				bottom: '0.5em'
+			}
+		}]
+	}]
 });
