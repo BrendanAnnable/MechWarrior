@@ -6,6 +6,7 @@ Ext.define('MW.display.Display', {
     extend: 'Ext.container.Container',
 	radar: null,
 	life: null,
+    counter: null,
     requires: [
         'MW.display.radar.Radar',
         'MW.display.life.Life'
@@ -24,9 +25,12 @@ Ext.define('MW.display.Display', {
 	    this.life = Ext.create('MW.display.life.Life', {
 		    y: 50
 	    });
-	    // add the radar and life as components of the display
+        // create the counter
+        this.counter = Ext.create('MW.display.counter.Counter');
+	    // add the components of the display
         this.add(this.radar);
         this.add(this.life);
+        this.add(this.counter);
     },
 	/**
 	 * An accessor method that retrieves the radar.

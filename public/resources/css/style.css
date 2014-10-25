@@ -1,5 +1,6 @@
 body {
 	/*font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;*/
+    font-size: 12px;
 	background-color: #000 !important;
 }
 
@@ -15,4 +16,11 @@ body {
     right: 0;
     left: 0;
     margin: 0 auto;
+}
+
+.counter {
+    right: 0.5em;
+    bottom: 0.5em;
+    color: #fff;
+    font: 5.9vw 'Ubuntu'
 }
