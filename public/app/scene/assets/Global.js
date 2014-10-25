@@ -80,7 +80,7 @@ Ext.define('MW.scene.assets.Global', {
             }),
 
 
-            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
+            this.loadModelAsset(this.getModelPath('car+materialised.json')).then(function (car) {
 //            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
                 assetManager.addAsset('car', car);
                 car.setName('car');
