@@ -9,7 +9,7 @@ Ext.define('MW.display.counter.CounterController', {
     init: function () {
         var view = this.getView();          // retrieve the view
         var maximum = view.getMaximum();    // get the maximum amount to win the game
-        view.update({                       // update the template
+        view.down('#counter').update({                       // update the template
             current: 0,
             maximum: maximum
         });

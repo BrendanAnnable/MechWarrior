@@ -12,10 +12,18 @@ Ext.define('MW.display.counter.Counter', {
         maximum: 10
     },
     cls: 'counter',
-    tpl: '{current}/{maximum}',
-    data: {
-        current: 0,
-        maximum: 0
-    }
-
+    items: [{
+        xtype: 'component',
+        itemId: 'counter',
+        tpl: '{current}/{maximum}',
+        data: {
+            current: 0,
+            maximum: 0
+        },
+        style: {
+            position: 'absolute',
+            right: '1.2em',
+            bottom: '0.6em'
+        }
+    }]
 });

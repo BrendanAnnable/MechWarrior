@@ -19,8 +19,11 @@ body {
 }
 
 .counter {
-    right: 0.5em;
-    bottom: 0.5em;
+    width: 50%;
+    height: 50%;
+    right: 0;
+    bottom: 0;
+    background: url('../image/hud/counter.png') no-repeat bottom right / 100%;
     color: #fff;
-    font: 5.9vw 'Ubuntu'
+    font: 5vw 'Ubuntu'
 }
