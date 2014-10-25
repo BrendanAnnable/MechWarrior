@@ -39,8 +39,5 @@ Ext.define('MW.projectile.Projectile', {
 		var vy = velocity * Math.cos(pitch);               	    // calculate the y component in velocity
 		var vz = velocity * Math.sin(pitch) * Math.sin(-yaw);   // calculate the z component in velocity
 		this.setVelocity(vec3.fromValues(vx, vy, vz));		    // sets the velocity vector based on the components
-	},
-	addBoundingBox: function () {
-		this.setBoundingBox(FourJS.geometry.Geometry.getBoundingBox(this));
 	}
 });

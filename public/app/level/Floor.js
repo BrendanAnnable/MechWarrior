@@ -13,8 +13,8 @@ Ext.define('MW.level.Floor', {
         'FourJS.loader.Texture'
     ],
     config: {
-        width: 0,
-        height: 0,
+        width: 150,
+        height: 150,
         url: null
     },
 	/**

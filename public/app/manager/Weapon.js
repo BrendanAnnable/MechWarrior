@@ -19,7 +19,7 @@ Ext.define('MW.manager.Weapon', {
         var origin = options.position;
         var position = mat4.create();
         mat4.copyTranslation(position, origin);
-        mat4.translate(position, position, vec3.fromValues(0, 2, 0));
+        mat4.translate(position, position, vec3.fromValues(0, 2, -2));
 		var bullet = Ext.create('MW.projectile.Bullet', {
             initialVelocity: 40,
             mass: 0.5,
@@ -28,7 +28,6 @@ Ext.define('MW.manager.Weapon', {
             yaw: mouseControls.getYaw() - Math.PI / 2
         });
 		bullet.addChild(bulletAsset);
-		bullet.addBoundingBox();
         levelController.addProjectile(bullet);
 
         if (this.getAudioManager().getSound()) {

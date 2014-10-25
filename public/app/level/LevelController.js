@@ -31,10 +31,6 @@ Ext.define('MW.level.LevelController', {
         this.physics = Ext.create('PhysJS.PhysicsEngine', {	        // initialise the physics engine for the level
             scene: this.getLevel()
         });
-        this.physics.on({
-            collision: this.onCollision,
-            scope: this
-        });
 		this.mp = Ext.create('MW.game.MultiPlayer');
 		this.mp.on({
 			gameState: this.onGameState,
@@ -101,10 +97,10 @@ Ext.define('MW.level.LevelController', {
     createPlayer: function (active, name) {
         var playerAsset = this.getAssetManager().getAsset('player');
         var player = Ext.create('MW.character.Player', {
-            name: name || playerAsset.getName()
+            name: name || playerAsset.getName(),
+            renderBoundingBox: true
         });
 		player.addChild(playerAsset);
-		player.addBoundingBox();
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player
@@ -153,6 +149,10 @@ Ext.define('MW.level.LevelController', {
     addPlayer: function (level, player) {
         this.getPlayers()[player.getName()] = player;     // adds the player to the array
         level.addChild(player);             // adds the player to the level
+		player.on('collision', function (collidedObject) {
+			// TODO: check if collidedObject is a bullet
+			// TODO: player.fireEvent('takeDamage', 30);
+		});
     },
 	/**
 	 * Overrides the setter method for active players to handle events properly.
@@ -204,8 +204,9 @@ Ext.define('MW.level.LevelController', {
     addProjectile: function (projectile) {
         this.getProjectiles().push(projectile);
         this.getLevel().addChild(projectile);
-        projectile.on('collision', function () {
+        projectile.on('collision', function (collidedObject) {
             this.removeProjectile(projectile);
+			// TODO: explosion
         }, this);
     },
     /**
@@ -216,9 +217,6 @@ Ext.define('MW.level.LevelController', {
     removeProjectile: function (projectile) {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
-    },
-    onCollision: function (object1, object2) {
-        //console.log('collision!', object1.getName(), object2.getName());
     },
     /**
      * Updates the level on each render.
