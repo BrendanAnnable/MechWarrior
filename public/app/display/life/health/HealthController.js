@@ -52,6 +52,10 @@ Ext.define('MW.display.life.health.HealthController', {
      * @param maximumValue The maximum health value.
 	 */
 	onUpdate: function (previousValue, newValue, maximumValue) {
-        this.updateFillDisplay(previousValue, newValue, maximumValue);
+        if (this.task != null && this.task.pending) {                   // check if a task exists and it is still running
+            Ext.TaskManager.stop(this.task);                            // stop the task
+            previousValue = this.currentValue;                          // update the previous value to what the task had
+        }
+        this.updateFillDisplay(previousValue, newValue, maximumValue);  // update the health fill display
 	}
 });

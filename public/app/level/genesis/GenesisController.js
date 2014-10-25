@@ -10,8 +10,8 @@ Ext.define('MW.level.genesis.GenesisController', {
     ],
     constructor: function (config) {
         this.callParent(arguments);
-        var assetManager = this.getAssetManager();                  // get the asset manager
-        var player = this.createPlayer(true);                       // create an active player
+        var assetManager = this.getAssetManager();                      // get the asset manager
+        var player = this.createPlayer(true);                           // create an active player
 		// add a hacky gui slider
 		//var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
 		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
@@ -20,14 +20,14 @@ Ext.define('MW.level.genesis.GenesisController', {
 		f.add(material, '_reflectivity', 0, 1).step(0.01);
 		f.add(material, '_wireframe');
 		f.add(material, '_useLighting');
-        var face = this.createFace(assetManager, player, 7000);           // create the face model
-        var anotherface = this.createFace(assetManager, player, 3000);           // create the face model
+        var face = this.createFace(assetManager, player, 7000);         // create the face model
+        var anotherface = this.createFace(assetManager, player, 3000);  // create the face model
 
-        this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
-        this.getLevel().addObstacle(anotherface);                          // add the face as an obstacle to the level
+        this.getLevel().addObstacle(face);                              // add the face as an obstacle to the level
+        this.getLevel().addObstacle(anotherface);                       // add the face as an obstacle to the level
 
-		var sphere = this.createSphere(assetManager);           // create the face model
-		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
+		var sphere = this.createSphere(assetManager);                   // create the face model
+		this.getLevel().addObstacle(sphere);                            // add the face as an obstacle to the level
 
 		var car = this.createCar(assetManager);
 		this.getLevel().addObstacle(car);

@@ -139,16 +139,27 @@ Ext.define('MW.level.LevelController', {
      * @returns {MW.character.Player}
      */
     createPlayer: function (active, name) {
+        // get the player asset
         var playerAsset = this.getAssetManager().getAsset('player');
+        // create the player
         var player = Ext.create('MW.character.Player', {
             name: name || playerAsset.getName()
         });
+        // add the asset to the player
 		player.addChild(playerAsset);
+        // add a collision event listener to the player
+        player.on('collision', function (collidedObject) {
+            // check if the object is a projectile
+            if (collidedObject instanceof MW.projectile.Projectile) {
+                // damage the player
+                player.fireEvent('takeDamage', this.getMenu().getLife().getController(), collidedObject.getDamage());
+            }
+        }, this);
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
-        if (active) {
+        if (active) {                               // check if this is the new active player
             this.setActivePlayer(player);           // set the active player
         }
-        return player;
+        return player;                              // return the player that was created
     },
     /**
      * Creates a third person camera and adds it to the controller.
@@ -192,10 +203,6 @@ Ext.define('MW.level.LevelController', {
     addPlayer: function (level, player) {
         this.getPlayers()[player.getName()] = player;   // adds the player to the array
         level.addChild(player);                         // adds the player to the level
-		player.on('collision', function (collidedObject) {
-			// TODO: check if collidedObject is a bullet
-			// TODO: player.fireEvent('takeDamage', 30);
-		});
     },
 	/**
 	 * Overrides the setter method for active players to handle events properly.
@@ -221,7 +228,7 @@ Ext.define('MW.level.LevelController', {
 			if (camera instanceof FourJS.camera.ThirdPersonCamera) {
 				camera.setTarget(player);
 			}
-            //player.onTakeDamage(life, 500);
+           /* //player.onTakeDamage(life, 500);
             player.fireEvent('takeDamage', life, 500);
             function sleep(millis, callback) {setTimeout(function () {
                     callback();
@@ -233,7 +240,7 @@ Ext.define('MW.level.LevelController', {
 
             sleep(10000, function () {
                 player.onRestoreHealth(life, 300);
-            });
+            });*/
 		}
         return player;
 	},

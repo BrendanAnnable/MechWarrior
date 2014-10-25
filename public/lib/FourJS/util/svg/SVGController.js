@@ -4,6 +4,8 @@
 Ext.define('FourJS.util.svg.SVGController', {
 	extend: 'Ext.app.ViewController',
 	alias: 'controller.SVG',
+    task: null,
+    currentValue: null,
 	draw: null,
 	fill: null,
 	clip: null,
@@ -20,20 +22,29 @@ Ext.define('FourJS.util.svg.SVGController', {
 	 */
 	updateFillDisplay: function (previousValue, newValue, maxValue) {
 		if (this.fill !== null) {                                           // check if the fill exists
+            this.currentValue = previousValue;                              // update the current value of the fill
 			var from = previousValue / maxValue * 100;                      // calculate the starting x value
-			var to = newValue / maxValue * 100;                         // calculate the x value to move
+			var to = newValue / maxValue * 100;                             // calculate the x value to move
 			var x = from;                                                   // instantiate x to the starting value
-			function updateClock () {                                       // the method used upon each interval
-				x = from >= to ? x - this.steps : x + this.steps;           // update the x value
-				if ((from >= to && x <= to) || (from <= to && x >=to)) {    // check if the shield has updated
-					Ext.TaskManager.stop(task);                             // stop running the task
+            // create how often the task is updated
+            var interval = this.getInterval(from, to);
+            // the amount to update the current value by
+            var updateValue = Math.abs(newValue - previousValue) / (this.getTime() / interval);
+            // the method used upon each interval
+			function updateClock () {
+                // update the x value
+				x = from >= to ? x - this.steps : x + this.steps;
+                this.currentValue = from >= to ? this.currentValue - updateValue: this.currentValue + updateValue;
+                // check if the shield has updated
+				if ((from >= to && x <= to) || (from <= to && x >=to)) {
+					Ext.TaskManager.stop(this.task);                        // stop running the task
 				}
 				this.clip.move(-(this.maxWidth - x), 0);                    // move the clipping to its new position
 				this.fill.clipWith(this.clip);                              // clip the fill with the clipping
 			}
-			var task = Ext.TaskManager.start({                              // run the animation update
+			this.task = Ext.TaskManager.start({                             // run the animation update
 				run: updateClock,                                           // the function used to animate
-				interval: this.getInterval(from, to),                       // how often the function is run
+				interval: interval,                                         // how often the function is run
 				scope: this                                                 // the scope parameter
 			});
 		}

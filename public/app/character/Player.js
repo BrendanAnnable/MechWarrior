@@ -99,7 +99,6 @@ Ext.define('MW.character.Player', {
         // get the previous and maximum shield values
         var previousShield = this.currentShield;
         var maximumShield = this.getMaximumShield();
-        debugger;
         // check if only the shield will be damaged
         if (previousShield - damage >= 0) {
             // damage the shield and update the display
@@ -112,7 +111,6 @@ Ext.define('MW.character.Player', {
             // check if the shield is already depleted
             if (previousShield === 0) {
                 // damage the health and update the display
-                debugger;
                 this.currentHealth -= Math.max(0, damage);
                 life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
             } else {
@@ -130,7 +128,7 @@ Ext.define('MW.character.Player', {
                 task.delay(life.getView().getShield().getController().getTime());
             }
             // check if the player has been killed
-            if (this.currentHealth === 0) {
+            if (this.currentHealth <= 0) {
                 // todo something
             }
         }
