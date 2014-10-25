@@ -152,7 +152,7 @@ Ext.define('MW.level.LevelController', {
             // check if the object is a projectile
             if (collidedObject instanceof MW.projectile.Projectile) {
                 // damage the player
-                player.fireEvent('takeDamage', this.getMenu().getLife().getController(), collidedObject.getDamage());
+                player.fireEvent('takeDamage', this.getMenu(), collidedObject);
             }
         }, this);
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
@@ -192,7 +192,8 @@ Ext.define('MW.level.LevelController', {
             mouseControls.on(event, weaponManager.createBullet, weaponManager, {
                 assetManager: assetManager,
                 levelController: this,
-                position: player.getPosition()
+                position: player.getPosition(),
+                owner: player
             });
         }, this);
     },
@@ -222,7 +223,6 @@ Ext.define('MW.level.LevelController', {
 				// remove the current active player event listeners
 				activePlayer.unLoadEvents(keyboardControls);
 			}
-            var life = this.getMenu().getLife().getController();
             // add the event listeners to the new active player
             player.onLoadEvents(keyboardControls);
 			// set a new target on the active camera if it is third person

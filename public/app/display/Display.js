@@ -39,9 +39,15 @@ Ext.define('MW.display.Display', {
 		return this.radar;
 	},
 	/**
-	 * An accessor method that retrieves the life
+	 * An accessor method that retrieves the life.
 	 */
 	getLife: function () {
 		return this.life;
-	}
+	},
+    /**
+     * An accessor method that retrieves the deathmatch counter.
+     */
+    getCounter: function () {
+        return this.counter;
+    }
 });

@@ -68,6 +68,8 @@ Ext.define('MW.character.Player', {
         this.on('revive', this.onRevive, this);
         this.on('reviveShield', this.onReviveShield, this);
         this.on('reviveHealth', this.onReviveHealth, this);
+        this.on('respawn', this.onRespawn, this);
+        this.on('kill', this.onKill, this);
     },
     /**
      * Removes events from the player.
@@ -82,6 +84,8 @@ Ext.define('MW.character.Player', {
         this.un('revive', this.onRevive, this);
         this.un('reviveShield', this.onReviveShield, this);
         this.un('reviveHealth', this.onReviveHealth, this);
+        this.un('respawn', this.onRespawn, this);
+        this.un('kill', this.onKill, this);
     },
 	/**
 	 * An event called that adds velocity to the player when the user presses the space bar.
@@ -92,10 +96,12 @@ Ext.define('MW.character.Player', {
     /**
      * An event called when the user takes damage.
      *
-     * @param life The life controller that is a part of the HUD.
-     * @param damage The amount damage to reduce the player's health by.
+     * @param menu The menu that contains the life and death count counter.
+     * @param object The object that damaged that player.
      */
-    onTakeDamage: function (life, damage) {
+    onTakeDamage: function (menu, object) {
+        var damage = object.getDamage();                // get the damage from the object
+        var life = menu.getLife().getController();      // get the life controller
         // get the previous and maximum shield values
         var previousShield = this.currentShield;
         var maximumShield = this.getMaximumShield();
@@ -111,7 +117,7 @@ Ext.define('MW.character.Player', {
             // check if the shield is already depleted
             if (previousShield === 0) {
                 // damage the health and update the display
-                this.currentHealth -= Math.max(0, damage);
+                this.currentHealth = Math.max(0, this.currentHealth - damage);
                 life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
             } else {
                 // both the shield and health will be damaged (overflow)
@@ -121,15 +127,21 @@ Ext.define('MW.character.Player', {
                 // begin a delayed task
                 var task = new Ext.util.DelayedTask(function () {
                     // damage the health and update the display
-                    this.currentHealth -= Math.max(0, damage - previousShield);
+                    this.currentHealth = Math.max(0, this.currentHealth - damage - previousShield);
                     life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
                 }, this);
                 // delay the health depletion by how long the shield will take
                 task.delay(life.getView().getShield().getController().getTime());
             }
-            // check if the player has been killed
-            if (this.currentHealth <= 0) {
-                // todo something
+            if (this.currentHealth === 0) {                             // check if the player has died
+                var owner = object.getOwner();                          // get the owner of the object
+                if (owner !== this) {                                   // check the owner did not accidentally suicide
+                    owner.fireEvent('kill', this, menu.getCounter());   // some player killed another
+                } else {
+                    // todo fire some suicide message event
+                }
+                // todo after ten seconds
+                this.fireEvent('respawn', life);                        // respawn the player that died
             }
         }
     },
@@ -199,6 +211,26 @@ Ext.define('MW.character.Player', {
         // update the health visually
         this.currentHealth += maximumHealth - this.currentHealth;
         life.updateHealth(previousHealth, this.currentHealth, maximumHealth);
+    },
+    /**
+     * An event fired when a player has been respawned.
+     *
+     * @param life The life controller.
+     */
+    onRespawn: function (life) {
+        this.onRevive(life);                        // revive the player
+        // todo spawn randomly
+        // todo update message
+    },
+    /**
+     * An event fired when a player has been killed.
+     *
+     * @param player The player that was killed.
+     * @param counter The counter for displaying deathmatch kills.
+     */
+    onKill: function (player, counter) {
+        counter.fireEvent('update');
+        // todo update message kill names
     }
 	/**
 	 * Renders the player model in the scene.
