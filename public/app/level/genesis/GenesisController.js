@@ -82,16 +82,16 @@ Ext.define('MW.level.genesis.GenesisController', {
 
         // but when i scale and rotate those walls arent showing
 //
-        var eastWall = this.loadWall(assetManager, 120,0,100,5,1, Math.PI/2,1);
+        var eastWall = this.loadWall(assetManager, 120,0,100,20,1, Math.PI/2,1);
         simpleCity.push(eastWall);
 
-        var westWall = this.loadWall(assetManager, -120,0,100,5,1,Math.PI/2,1);
+        var westWall = this.loadWall(assetManager, -120,0,100,20,1,Math.PI/2,1);
         simpleCity.push(westWall);
 
-        var southWall = this.loadWall(assetManager, 0,120,100,5,1, Math.PI,1);
+        var southWall = this.loadWall(assetManager, 0,120,100,20,1, Math.PI,1);
         simpleCity.push(southWall);
 
-        var northWall = this.loadWall(assetManager, 0,-120,100,5,1, Math.PI,1);
+        var northWall = this.loadWall(assetManager, 0,-120,100,20,1, Math.PI,1);
         simpleCity.push(northWall);
 //
 //        var testWall = this.loadWall(assetManager, 120,0,100,5,1, Math.PI,1);
@@ -256,7 +256,8 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
     loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
         var wall = assetManager.getAsset('wall');
-//        wall.rotateY(orientation);
+        wall.translate(xLocation,0,zLocation);
+        wall.rotateY(orientation);
 
         if (scaleMethod == 0) {
 
@@ -265,8 +266,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         else {
             wall.scale(length, height, width);
         }
-        wall.rotateY(orientation);
-        wall.translate(xLocation,0,zLocation);
+       // wall.rotateY(orientation);
         return wall;
 
     }
