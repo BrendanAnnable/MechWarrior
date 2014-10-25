@@ -52,17 +52,17 @@ Ext.define('MW.level.genesis.GenesisController', {
         var building5 = this.loadBuilding(assetManager, -100, -100, 1, 5,1);
         simpleCity.push(building5);
 //
-        var box1 = this.loadCrate(assetManager, 30, -30, 1, 1,1);
-        simpleCity.push(box1);
-
-        var box2 = this.loadCrate(assetManager, 40, -30, 1, 1,1);
-        simpleCity.push(box2);
-
-        var box3 = this.loadCrate(assetManager, 30, -40, 1, 1,1);
-        simpleCity.push(box3);
+//        var box1 = this.loadCrate(assetManager, 30, -30, 1, 1,1);
+//        simpleCity.push(box1);
 //
+//        var box2 = this.loadCrate(assetManager, 40, -30, 1, 1,1);
+//        simpleCity.push(box2);
 //
-//        var box0 = this.loadCube(assetManager, 0, 0, 1, 1,1);
+//        var box3 = this.loadCrate(assetManager, 30, -40, 1, 1,1);
+//        simpleCity.push(box3);
+////
+////
+//        var box0 = this.loadCube(assetManager, 0, 10, 1, 1,1);
 //        simpleCity.push(box0);
         var box0 = this.loadCrate(assetManager, 0, 0, 1, 1,1);
         simpleCity.push(box0);
@@ -120,25 +120,25 @@ Ext.define('MW.level.genesis.GenesisController', {
         //var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
         //this.getLevel().addObstacle(house);                       // good as a reference
 
-        var genx = 0; //the root orientation of all the cityblocks
-        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-        var genz = 0; //the root oreintation of all cityblocks
-        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
-        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
-
-        var cityblock = [];
-        for (var i = 0; i < nocityblocks; i++) {
-			cityblock[i] = [];
-            for(var j = 0; j < nocityblocks; j++) {
-                cityblock[i][j] = this.createCityBlock(assetManager);
-                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
-                this.getLevel().addObstacle(cityblock[i][j]);
-            }
-        }
-
-        var cb1 = this.createCityBlock(assetManager);
-        cb1.translate(-20, 0.1, -50);
-        this.getLevel().addObstacle(cb1);
+//        var genx = 0; //the root orientation of all the cityblocks
+//        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+//        var genz = 0; //the root oreintation of all cityblocks
+//        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+//        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+//
+//        var cityblock = [];
+//        for (var i = 0; i < nocityblocks; i++) {
+//			cityblock[i] = [];
+//            for(var j = 0; j < nocityblocks; j++) {
+//                cityblock[i][j] = this.createCityBlock(assetManager);
+//                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
+//                this.getLevel().addObstacle(cityblock[i][j]);
+//            }
+//        }
+//
+//        var cb1 = this.createCityBlock(assetManager);
+//        cb1.translate(-20, 0.1, -50);
+//        this.getLevel().addObstacle(cb1);
 
         /*                                                //no support for multiple objects yet :(
         var cb2 = this.createCityBlock(assetManager);
