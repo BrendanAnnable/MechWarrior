@@ -78,13 +78,17 @@ Ext.define('FourJS.geometry.CubeGeometry', {
 			vec3.fromValues(20, 21, 22),   // left
 			vec3.fromValues(20, 22, 23)    // left
         ]);
-    },
-	getFlattenedTextureCoordinates: function () {
-		var tArray = [];
+
+		var textureCoords = [];
 		var faces = this.getFaces();
-		for (var i = 0; i < faces.length * 0.5; i++) {
-			tArray.push(0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0);
+		for (i = 0; i < faces.length * 0.5; i++) {
+			textureCoords.push(
+				vec2.fromValues(0.0, 0.0),
+				vec2.fromValues(1.0, 0.0),
+				vec2.fromValues(1.0, 1.0),
+				vec2.fromValues(0.0, 1.0)
+			);
 		}
-		return new Float32Array(tArray);
-	}
+		this.setTextureCoords(textureCoords);
+    }
 });

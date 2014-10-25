@@ -32,7 +32,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var car = this.createCar(assetManager);
 		this.getLevel().addObstacle(car);
 
-		//this.addCities(assetManager);
+		this.addCities(assetManager);
 
         // creates a third person camera to the level with the player as the target
         this.createThirdPersonCamera(player, true);

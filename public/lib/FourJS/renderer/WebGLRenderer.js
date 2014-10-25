@@ -315,22 +315,20 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
     checkBuffer: function (gl, object) {
 		var geometry = object.getGeometry();
         if (geometry.__webglBuffers !== true) {
-            // attach the buffers to the current child object
+			// attach the buffers to the current child object
 			geometry.__webglVertexBuffer = Ext.create('FourJS.buffer.Vertex').load(gl, geometry);
-            geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
-            geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
+			geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
+			geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
 			geometry.__webglBuffers = true;
-        }
-		if (object.hasMaterial()) {
-			var material = object.getMaterial();
-			if (material.__webglBuffers !== true) {
+
+			if (object.hasMaterial()) {
+				var material = object.getMaterial();
 				if (material.hasTexture()) {
-					material.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
+					geometry.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
 				}
 				if (material.hasEnvironmentMap()) {
-					material.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
+					geometry.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
 				}
-				material.__webglBuffers = true;
 			}
 		}
     },
@@ -345,7 +343,8 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
         gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
         // Update the object texture
 		var material = object.getMaterial();
-        var textureCoordinateBuffer = material.__webglTextureCoordinateBuffer;
+		var geometry = object.getGeometry();
+        var textureCoordinateBuffer = geometry.__webglTextureCoordinateBuffer;
 		var texture = material.__webglTexture;
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
         gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -403,7 +402,8 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		// Update the object texture
 		var material = object.getMaterial();
-		var textureCoordinateBuffer = material.__webglEnvironmentCoordinateBuffer;
+		var geometry = object.getGeometry();
+		var textureCoordinateBuffer = geometry.__webglEnvironmentCoordinateBuffer;
 		var texture = material.__webglEnvironmentMap;
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
 		gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
