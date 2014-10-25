@@ -6,7 +6,7 @@
 Ext.define('MW.level.City.Wall', {
     alias: 'Wall',
     extend: 'FourJS.object.Object',
-//    box: null, // TODO: hack
+    // TODO: move wall creation from Genesis to here
     mixins: {
         physics: 'PhysJS.DynamicObject'
     },

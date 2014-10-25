@@ -5,7 +5,7 @@
 Ext.define('MW.level.City.Building', {
     alias: 'Building',
     extend: 'FourJS.object.Object',
-//    box: null, // TODO: hack
+    // TODO: move building creation from Genesis to here
     mixins: {
         physics: 'PhysJS.DynamicObject'
     },

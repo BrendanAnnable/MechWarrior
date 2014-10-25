@@ -5,7 +5,7 @@
 Ext.define('MW.level.City.Car', {
     alias: 'Car',
     extend: 'FourJS.object.Object',
-//    box: null, // TODO: hack
+    // TODO: move car creation from Genesis to here
     mixins: {
         physics: 'PhysJS.DynamicObject'
     },
@@ -22,5 +22,7 @@ Ext.define('MW.level.City.Car', {
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
     }
+
+
 
 });

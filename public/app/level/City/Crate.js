@@ -4,7 +4,7 @@
 Ext.define('MW.level.City.Crate', {
     alias: 'Crate',
     extend: 'FourJS.object.Object',
-//    box: null, // TODO: hack
+    // TODO: move crate creation from Genesis to here
     mixins: {
         physics: 'PhysJS.DynamicObject'
     },
