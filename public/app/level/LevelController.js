@@ -188,11 +188,13 @@ Ext.define('MW.level.LevelController', {
      */
     addMouseClickEvent: function (mouseControls, assetManager, weaponManager, player) {
         // listen for mouse click and keyboard events
-        mouseControls.on('click', weaponManager.createBullet, weaponManager, {
-            assetManager: assetManager,
-            levelController: this,
-            position: player.getPosition()
-        });
+        ['click', 'doubleClick'].forEach(function (event) {
+            mouseControls.on(event, weaponManager.createBullet, weaponManager, {
+                assetManager: assetManager,
+                levelController: this,
+                position: player.getPosition()
+            });
+        }, this);
     },
     /**
      * Adds a player to the specified level.
