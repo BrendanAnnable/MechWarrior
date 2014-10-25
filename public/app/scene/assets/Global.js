@@ -14,6 +14,10 @@ Ext.define('MW.scene.assets.Global', {
 	 * @param assetManager The asset manager to add assets to.
 	 * @returns {*}
 	 */
+
+     //TODO: needs ability to load assets with materials/textures.
+
+
 	load: function (assetManager) {
 		return Promise.all([
 
@@ -76,13 +80,13 @@ Ext.define('MW.scene.assets.Global', {
             }),
 
 
-//            this.loadModelAsset(this.getModelPath('destroyedCar.json')).then(function (face) {
-//                assetManager.addAsset('destroyedCar', destroyedCar);
-//                destroyedCar.name = 'destroyedCar';
-//                destroyedCar.geometry.scale([0.05, 0.05, 0.05]);
-//                destroyedCar.geometry.translate([0, 2, 0]);
-//                destroyedCar.geometry.rotateY(Math.PI);
-//            }),
+            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
+//            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
+                assetManager.addAsset('car', car);
+                car.setName('car');
+                FourJS.geometry.Geometry.scaleAll(car, [2, 2, 2]);
+                car.translate(-50, 0, 0);
+            }),
 
         // load sounds
 	        this.loadSoundAsset(this.getSoundPath('bullet.mp3')).then(function (sound) {
