@@ -21,7 +21,8 @@ Ext.define('MW.level.LevelController', {
         keyboardControls: null,
         mouseControls: null,
         assetManager: null,
-        weaponManager: null
+        weaponManager: null,
+        renderPlayersBoundingBoxes: false
     },
     constructor: function (config) {
         this.initConfig(config);
@@ -98,13 +99,13 @@ Ext.define('MW.level.LevelController', {
         var playerAsset = this.getAssetManager().getAsset('player');
         var player = Ext.create('MW.character.Player', {
             name: name || playerAsset.getName(),
-            renderBoundingBox: true
         });
 		player.addChild(playerAsset);
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
         if (active) {
             this.setActivePlayer(player);           // set the active player
         }
+//        player.addBoundingBox();
         return player;
     },
     /**
@@ -218,6 +219,9 @@ Ext.define('MW.level.LevelController', {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
     },
+
+
+
     /**
      * Updates the level on each render.
      */
@@ -267,6 +271,25 @@ Ext.define('MW.level.LevelController', {
         // keep skybox at constant distance from player (pretty sure there is a better way than this?)
         mat4.copyTranslation(level.getSkybox().getPosition(), camera.getPosition());
 		this.mp.update(this.getActivePlayer());
+    },
+
+    togglePlayersBoundingBoxesRenderable: function(){
+
+        if (this.renderPlayersBoundingBoxes) {
+
+            for (var i =0; i < this.getPlayers().length; i++) {
+                this.getPlayers()[i].removeBoundingBox();
+            }
+
+            this.renderPlayersBoundingBoxes = false;
+        }
+        else{
+
+            for (var i =0; i < this.getPlayers().length; i++) {
+                this.getPlayers()[i].addBoundingBox();
+            }
+            this.renderPlayersBoundingBoxes = true;
+        }
     }
 
 });

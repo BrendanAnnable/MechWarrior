@@ -13,7 +13,37 @@ Ext.define('MW.level.genesis.GenesisController', {
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
 		// add a hacky gui slider
-		//var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+
+        var lev = GUI.addFolder("Level");
+        var thisLevel = this.getLevel();
+        var thisController = this;
+
+        //TODO: dunno why this doesnt work
+//        var playersBoundingBoxController = lev.add(thisController, '_renderPlayersBoundingBoxes');
+//        playersBoundingBoxController.onChange(function() {
+////            debugger;
+////            if(player.getRenderBoundingBox()===false) {
+////                player.addBoundingBox();
+////            }
+////            else if (player.getRenderBoundingBox()===true){
+////                player.removeBoundingBox();
+//////                player.getBoundingBox().setRenderable(false);
+////            }
+////            else{}
+//            thisController.togglePlayersBoundingBoxesRenderable();
+//            console.log(thisController);
+//            debugger;
+//        });
+
+        var obstaclesBoundingBoxController = lev.add(thisLevel, '_renderObstaclesBoundingBoxes');
+        obstaclesBoundingBoxController.onChange(function() {
+           thisLevel.toggleObstaclesBoundingBoxesRenderable();
+            console.log(thisLevel);
+            debugger;
+        });
+
+
+        //var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
 		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
 		var f = GUI.addFolder("Robot");
 		material.setReflectivity(0.4);
@@ -219,6 +249,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 //        building.scale(length, height, width);
         building.translate(xLocation,yLocation,zLocation);
+//        building.addBoundingBox();
 
         return building;
 
@@ -232,6 +263,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         crate.setPosition(mat4.create());
         crate.scale(length, height, width);
         crate.translate(xLocation,yLocation,zLocation);
+//        crate.addBoundingBox();
         return crate;
 
     },
@@ -255,6 +287,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         else {
             wall.scale(length, height, width);
         }
+//        wall.addBoundingBox();
         return wall;
     },
 
