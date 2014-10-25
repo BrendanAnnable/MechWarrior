@@ -38,8 +38,7 @@ Ext.define('MW.level.genesis.GenesisController', {
         var obstaclesBoundingBoxController = lev.add(thisLevel, '_renderObstaclesBoundingBoxes');
         obstaclesBoundingBoxController.onChange(function() {
            thisLevel.toggleObstaclesBoundingBoxesRenderable();
-            console.log(thisLevel);
-            debugger;
+//            console.log(thisLevel);
         });
 
 
