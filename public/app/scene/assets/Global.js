@@ -68,6 +68,7 @@ Ext.define('MW.scene.assets.Global', {
                 FourJS.geometry.Geometry.scaleAll(building, [1, 1, 1]);
                 building.translate(0,1,0);
             }),
+<<<<<<< HEAD
             this.loadModelAsset(this.getModelPath('cube.json')).then(function (wall) {
                 assetManager.addAsset('wall', wall);
                 wall.setName('wall');
@@ -79,6 +80,8 @@ Ext.define('MW.scene.assets.Global', {
 				feature.setName('feature');
 				FourJS.geometry.Geometry.scaleAll(feature, [2, 2, 2]);
 			}),
+=======
+>>>>>>> Remade the walls. Added a texture to them.
             this.loadModelAsset(this.getModelPath('car+materialised.json')).then(function (car) {
 //            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
                 assetManager.addAsset('car', car);

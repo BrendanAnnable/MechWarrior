@@ -101,6 +101,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		simpleCity.push(crate01);
 //        var testCrate = this.createCrate(true);                       // create an active player
 
+<<<<<<< HEAD
 
 		// load walls
 		var eastWall = this.loadWall(assetManager, 150,0,150,20,1, Math.PI/2,1);
@@ -114,6 +115,21 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 		var northWall = this.loadWall(assetManager, 0,-150,150,20,1, Math.PI,1);
 		simpleCity.push(northWall);
+=======
+        // load walls
+        var width = 300;
+        var height = 50;
+        var depth = 5;
+        var y = 0;
+        // east wall
+		simpleCity.push(this.loadWall(assetManager, 150, y, 0, width, height, depth, -Math.PI / 2));
+        // west wall
+        simpleCity.push(this.loadWall(assetManager, -150, y, 0, width, height, depth, Math.PI / 2));
+        // south
+        simpleCity.push(this.loadWall(assetManager, 0, y, 150, width, height, depth, -Math.PI));
+        // north
+        simpleCity.push(this.loadWall(assetManager, 0, y, -150, width, height, depth, Math.PI));
+>>>>>>> Remade the walls. Added a texture to them.
 
 		var car1 = this.loadCar(assetManager, -50, 0, 0);
 		simpleCity.push(car1);
@@ -243,6 +259,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		building.translate(xLocation,yLocation,zLocation);
 //        building.addBoundingBox();
 
+<<<<<<< HEAD
 		return building;
 
 	},
@@ -275,6 +292,33 @@ Ext.define('MW.level.genesis.GenesisController', {
 		} else {
 			wall.scale(length, height, width);
 		}
+=======
+        return building;
+
+    },
+    loadCrate: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
+        var crateAsset = assetManager.getAsset('crate');
+        var crate = Ext.create('MW.level.city.Crate', {
+            name: name || crateAsset.getName()
+        });
+        crate.addChild(crateAsset);
+        crate.setPosition(mat4.create());
+        crate.scale(length, height, width);
+        crate.translate(xLocation,yLocation,zLocation);
+//        crate.addBoundingBox();
+        return crate;
+    },
+    loadWall: function (assetManager, x, y, z, width, height, depth, orientation) {
+        var wall = Ext.create('MW.level.city.Wall', {
+            name: 'wall',
+            url: 'resources/image/wall.png',
+            width: width,
+            height: height,
+            depth: depth
+        });
+        wall.translate(x, y, z);
+        wall.rotateY(orientation);
+>>>>>>> Remade the walls. Added a texture to them.
 //        wall.addBoundingBox();
 		return wall;
 	},
