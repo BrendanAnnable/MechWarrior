@@ -97,6 +97,21 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 			var center2 = vec4.transformMat4(vec4.create(), box2.getCenter(), pos2);
 			var centerDifference = vec4.subtract(vec4.create(), center1, center2);
 
+			var results = {
+				intersects: true,
+				resolution: null
+			};
+
+			// broad phase
+			var maxDiameter1 = vec4.length(vec4.subtract(vec4.create(), box1.getMax(), box1.getMin()));
+			var maxDiameter2 = vec4.length(vec4.subtract(vec4.create(), box2.getMax(), box2.getMin()));
+			if (vec4.length(centerDifference) > maxDiameter1 + maxDiameter2) {
+				results.intersects = false;
+				return results;
+			}
+
+			// narrow phase
+
 			// get the axis vectors of the first box
 			var ax1 = mat4.col(pos1, 0);
 			var ay1 = mat4.col(pos1, 1);
@@ -120,11 +135,6 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 			var radX2 = vec4.scale(vec4.create(), ax2, radii2[0]);
 			var radY2 = vec4.scale(vec4.create(), ay2, radii2[1]);
 			var radZ2 = vec4.scale(vec4.create(), az2, radii2[2]);
-
-			var results = {
-				intersects: true,
-				resolution: null
-			};
 
 			var smallestDifference = Infinity;
 			// there are 15 axes to check, so loop through all of them until a separation plane is found

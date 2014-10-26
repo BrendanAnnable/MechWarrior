@@ -87,9 +87,9 @@ Ext.define('MW.level.genesis.GenesisController', {
 		simpleCity = simpleCity.concat(this.createCrates(assetManager));     // create the crates
 		simpleCity = simpleCity.concat(this.createWalls());                  // create the walls
 
-		var car1 = this.loadCar(assetManager, -4, 0, -50, 0);
+		var car1 = this.loadCar(assetManager, 4, 0, -50, 0);
 		simpleCity.push(car1);
-		var car2 = this.loadCar(assetManager, 4, 0, -30, 0);
+		var car2 = this.loadCar(assetManager, -4, 0, -30, 0);
 		simpleCity.push(car2);
 		var car3 = this.loadCar(assetManager, -4, 0, 30, 0);
 		simpleCity.push(car3);
@@ -161,7 +161,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var depth = 2;
 		// create the crates
 		crates.push(this.loadCrate(30, y, 5, width, height, depth));
-		crates.push(this.loadCrate(10, y, -5, width, height, depth));
+		crates.push(this.loadCrate(20, y, -5, width, height, depth));
 		crates.push(this.loadCrate(5, y, -30, width, height, depth));
 		crates.push(this.loadCrate(-5, y, 10, width, height, depth));
 		crates.push(this.loadCrate(-30, y, -5, width, height, depth));

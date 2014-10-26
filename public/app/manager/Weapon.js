@@ -20,11 +20,11 @@ Ext.define('MW.manager.Weapon', {
         var owner = options.owner;
         var position = mat4.create();
         mat4.copyTranslation(position, origin);
-        //mat4.translate(position, position, vec3.fromValues(0, 2, -2));
-        mat4.translate(position, position, vec3.fromValues(0, 4, 0));
+        mat4.translate(position, position, vec3.fromValues(0, 2, -2));
+//        mat4.translate(position, position, vec3.fromValues(0, 4, 0));
         var bullet = Ext.create('MW.projectile.Bullet', {
-            //initialVelocity: 40,
-            initialVelocity: 0,
+            initialVelocity: 40,
+//            initialVelocity: 0,
             mass: 0.5,
             position: position,
             pitch: mouseControls.getPitch() - Math.PI / 2,

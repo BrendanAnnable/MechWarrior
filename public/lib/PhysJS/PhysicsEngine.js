@@ -75,6 +75,7 @@ Ext.define('PhysJS.PhysicsEngine', {
                 candidatePosition[13] = 0;
                 velocity[1] = 0;
 				lastAcceleration[1] = 0;
+				object.fireEvent('collision', null); // TODO: unhack
             }
 
 			var results = this.hasCollided(object, candidatePosition, sceneChildren);
