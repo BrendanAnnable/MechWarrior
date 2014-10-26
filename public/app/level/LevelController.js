@@ -105,7 +105,6 @@ Ext.define('MW.level.LevelController', {
         if (active) {
             this.setActivePlayer(player);           // set the active player
         }
-//        player.addBoundingBox();
         return player;
     },
     /**
@@ -219,9 +218,6 @@ Ext.define('MW.level.LevelController', {
         Ext.Array.remove(this.getProjectiles(), projectile);
         this.getLevel().removeChild(projectile);
     },
-
-
-
     /**
      * Updates the level on each render.
      */
@@ -266,30 +262,25 @@ Ext.define('MW.level.LevelController', {
             // move player according to keyboard input
             mat4.translate(position, position, keyboardControls.getTranslation());
         }
-        // run the physics engine update
+
+		if (this.feature) { // TODO: hack, makes the ring spin on the 'feature'
+			var now = Date.now();
+			if (!this.last) this.last = now;
+			var period = 4000;
+			this.feature.getChild("Ring").rotateY(2 * Math.PI * (now - this.last) / period);
+			this.last = now;
+		}
+
+		// run the physics engine update
         this.physics.update();
         // keep skybox at constant distance from player (pretty sure there is a better way than this?)
         mat4.copyTranslation(level.getSkybox().getPosition(), camera.getPosition());
 		this.mp.update(this.getActivePlayer());
     },
-
-    togglePlayersBoundingBoxesRenderable: function(){
-
-        if (this.renderPlayersBoundingBoxes) {
-
-            for (var i =0; i < this.getPlayers().length; i++) {
-                this.getPlayers()[i].removeBoundingBox();
-            }
-
-            this.renderPlayersBoundingBoxes = false;
-        }
-        else{
-
-            for (var i =0; i < this.getPlayers().length; i++) {
-                this.getPlayers()[i].addBoundingBox();
-            }
-            this.renderPlayersBoundingBoxes = true;
-        }
+   	showPlayerVisualBoundingBoxes: function (enabled) {
+		var players = this.getPlayers();
+		for (var name in players) {
+			players[name].showVisualBoundingBox(enabled);
+		}
     }
-
 });

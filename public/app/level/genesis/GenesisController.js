@@ -6,57 +6,33 @@ Ext.define('MW.level.genesis.GenesisController', {
     extend: 'MW.level.LevelController',
     requires: [
         'FourJS.util.math.HermiteSpline',
-        'FourJS.geometry.CubeGeometry'
+        'FourJS.geometry.CubeGeometry',
+		'MW.level.City.Building',
+		'MW.level.City.Crate',
+		'MW.level.City.Wall',
+		'MW.level.City.Car'
     ],
+	feature: null,
+	renderPlayerBoundingBox: false,
     constructor: function (config) {
         this.callParent(arguments);
         var assetManager = this.getAssetManager();                  // get the asset manager
         var player = this.createPlayer(true);                       // create an active player
-		// add a hacky gui slider
 
-        var lev = GUI.addFolder("Level");
-        var thisLevel = this.getLevel();
-        var thisController = this;
+		this.addGUI();
 
-        //TODO: dunno why this doesnt work
-//        var playersBoundingBoxController = lev.add(thisController, '_renderPlayersBoundingBoxes');
-//        playersBoundingBoxController.onChange(function() {
-////            debugger;
-////            if(player.getRenderBoundingBox()===false) {
-////                player.addBoundingBox();
-////            }
-////            else if (player.getRenderBoundingBox()===true){
-////                player.removeBoundingBox();
-//////                player.getBoundingBox().setRenderable(false);
-////            }
-////            else{}
-//            thisController.togglePlayersBoundingBoxesRenderable();
-//            console.log(thisController);
-//            debugger;
-//        });
-
-        var obstaclesBoundingBoxController = lev.add(thisLevel, '_renderObstaclesBoundingBoxes');
-        obstaclesBoundingBoxController.onChange(function() {
-           thisLevel.toggleObstaclesBoundingBoxesRenderable();
-//            console.log(thisLevel);
-        });
-
-
-        //var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
-		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
-		var f = GUI.addFolder("Robot");
-		material.setReflectivity(0.4);
-		f.add(material, '_reflectivity', 0, 1).step(0.01);
-		f.add(material, '_wireframe');
-		f.add(material, '_useLighting');
         var face = this.createFace(assetManager, player, 7000);           // create the face model
         var anotherface = this.createFace(assetManager, player, 3000);           // create the face model
 
         this.getLevel().addObstacle(face);                          // add the face as an obstacle to the level
         this.getLevel().addObstacle(anotherface);                          // add the face as an obstacle to the level
 
-		var sphere = this.createSphere(assetManager);           // create the face model
-		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
+//		var sphere = this.createSphere(assetManager);           // create the face model
+//		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
+
+		this.feature = this.createFeature(assetManager);
+		this.feature.translate(0, 0, -8);
+		this.getLevel().addObstacle(this.feature);
 
 		this.addCities(assetManager);
 
@@ -65,6 +41,32 @@ Ext.define('MW.level.genesis.GenesisController', {
         // add mouse event to the controller
         this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
     },
+	addGUI: function () {
+		// add a hacky gui slider
+		var levelFolder = GUI.addFolder("Level");
+		var level = this.getLevel();
+		var settings = {
+			playerBoxes: false,
+			obstacleBoxes: false
+		};
+
+		levelFolder.add(settings, 'playerBoxes').onChange(Ext.bind(function (value) {
+			this.showPlayerVisualBoundingBoxes(value);
+		}, this));
+
+		levelFolder.add(settings, 'obstacleBoxes').onChange(Ext.bind(function (value) {
+			level.showObstacleVisualBoundingBoxes(value);
+		}, this));
+
+		var player = this.getActivePlayer();
+		//var material = player.getChild("Robot_Body").getChildren()[0].getMaterial();
+		var material = player.getChild("charactermodel").getChildren()[0].getMaterial();
+		var f = GUI.addFolder("Robot");
+		material.setReflectivity(0.4);
+		f.add(material, '_reflectivity', 0, 1).step(0.01);
+		f.add(material, '_wireframe');
+		f.add(material, '_useLighting');
+	},
 	addCities: function (assetManager) {
 		var simpleCity = [];
 
@@ -131,25 +133,16 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 		}
 
-//       var build= Ext.create('MW.level.City.Building', {
-//
-////            xCoord: 10,
-////            zCoord:10
-//
-//        });
-//
-//        this.getLevel().addObstacle(build);
-//
-
-
-        //var house = this.createHouse(assetManager);               // the folowing code adds a house to the scene
-        //this.getLevel().addObstacle(house);                       // good as a reference
-
-        var genx = 0; //the root orientation of all the cityblocks
-        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-        var genz = 0; //the root oreintation of all cityblocks
-        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
-        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+		// the root orientation of all the cityblocks
+        var genx = 0;
+		// this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+        var geny = 0.01;
+		// the root oreintation of all cityblocks
+        var genz = 0;
+		//the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+        var nocityblocks = 2;
+		//if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+        var blocksize = 78;
 
         var cityblock = [];
         for (var i = 0; i < nocityblocks; i++) {
@@ -160,16 +153,6 @@ Ext.define('MW.level.genesis.GenesisController', {
                 this.getLevel().addObstacle(cityblock[i][j]);
             }
         }
-
-        var cb1 = this.createCityBlock(assetManager);
-        cb1.translate(-20, 0.1, -50);
-        this.getLevel().addObstacle(cb1);
-
-        /*                                                //no support for multiple objects yet :(
-         var cb2 = this.createCityBlock(assetManager);
-         cb2.translate(-20, 20, -20);
-         this.getLevel().addObstacle(cb2);
-         */
     },
 
 	createSphere: function (assetManager) {
@@ -184,6 +167,13 @@ Ext.define('MW.level.genesis.GenesisController', {
         house.translate(0, 50, 0);
         return house;
     },
+	createFeature: function (assetManager) {
+		var feature = assetManager.getAsset('feature');
+//		feature.getChild("Ring_Ring_Ring").getChildren()[0].getMaterial().setReflectivity(0.5);
+//		feature.getChild("Sphere_Sphere_Sphere").getChildren()[0].getMaterial().setReflectivity(0.5);
+		feature.getChild("Ring").getChildren()[0].getMaterial().setReflectivity(0.7); // TODO: hack
+		return feature;
+	},
     createCityBlock: function (assetManager) {
         var ret = assetManager.getAsset('cityblock');
         //cityblock.translate(0, 10, 0);
@@ -226,10 +216,6 @@ Ext.define('MW.level.genesis.GenesisController', {
         };
         return face;
     },
-
-
-
-
     /**
      * Returns a random integer between min (inclusive) and max (inclusive)
      * Using Math.round() will give you a non-uniform distribution!
@@ -237,15 +223,13 @@ Ext.define('MW.level.genesis.GenesisController', {
     randomIntegerInRange: function (min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
     },
-
-    createCar: function (assetManager, xLocation,yLocation, zLocation) {
+    createCar: function (assetManager, xLocation, yLocation, zLocation) {
         var carAsset = assetManager.getAsset('car');
         var car = Ext.create('MW.level.City.Car', {
             name: name || carAsset.getName()
         });
         car.addChild(carAsset);
-        car.setPosition(mat4.create());
-        car.translate(xLocation,yLocation,zLocation);
+        car.translate(xLocation, yLocation, zLocation);
         car.rotateY(-Math.PI / 2);
         return car;
     },
@@ -256,7 +240,6 @@ Ext.define('MW.level.genesis.GenesisController', {
             name: name || buildingAsset.getName()
         });
         building.addChild(buildingAsset);
-        building.setPosition(mat4.create());
         FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
 
 //        building.scale(length, height, width);
@@ -302,7 +285,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 //        wall.addBoundingBox();
         return wall;
     },
-
     loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
         var crate = assetManager.getAsset('cube');
         FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
@@ -310,7 +292,4 @@ Ext.define('MW.level.genesis.GenesisController', {
         return crate;
 
     }
-
-
-
 });

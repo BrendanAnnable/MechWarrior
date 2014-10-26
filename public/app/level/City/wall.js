@@ -19,9 +19,8 @@ Ext.define('MW.level.City.Wall', {
     config: {
     },
     constructor: function (config) {
-        this.initConfig(config);
         this.callParent(arguments);
+		this.setDynamic(false);
         this.mixins.physics.constructor.call(this, config);
     }
-
 });

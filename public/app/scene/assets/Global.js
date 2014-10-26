@@ -78,8 +78,11 @@ Ext.define('MW.scene.assets.Global', {
                 FourJS.geometry.Geometry.scaleAll(wall, [1, 1, 1]);
                 wall.translate(0,1,0);
             }),
-
-
+			this.loadModelAsset(this.getModelPath('feature/feature.json')).then(function (feature) {
+				assetManager.addAsset('feature', feature);
+				feature.setName('feature');
+				FourJS.geometry.Geometry.scaleAll(feature, [2, 2, 2]);
+			}),
             this.loadModelAsset(this.getModelPath('car+materialised.json')).then(function (car) {
 //            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
                 assetManager.addAsset('car', car);

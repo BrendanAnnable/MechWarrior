@@ -164,7 +164,7 @@ Ext.define('PhysJS.util.math.BoundingBox', {
 				// get the projection of the center difference onto the axis
 				var projectionDifference = Math.abs(vec4.dot(centerDifference, axis));
 
-				if (projectionDifference > projectionBoxesSum) {
+				if (projectionDifference >= projectionBoxesSum) {
 					// If the projection of the center difference onto the axis is greater
 					// than the sum of the box projections, then we found a separating plane!
 					// The bounding boxes therefore must not intersect
