@@ -119,6 +119,20 @@ Ext.define('MW.level.LevelController', {
 		if (player !== null) {
 			mat4.copy(player.getPosition(), message.player.position);
 		}
+		var now = Date.now();
+		if (!this.lastRadarUpdate) this.lastRadarUpdate = now; // TODO: unhack
+		if (now - this.lastRadarUpdate > 20) {
+			// get player (p2) position relative to the active player (p1)
+			// 1. transform into p1 space, by using active p1 inverse position
+			// 2. transform p2 into p1 space by multiplying by p1 position
+			var relPosition = mat4.multiply(mat4.create(), this.getActivePlayer().getPositionInverse(), player.getPosition());
+			var radar = this.getMenu().getRadar().getController();
+			var translation = mat4.col(relPosition, 3, 3);
+			var scale = 2; // used to scale real distance to radar distance
+			var position = vec3.scale(vec3.create(), translation, scale);
+			radar.moveCircle(player.getName(), position);
+			this.lastRadarUpdate = now;
+		}
 	},
     /**
      * Removes all players from the scene and resets the level.

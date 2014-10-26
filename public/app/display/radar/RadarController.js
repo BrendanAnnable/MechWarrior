@@ -163,6 +163,14 @@ Ext.define('MW.display.radar.RadarController', {
 	getRingTranslation: function (width) {
 		return this.getView().getSpace() * 0.5 + ((this.radar.width() - width) / 2);
 	},
+	moveCircle: function (key, position) {
+		var circle = this.objects[key];
+		if (!circle) {
+			this.addCircle(key, position);
+		} else {
+			circle.move(this.centre.x + position[0], this.centre.y + position[2]).clipWith(this.radar.clone());
+		}
+	},
 	/**
 	 * Adds a circle to the radar at a certain position.
 	 *
@@ -173,13 +181,13 @@ Ext.define('MW.display.radar.RadarController', {
 	 */
 	addCircle: function (key, position, diameter, color) {
 		var view = this.getView();
-		position = position || {};
+		position = position || vec4.create();
 		color = color === undefined ? view.getDefaultObjectColor().getHex() : color.getHex();
 		diameter = diameter || view.getDefaultObjectRadius() * 2;
 		// create and draw the circle object
 		this.objects[key] = this.draw.circle(diameter).fill({
 			color: color
-		}).move(position.x || this.centre.x, position.y || this.centre.y).clipWith(this.radar.clone());
+		}).move(this.centre.x + position[0], this.centre.y + position[2]).clipWith(this.radar.clone());
 	},
 	/**
 	 * Removes an object from the radar based off its key.
