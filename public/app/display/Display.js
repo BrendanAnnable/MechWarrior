@@ -10,7 +10,9 @@ Ext.define('MW.display.Display', {
 	messenger: null,
     requires: [
         'MW.display.radar.Radar',
-        'MW.display.life.Life'
+        'MW.display.life.Life',
+	    'MW.display.counter.Counter',
+	    'MW.display.messenger.Messenger'
     ],
     layout: 'absolute',
     initComponent: function () {

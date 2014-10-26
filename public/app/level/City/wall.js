@@ -3,7 +3,7 @@
  * Created by juliussky on 12/10/2014.
  */
 
-Ext.define('MW.level.City.Wall', {
+Ext.define('MW.level.city.Wall', {
     alias: 'Wall',
     extend: 'FourJS.object.Object',
     // TODO: move wall creation from Genesis to here

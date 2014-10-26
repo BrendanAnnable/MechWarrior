@@ -1,7 +1,7 @@
 /**
  * @author juliussky
  */
-Ext.define('MW.level.City.Crate', {
+Ext.define('MW.level.city.Crate', {
     alias: 'Crate',
     extend: 'FourJS.object.Object',
     // TODO: move crate creation from Genesis to here
@@ -14,8 +14,6 @@ Ext.define('MW.level.City.Crate', {
         'FourJS.material.Phong',
         'FourJS.util.Color'
     ],
-    config: {
-    },
     constructor: function (config) {
         this.initConfig(config);
         this.callParent(arguments);

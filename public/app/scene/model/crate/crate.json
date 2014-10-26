@@ -551,7 +551,7 @@
 				}
                  ,{
                      "key": "$tex.file"
-                     ,"semantic": 3
+                     ,"semantic": 1
                      ,"index": 0
                      ,"type": 3
                      ,"value": "crate.png"
