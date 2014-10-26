@@ -66,9 +66,13 @@ Ext.define('MW.display.Display', {
 	 * @param keyboardControls The keyboard controls for the game.
 	 */
 	addKeyboardEvents: function (keyboardControls) {
+		var messenger = this.getMessenger();
 		keyboardControls.on({
 			messenger: function () {
-				this.getMessenger().fireEvent('update', keyboardControls.hasMenuContext())
+				messenger.fireEvent('update', keyboardControls.hasMenuContext())
+			},
+			removeMenuContext: function () {
+				messenger.fireEvent('update', keyboardControls.hasMenuContext())
 			},
 			scope: this
 		});

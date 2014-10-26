@@ -13,11 +13,14 @@ Ext.define('MW.display.messenger.Messenger', {
 	hidden: true,
 	items: [{
 		xtype: 'container',
-		itemId: 'messages'
+		itemId: 'messages',
+		cls: 'messages'
 	},  {
 		xtype: 'textarea',
+		itemId: 'input',
 		cls: 'message',
 		border: false,
+		enableKeyEvents: true,
 		style: {
 			marginTop: '1em'
 		}

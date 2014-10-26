@@ -8,13 +8,24 @@ Ext.define('MW.display.messenger.MessengerController', {
 		'MW.display.messenger.message.Player'
 	],
 	messages: null,
+	input: null,
+	config: {
+		submitKey: 13   // enter
+	},
 	control: {
 		'#': {
-			update: 'onUpdate'
+			update: 'onUpdate',
+			hide: 'onHide'
 		}
 	},
 	init: function () {
-		this.messages = this.getView().down('#messages');
+		var view = this.getView();
+		this.messages = view.down('#messages');
+		this.input = view.down('#input');
+		this.input.on({
+			keydown: this.onKeyDown,
+			scope: this
+		});
 		this.addPlayerMessage('some name', 'some message');
 		this.addPlayerMessage('some name', 'some message');
 	},
@@ -32,12 +43,31 @@ Ext.define('MW.display.messenger.MessengerController', {
 		});
 		this.messages.add(playerMessage);
 	},
+	/**
+	 * An event triggered by the keyboard controls when the user presses the key associate with the messenger.
+	 *
+	 * @param hasMenuContext Whether the menu is in context or not.
+	 */
 	onUpdate: function (hasMenuContext) {
 		var view = this.getView();
-		if (hasMenuContext) {
-			view.show();
+		if (hasMenuContext) {                   // check if the menu is active
+			view.show();                        // show the messenger
+			this.input.focus();                 // focus the textarea
 		} else {
-			view.hide();
+			view.hide();                        // hide the messenger
+		}
+	},
+	/**
+	 * An event triggered when the user types a message.
+	 *
+	 * @param input The player input.
+	 * @param event The event object.
+	 */
+	onKeyDown: function (input, event) {
+		// check if the user is submitting their message with SHIFT + ENTER
+		if (event.keyCode === this.getSubmitKey() && !event.shiftKey) {
+			// todo submit the message
+			this.input.setValue("");            // clear the message
 		}
 	}
 });

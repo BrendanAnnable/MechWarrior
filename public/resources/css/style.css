@@ -28,7 +28,20 @@ body {
 	top: 20%;
 	width: 20%;
 	height: 50%;
+}
+
+.messages {
+	width: 100%;
+	height: 80%;
 	overflow: hidden;
+}
+
+.message {
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	height: 20%;
+	z-index: 10;
 }
 
 .message, .message textarea, .message div {
@@ -36,6 +49,13 @@ body {
 	border: none;
 	outline: none;
 	padding: 0;
+}
+
+.message textarea {
+	border-top: 0.1em rgba(255, 255, 255, 0.5) solid;
+	border-bottom: 0.1em rgba(255, 255, 255, 0.5) solid;
+	border-radius: 0.5em;
+	padding: 0.5em;
 }
 
 .counter, .counter-image {

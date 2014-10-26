@@ -17,7 +17,8 @@ Ext.define('MW.control.Keyboard', {
 		backwardKey: 'S'.charCodeAt(0),
 		rightKey: 'D'.charCodeAt(0),
 		jumpKey: ' '.charCodeAt(0),
-		messengerKey: 'E'.charCodeAt(0)
+		messengerKey: 'E'.charCodeAt(0),
+		escapeMenuContextKey: 'E'.charCodeAt(0)
 	},
 	constructor: function () {
 		this.callParent(arguments);
@@ -26,12 +27,20 @@ Ext.define('MW.control.Keyboard', {
 	onKeyDown: function (event){
 		this.callParent(arguments);
 		this.needsUpdate = true;
-		if (event.keyCode === this.getJumpKey()) {
-			this.fireEvent('jump');
-		}
-		if (event.keyCode == this.getMessengerKey()) {
-			this.menuContext = !this.menuContext;
-			this.fireEvent('messenger');
+		if (!this.hasMenuContext()) {
+			if (event.keyCode === this.getJumpKey()) {
+				this.fireEvent('jump');
+			}
+			if (event.keyCode == this.getMessengerKey()) {
+				this.menuContext = !this.menuContext;
+				this.fireEvent('messenger');
+			}
+		} else {
+			// check if the player is escaping the menu via SHIFT + E
+			if (event.shiftKey && event.keyCode === this.getEscapeMenuContextKey()) {
+				this.menuContext = false;                               // remove the menu context
+				this.fireEvent('removeMenuContext');                    // fire the event to remove the context
+			}
 		}
 		this.fireEvent(String.fromCharCode(event.keyCode), event);
 		this.shift = event.shiftKey;
