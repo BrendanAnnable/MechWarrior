@@ -1,6 +1,8 @@
 /**
  * @author Monica Olejniczak
  * @author Brendan Annable
+ * @author juliussky
+ * @author Andrew Dabson
  */
 Ext.define('MW.level.genesis.GenesisController', {
     extend: 'MW.level.LevelController',

@@ -1,5 +1,5 @@
 /**
- * Created by juliusskye on 12/10/2014.
+ * @author juliussky on 12/10/2014.
  */
 
 Ext.define('MW.level.city.Building', {

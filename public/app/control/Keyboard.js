@@ -1,5 +1,6 @@
 /**
  * @author Brendan Annable
+ * @contributor juliussky
  */
 Ext.define('MW.control.Keyboard', {
 	extend: 'FourJS.control.Keyboard',
