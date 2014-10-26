@@ -21,7 +21,6 @@ Ext.define('MW.level.city.Crate', {
 		url: null
 	},
 	constructor: function (config) {
-		this.initConfig(config);
 		this.callParent(arguments);
 		this.mixins.physics.constructor.call(this, config);
 		var geometry = Ext.create('FourJS.geometry.CubeGeometry', {
@@ -29,6 +28,7 @@ Ext.define('MW.level.city.Crate', {
 			height: this.getHeight(),
 			depth: this.getDepth()
 		});
+		geometry.translate(vec3.fromValues(0, this.getHeight() / 2, 0));
 		// create the mesh containing the geometry
 		var material = Ext.create('FourJS.material.Phong', {
 			texture: Ext.create('FourJS.loader.Texture', {
@@ -42,6 +42,6 @@ Ext.define('MW.level.city.Crate', {
 		});
 		this.setGeometry(geometry);
 		this.setMaterial(material);
+		this.setDynamic(false);
 	}
-
 });

@@ -82,13 +82,10 @@ Ext.define('PhysJS.PhysicsEngine', {
 				// fire collision events on both objects
 				object.fireEvent('collision', results.collidedObject);
 				results.collidedObject.fireEvent('collision', object);
-//					this.resolveCollision(candidatePosition, object, collidedObject);
-				if (object.getDynamic()) {
-					mat4.translate(candidatePosition, candidatePosition, results.resolution);
-					velocity[1] = 0;
-					acceleration[1] = 0;
-					lastAcceleration[1] = 0;
-				}
+				this.resolveCollision(results.resolution, candidatePosition, object, results.collidedObject);
+				vec3.scale(velocity, velocity, 0);
+				vec3.scale(acceleration, acceleration, 0);
+				vec3.scale(lastAcceleration, lastAcceleration, 0);
 			}
 			mat4.copy(position, candidatePosition);
 
@@ -136,16 +133,24 @@ Ext.define('PhysJS.PhysicsEngine', {
 	 * the colliding candidate position along with a binary search
 	 * until a reasonably 'close' non-colliding position is found.
 	 *
+	 * @param satMTV The SAT test's minimum translation vector
 	 * @param candidateCollisionPosition The candidate position which has a collision
 	 * @param colliderObj The object colliding, and the one to move
 	 * @param collidedIntoObj The object colliding with, assumed to not move
 	 */
-	resolveCollision: function (candidateCollisionPosition, colliderObj, collidedIntoObj) {
+	resolveCollision: function (satMTV, candidateCollisionPosition, colliderObj, collidedIntoObj) {
 		var lastPosition = colliderObj.getLastPosition();
 
 		var colliderObjBBox = colliderObj.getBoundingBox();
 		var collidedIntoObjBBox = collidedIntoObj.getBoundingBox();
+		colliderObjBBox.setPosition(lastPosition);
 		collidedIntoObjBBox.setPosition(collidedIntoObj.getWorldPosition());
+
+		// if last position intersects, use SAT MTV instead
+		if (PhysJS.util.math.BoundingBox.intersects(colliderObjBBox, collidedIntoObjBBox).intersects) {
+			mat4.translate(candidateCollisionPosition, candidateCollisionPosition, satMTV);
+			return;
+		}
 
 		var left = 0;
 		var right = 1;

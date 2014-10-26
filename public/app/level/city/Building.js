@@ -22,7 +22,6 @@ Ext.define('MW.level.city.Building', {
 		url: null
 	},
     constructor: function (config) {
-        this.initConfig(config);
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
 	    var geometry = Ext.create('FourJS.geometry.CubeGeometry', {

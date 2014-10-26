@@ -17,8 +17,8 @@ Ext.define('MW.level.city.Car', {
     config: {
     },
     constructor: function (config) {
-        this.initConfig(config);
-        this.callParent(arguments);
+		this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
+		this.setDynamic(false);
     }
 });

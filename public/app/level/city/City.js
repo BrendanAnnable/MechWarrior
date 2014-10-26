@@ -11,8 +11,6 @@ Ext.define('MW.level.city.City', {
     config: {
     },
     constructor: function (config) {
-        this.initConfig(config);
         this.callParent(arguments);
-
     }
 });
