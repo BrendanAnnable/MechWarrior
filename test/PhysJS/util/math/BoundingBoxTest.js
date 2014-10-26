@@ -32,8 +32,8 @@ describe("BoundingBox", function (){
 			expect(this.boundingBox.getRadii()).toEqual(vec4.fromValues(6, 16.25, 11.5, 0));
 		});
 
-		it("expects the center to be [1, 13.75, 8.5, 0]", function () {
-			expect(this.boundingBox.getCenter()).toEqual(vec4.fromValues(1, 13.75, 8.5, 0));
+		it("expects the center to be [1, 13.75, 8.5, 1]", function () {
+			expect(this.boundingBox.getCenter()).toEqual(vec4.fromValues(1, 13.75, 8.5, 1));
 		});
 	});
 

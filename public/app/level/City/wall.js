@@ -38,20 +38,9 @@ Ext.define('MW.level.city.Wall', {
 				url: this.getUrl(),
 				repeatable: true
 			}),
-			color: Ext.create('FourJS.util.Color', {
-				r: 1,
-				g: 1,
-				b: 1
-			})
+			color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1})
 		});
-		var scale = 5;
-		var coordinates = geometry.getTextureCoords();
-		var textureCoords = [];
-		for (var i = 0; i < coordinates.length; i++) {
-			var coordinate = coordinates[i];
-			textureCoords.push(new Float32Array([coordinate[0] * scale, coordinate[1] * scale]));
-		}
-		geometry.setTextureCoords(textureCoords);
+		geometry.scaleTextureCoords(5);
 		this.setGeometry(geometry);
 		this.setMaterial(material);
 		this.setDynamic(false);

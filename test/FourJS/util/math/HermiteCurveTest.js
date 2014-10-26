@@ -21,11 +21,11 @@ describe("HermiteCurve", function () {
 		});
 
 		it("should give the start point (0, 0) at time 0", function() {
-			expect(this.curve.getPoint(0)).toEqual(this.startPoint);
+			expect(this.curve.getPoint(0)).toEqual(vec4.fromValues(0, 0, 0, 1));
 		});
 
 		it("should give the end point (1, 1) at time 1", function() {
-			expect(this.curve.getPoint(1)).toEqual(this.endPoint);
+			expect(this.curve.getPoint(1)).toEqual(vec4.fromValues(1, 1, 0, 1));
 		});
 
 		it("should be close to (0.100, 0.028) at time 0.1", function() {

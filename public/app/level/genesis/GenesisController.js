@@ -191,7 +191,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 		});
 		wall.translate(x, y, z);
 		wall.rotateY(orientation);
-//        wall.addBoundingBox();
 		return wall;
 	},
 	loadSphere: function (assetManager) {
