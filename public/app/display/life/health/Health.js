@@ -8,9 +8,6 @@ Ext.define('MW.display.life.health.Health', {
         'MW.display.life.health.HealthController'
     ],
     controller: 'Health',
-	config: {
-		health: 0
-	},
     cls: 'health',
     id: 'health',
     initComponent: function () {

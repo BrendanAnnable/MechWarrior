@@ -1,10 +1,10 @@
 /**
- * @author juliussky on 12/10/2014.
+ * @author Julius Sky
+ * @author Monica Olejniczak
  */
-
 Ext.define('MW.level.city.Building', {
     alias: 'Building',
-    extend: 'FourJS.object.Object',
+    extend: 'FourJS.object.Mesh',
     // TODO: move building creation from Genesis to here
     mixins: {
         physics: 'PhysJS.DynamicObject'
@@ -15,12 +15,42 @@ Ext.define('MW.level.city.Building', {
         'FourJS.material.Phong',
         'FourJS.util.Color'
     ],
-    config: {
-    },
+	config: {
+		width: 100,
+		height: 300,
+		depth: 100,
+		url: null
+	},
     constructor: function (config) {
         this.initConfig(config);
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
+	    var geometry = Ext.create('FourJS.geometry.CubeGeometry', {
+		    width: this.getWidth(),
+		    height: this.getHeight(),
+		    depth: this.getDepth()
+	    });
+	    // create the mesh containing the geometry
+	    var material = Ext.create('FourJS.material.Phong', {
+		    texture: Ext.create('FourJS.loader.Texture', {
+			    url: this.getUrl()
+		    }),
+		    color: Ext.create('FourJS.util.Color', {
+			    r: 1,
+			    g: 1,
+			    b: 1
+		    })
+	    });
+	    var scale = 50;
+	    var coordinates = geometry.getTextureCoords();
+	    var textureCoords = [];
+	    for (var i = 0; i < coordinates.length; i++) {
+		    var coordinate = coordinates[i];
+		    textureCoords.push(new Float32Array([coordinate[0] * scale, coordinate[1] * scale]));
+	    }
+	    geometry.setTextureCoords(textureCoords);
+	    this.setGeometry(geometry);
+	    this.setMaterial(material);
+	    this.setDynamic(false);
     }
-
 });

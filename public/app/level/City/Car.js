@@ -1,5 +1,5 @@
 /**
- * @author juliussky on 12/10/2014.
+ * @author Julius Sky
  */
 Ext.define('MW.level.city.Car', {
     alias: 'Car',
@@ -21,7 +21,4 @@ Ext.define('MW.level.city.Car', {
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
     }
-
-
-
 });

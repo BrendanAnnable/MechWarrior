@@ -155,6 +155,13 @@ Ext.define('FourJS.geometry.Geometry', {
             vec3.multiply(vertices[i], vertices[i], scale);
         }
     },
+	scaleTextureCoords: function (scale) {
+		var coords = this.getTextureCoords();
+		for (var i = 0; i < coords.length; i++) {
+			var coord = coords[i];
+			vec2.scale(coord, coord, scale);
+		}
+	},
 	negateNormals: function () {
 		var normals = this.getNormals();
 		for (var i = 0; i < normals.length; i++) {

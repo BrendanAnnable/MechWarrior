@@ -13,10 +13,11 @@ Ext.define('MW.projectile.Projectile', {
 	config: {
 		pitch: 25,              // The angle to fire the projectile from
         yaw: 0,
-		align: true,			// whether to rotate projectile to align with the velocity direction
+		align: true,			// Whether to rotate projectile to align with the velocity direction
 		initialVelocity: 0,     // The initial speed of the projectile
 		damage: 0,              // The damage the projectile impacts upon collision
-		timeSpawned: 0          // The time that the projectile was created
+		timeSpawned: 0,         // The time that the projectile was created
+        owner: null             // The player that shot the projectile
 	},
 	constructor: function (config) {
 		this.callParent(arguments);

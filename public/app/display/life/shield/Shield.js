@@ -8,9 +8,6 @@ Ext.define('MW.display.life.shield.Shield', {
         'MW.display.life.shield.ShieldController'
     ],
     controller: 'Shield',
-    config: {
-	    shield: 0
-    },
     cls: 'shield',
     id: 'shield',
     initComponent: function () {

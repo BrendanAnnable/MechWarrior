@@ -5,17 +5,14 @@ Ext.define('MW.display.life.health.HealthController', {
     extend: 'FourJS.util.svg.SVGController',
     alias: 'controller.Health',
     points: null,
-	currentHealth: null,
     control: {
         '*': {
             'afterrender': 'onAfterRender',
-	        'takedamage': 'onTakeDamage',
-	        'restore': 'onRestore'
+	        'update': 'onUpdate'
         }
     },
     init: function () {
         this.points = '0,0 2.5,2 97.5,2 100,0 92,0 8,0';    // determine the points for the shape of the health bar
-	    this.currentHealth = this.getView().getHealth();    // update the current health to full
 	    this.maxWidth = 100;                                // update the max width of the health
 	    this.maxHeight = 2;                                 // update the max height of the health
     },
@@ -48,36 +45,17 @@ Ext.define('MW.display.life.health.HealthController', {
 	    });
     },
 	/**
-	 * An accessor method that returns the current health.
+	 * An event fired when the health is restored or damaged.
 	 *
-	 * @returns {number} The current health.
+     * @param previousValue The health value before restoring it.
+     * @param newValue The new health value.
+     * @param maximumValue The maximum health value.
 	 */
-	getCurrentHealth: function () {
-		return this.currentHealth;
-	},
-	/**
-	 * An event fired when the health is depleted to match the damage taken.
-
-	 * @param damage The amount of damage taken.
-	 */
-	onTakeDamage: function (damage) {
-		var previousHealth = this.currentHealth;                                // store the previous health value
-		this.currentHealth = Math.max(0, this.currentHealth - damage);          // remove a certain amount of health
-		if (this.currentHealth === 0) {                                         // check if the health has been depleted
-			// todo fire some event
-		}
-		// update the health fill display
-		this.updateFillDisplay(previousHealth, this.currentHealth, this.getView().getHealth());
-	},
-	/**
-	 * An event fired when the health is restored by a certain amount.
-	 *
-	 * @param amount The amount to restore.
-	 */
-	onRestore: function (amount) {
-		var previousHealth = this.currentHealth;                                // store the previous health value
-		var health = this.getView().getHealth();                                // get the maximum health
-		this.currentHealth = Math.min(health, this.currentHealth + amount);     // restore a certain amount of health
-		this.updateFillDisplay(previousHealth, this.currentHealth, health);     // update the health fill display
+	onUpdate: function (previousValue, newValue, maximumValue) {
+        if (this.task != null && this.task.pending) {                   // check if a task exists and it is still running
+            Ext.TaskManager.stop(this.task);                            // stop the task
+            previousValue = this.currentValue;                          // update the previous value to what the task had
+        }
+        this.updateFillDisplay(previousValue, newValue, maximumValue);  // update the health fill display
 	}
 });

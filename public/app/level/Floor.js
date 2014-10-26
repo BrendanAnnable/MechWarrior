@@ -41,6 +41,7 @@ Ext.define('MW.level.Floor', {
             }),
             color: Ext.create('FourJS.util.Color', {r: 1, g: 1, b: 1})
         });
+		geometry.scaleTextureCoords(30);
 		this.setGeometry(geometry);
 		this.setMaterial(material);
         this.setDynamic(false);

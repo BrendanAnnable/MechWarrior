@@ -15,6 +15,7 @@ Ext.define('MW.level.LevelController', {
 	mp: null,
     config: {
         level: null,
+        menu: null,
         activePlayer: null,
         players: null,
         projectiles: null,
@@ -55,6 +56,12 @@ Ext.define('MW.level.LevelController', {
             this.setWeaponManager(Ext.create('MW.manager.Weapon'));
         }
     },
+    /**
+     * An event called when the client connects to the server. It contains the state of the current game, including
+     * players and their information.
+     *
+     * @param message Contains the list of players.
+     */
 	onGameState: function (message) {
 		this.reset();
 		var activePlayer = message.player;
@@ -66,19 +73,56 @@ Ext.define('MW.level.LevelController', {
 			}
 		}
 	},
+    /**
+     * An event called when a player connects to the server.
+     *
+     * @param message Contains an object with the player's name.
+     * e.g.
+     * {
+     *      player: {
+     *          name: {string}      // player name
+     *      }
+     * }
+     */
 	onPlayerConnect: function (message) {
 		var player = this.createPlayer(false, message.player.name);
 	},
+    /**
+     * An event called when the player disconnects from the server.
+     *
+     * @param message Contains an object with the player's name.
+     * e.g.
+     * {
+     *      player: {
+     *          name: {string}      // player name
+     *      }
+     * }
+     */
 	onPlayerDisconnect: function (message) {
 		var player = this.getPlayer(message.player.name);
 		this.removePlayer(this.getLevel(), player);
 	},
+    /**
+     * An event called on each update containing other player information.
+     *
+     * @param message Contains the player's information.
+     * e.g.
+     * {
+     *      player: {
+     *          name: {string},     // player name
+     *          position: {mat4}    // player position
+     *      }
+     * }
+     */
 	onPlayerUpdate: function (message) {
 		var player = this.getPlayer(message.player.name);
 		if (player !== null) {
 			mat4.copy(player.getPosition(), message.player.position);
 		}
 	},
+    /**
+     * Removes all players from the scene and resets the level.
+     */
 	reset: function () {
 		var activePlayer = this.getActivePlayer();
 		var level = this.getLevel();
@@ -96,16 +140,27 @@ Ext.define('MW.level.LevelController', {
      * @returns {MW.character.Player}
      */
     createPlayer: function (active, name) {
+        // get the player asset
         var playerAsset = this.getAssetManager().getAsset('player');
+        // create the player
         var player = Ext.create('MW.character.Player', {
             name: name || playerAsset.getName(),
         });
+        // add the asset to the player
 		player.addChild(playerAsset);
+        // add a collision event listener to the player
+        player.on('collision', function (collidedObject) {
+            // check if the object is a projectile
+            if (collidedObject instanceof MW.projectile.Projectile) {
+                // damage the player
+                player.fireEvent('takeDamage', this.getMenu(), collidedObject);
+            }
+        }, this);
 	    this.addPlayer(this.getLevel(), player);    // add the player to the level
-        if (active) {
+        if (active) {                               // check if this is the new active player
             this.setActivePlayer(player);           // set the active player
         }
-        return player;
+        return player;								// return the player that was created
     },
     /**
      * Creates a third person camera and adds it to the controller.
@@ -134,11 +189,14 @@ Ext.define('MW.level.LevelController', {
      */
     addMouseClickEvent: function (mouseControls, assetManager, weaponManager, player) {
         // listen for mouse click and keyboard events
-        mouseControls.on('click', weaponManager.createBullet, weaponManager, {
-            assetManager: assetManager,
-            levelController: this,
-            position: player.getPosition()
-        });
+        ['click', 'doubleClick'].forEach(function (event) {
+            mouseControls.on(event, weaponManager.createBullet, weaponManager, {
+                assetManager: assetManager,
+                levelController: this,
+                position: player.getPosition(),
+                owner: player
+            });
+        }, this);
     },
     /**
      * Adds a player to the specified level.
@@ -147,19 +205,15 @@ Ext.define('MW.level.LevelController', {
      * @param player The player to add.
      */
     addPlayer: function (level, player) {
-        this.getPlayers()[player.getName()] = player;     // adds the player to the array
-        level.addChild(player);             // adds the player to the level
-		player.on('collision', function (collidedObject) {
-			// TODO: check if collidedObject is a bullet
-			// TODO: player.fireEvent('takeDamage', 30);
-		});
+        this.getPlayers()[player.getName()] = player;   // adds the player to the array
+        level.addChild(player);                         // adds the player to the level
     },
 	/**
 	 * Overrides the setter method for active players to handle events properly.
 	 *
 	 * @param player The player to make active.
 	 */
-	setActivePlayer: function (player) {
+	applyActivePlayer: function (player) {
 		// todo fix collision of new active player
 		var activePlayer = this.getActivePlayer();
 		// check if the active player needs to be modified
@@ -167,18 +221,31 @@ Ext.define('MW.level.LevelController', {
 			var keyboardControls = this.getKeyboardControls();
 			// check an active player exists
 			if (activePlayer !== null) {
-				// remove the current active player event listener
-				keyboardControls.un('jump', activePlayer.jump, activePlayer);
+				// remove the current active player event listeners
+				activePlayer.unLoadEvents(keyboardControls);
 			}
-			// add the jump event to the new active player and set the new active player
-			keyboardControls.on('jump', player.jump, player);
+            // add the event listeners to the new active player
+            player.onLoadEvents(keyboardControls);
 			// set a new target on the active camera if it is third person
 			var camera = this.getLevel().getActiveCamera();
 			if (camera instanceof FourJS.camera.ThirdPersonCamera) {
 				camera.setTarget(player);
 			}
-			this._activePlayer = player;
+           /* //player.onTakeDamage(life, 500);
+            player.fireEvent('takeDamage', life, 500);
+            function sleep(millis, callback) {setTimeout(function () {
+                    callback();
+                }, millis);
+            }
+           sleep(5000, function () {
+                player.onTakeDamage(life, 800);
+            });
+
+            sleep(10000, function () {
+                player.onRestoreHealth(life, 300);
+            });*/
 		}
+        return player;
 	},
 	getPlayer: function (playerName) {
 		var players = this.getPlayers();
