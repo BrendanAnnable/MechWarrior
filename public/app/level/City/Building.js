@@ -55,5 +55,6 @@ Ext.define('MW.level.city.Building', {
 	    geometry.setTextureCoords(textureCoords);
 	    this.setGeometry(geometry);
 	    this.setMaterial(material);
+	    this.setDynamic(false);
     }
 });

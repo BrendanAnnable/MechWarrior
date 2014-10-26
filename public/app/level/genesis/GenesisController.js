@@ -69,73 +69,9 @@ Ext.define('MW.level.genesis.GenesisController', {
 	},
 	addCities: function (assetManager) {
 		var simpleCity = [];
-<<<<<<< HEAD
-
-		//load buildings
-//      var building1 = this.loadBuilding(assetManager, 0, 0, 30, 5, 50,5);
-//      simpleCity.push(building1);
-
-		var building2 = this.loadBuilding(assetManager, 100,0, 100, 2, 5, 2);
-		simpleCity.push(building2);
-
-		var building3 = this.loadBuilding(assetManager, -100,0, 100, 2, 5, 2);
-		simpleCity.push(building3);
-
-		var building4 = this.loadBuilding(assetManager, 100,0, -100, 2, 5, 2);
-		simpleCity.push(building4);
-		var building5 = this.loadBuilding(assetManager, -100,0, -100, 2, 5, 2);
-		simpleCity.push(building5);
-
-		// load crates
-		var crate1 = this.loadCrate(assetManager, 30,0, -30, 1, 1,1);
-		simpleCity.push(crate1);
-
-		var crate2 = this.loadCrate(assetManager, 40,0, -30, 1, 1,1);
-		simpleCity.push(crate2);
-
-		var crate3 = this.loadCrate(assetManager, 30,0, -40, 1, 1,1);
-		simpleCity.push(crate3);
-
-		var crate0 = this.loadCrate(assetManager, 0,0, 10, 1, 1,1);
-		simpleCity.push(crate0);
-		var crate01 = this.loadCrate(assetManager, 0,0, 5, 1, 1,1);
-		simpleCity.push(crate01);
-//        var testCrate = this.createCrate(true);                       // create an active player
-
-<<<<<<< HEAD
-
-		// load walls
-		var eastWall = this.loadWall(assetManager, 150,0,150,20,1, Math.PI/2,1);
-		simpleCity.push(eastWall);
-
-		var westWall = this.loadWall(assetManager, -150,0,150,20,1,Math.PI/2,1);
-		simpleCity.push(westWall);
-
-		var southWall = this.loadWall(assetManager, 0,150,150,20,1, Math.PI,1);
-		simpleCity.push(southWall);
-
-		var northWall = this.loadWall(assetManager, 0,-150,150,20,1, Math.PI,1);
-		simpleCity.push(northWall);
-=======
-        // load walls
-        var width = 300;
-        var height = 50;
-        var depth = 5;
-        var y = 0;
-        // east wall
-		simpleCity.push(this.loadWall(assetManager, 150, y, 0, width, height, depth, -Math.PI / 2));
-        // west wall
-        simpleCity.push(this.loadWall(assetManager, -150, y, 0, width, height, depth, Math.PI / 2));
-        // south
-        simpleCity.push(this.loadWall(assetManager, 0, y, 150, width, height, depth, -Math.PI));
-        // north
-        simpleCity.push(this.loadWall(assetManager, 0, y, -150, width, height, depth, Math.PI));
->>>>>>> Remade the walls. Added a texture to them.
-=======
 		simpleCity = simpleCity.concat(this.createBuildings());              // create the buildings
 		simpleCity = simpleCity.concat(this.createCrates(assetManager));     // create the crates
 		simpleCity = simpleCity.concat(this.createWalls());                  // create the walls
->>>>>>> Refactored the genesis controller.
 
 		var car1 = this.loadCar(assetManager, -50, 0, 0);
 		simpleCity.push(car1);
@@ -149,16 +85,10 @@ Ext.define('MW.level.genesis.GenesisController', {
 		simpleCity.push(car5);
 
 
-<<<<<<< HEAD
 		for (var i = 0; i < simpleCity.length; i++) {
-
-=======
-        for (var i = 0; i < simpleCity.length; i++) {
->>>>>>> Refactored the genesis controller.
 			this.getLevel().addObstacle(simpleCity[i]);
 		}
 
-<<<<<<< HEAD
 		// the root orientation of all the cityblocks
 		var genx = 0;
 		// this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
@@ -179,47 +109,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 				this.getLevel().addObstacle(cityblock[i][j]);
 			}
 		}
-=======
-//       var build= Ext.create('MW.level.City.Building', {
-//
-////            xCoord: 10,
-////            zCoord:10
-//
-//        });
-//
-//        this.getLevel().addObstacle(build);
-//
-
-
-        //var house = this.loadHouse(assetManager);               // the folowing code adds a house to the scene
-        //this.getLevel().addObstacle(house);                       // good as a reference
-
-        var genx = 0; //the root orientation of all the cityblocks
-        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-        var genz = 0; //the root oreintation of all cityblocks
-        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
-        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
-
-        var cityblock = [];
-        for (var i = 0; i < nocityblocks; i++) {
-            cityblock[i] = [];
-            for(var j = 0; j < nocityblocks; j++) {
-                cityblock[i][j] = this.loadCityBlock(assetManager);
-                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
-                this.getLevel().addObstacle(cityblock[i][j]);
-            }
-        }
-
-        var cb1 = this.loadCityBlock(assetManager);
-        cb1.translate(-20, 0.1, -50);
-        this.getLevel().addObstacle(cb1);
-
-        /*                                                //no support for multiple objects yet :(
-         var cb2 = this.loadCityBlock(assetManager);
-         cb2.translate(-20, 20, -20);
-         this.getLevel().addObstacle(cb2);
-         */
-    },
+	},
 	createBuildings: function () {
 		// create the buildings array
 		var buildings = [];
@@ -232,8 +122,8 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var depth = 50;
 		// create the buildings
 		buildings.push(this.loadBuilding(x, y, z, width, height, depth));
-		buildings.push(this.loadBuilding(-x, y, z, width, height, depth));
 		buildings.push(this.loadBuilding(x, y, -z, width, height, depth));
+		buildings.push(this.loadBuilding(-x, y, z, width, height, depth));
 		buildings.push(this.loadBuilding(-x, y, -z, width, height, depth));
 		return buildings;
 	},
@@ -281,7 +171,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		// set the common properties
 		var translate = 150;
 		var y = 0;
-		var width = 300;
+		var width = 500;
 		var height = 50;
 		var depth = 5;
 		// create the walls
@@ -303,7 +193,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 		wall.rotateY(orientation);
 //        wall.addBoundingBox();
 		return wall;
->>>>>>> Refactored the genesis controller.
 	},
 	loadSphere: function (assetManager) {
 		var sphere = assetManager.getAsset('sphere');
@@ -361,7 +250,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 			mat4.copy(position, transform);
 
-<<<<<<< HEAD
 			return position;
 		};
 		return face;
@@ -383,116 +271,11 @@ Ext.define('MW.level.genesis.GenesisController', {
 		car.rotateY(-Math.PI / 2);
 		return car;
 	},
-	loadBuilding: function (assetManager, xLocation, yLocation, zLocation, length, height, width) {
-		var buildingAsset = assetManager.getAsset('building');
-		var building = Ext.create('MW.level.city.Building', {
-			name: name || buildingAsset.getName()
-		});
-		building.addChild(buildingAsset);
-		FourJS.geometry.Geometry.scaleAll(building, [length, height, width]);
-
-//        building.scale(length, height, width);
-		building.translate(xLocation,yLocation,zLocation);
-//        building.addBoundingBox();
-
-<<<<<<< HEAD
-		return building;
-
-	},
-	loadCrate: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
-		var crateAsset = assetManager.getAsset('crate');
-		var crate = Ext.create('MW.level.city.Crate', {
-			name: name || crateAsset.getName()
-		});
-		crate.addChild(crateAsset);
-		crate.setPosition(mat4.create());
-		crate.scale(length, height, width);
-		crate.translate(xLocation,yLocation,zLocation);
-//        crate.addBoundingBox();
-		return crate;
-	},
-	loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
-		var wallAsset = assetManager.getAsset('wall');
-		var wall = Ext.create('MW.level.city.Wall', {
-			name: name || wallAsset.getName()
-		});
-
-		wall.addChild(wallAsset);
-		wall.setPosition(mat4.create());
-
-		wall.translate(xLocation,0,zLocation);
-		wall.rotateY(orientation);
-
-		if (scaleMethod == 0) {
-			FourJS.geometry.Geometry.scaleAll(wall, [length, height, width]);
-		} else {
-			wall.scale(length, height, width);
-		}
-=======
-        return building;
-
-    },
-    loadCrate: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
-        var crateAsset = assetManager.getAsset('crate');
-        var crate = Ext.create('MW.level.city.Crate', {
-            name: name || crateAsset.getName()
-        });
-        crate.addChild(crateAsset);
-        crate.setPosition(mat4.create());
-        crate.scale(length, height, width);
-        crate.translate(xLocation,yLocation,zLocation);
-//        crate.addBoundingBox();
-        return crate;
-    },
-    loadWall: function (assetManager, x, y, z, width, height, depth, orientation) {
-        var wall = Ext.create('MW.level.city.Wall', {
-            name: 'wall',
-            url: 'resources/image/wall.png',
-            width: width,
-            height: height,
-            depth: depth
-        });
-        wall.translate(x, y, z);
-        wall.rotateY(orientation);
->>>>>>> Remade the walls. Added a texture to them.
-//        wall.addBoundingBox();
-		return wall;
-	},
 	loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
 		var crate = assetManager.getAsset('cube');
 		FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
 		crate.translate(xLocation,yLocation,zLocation);
 		return crate;
-=======
-            return position;
-        };
-        return face;
-    },
-    /**
-     * Returns a random integer between min (inclusive) and max (inclusive)
-     * Using Math.round() will give you a non-uniform distribution!
-     */
-    randomIntegerInRange: function (min, max) {
-        return Math.floor(Math.random() * (max - min + 1)) + min;
-    },
-    loadCar: function (assetManager, xLocation,yLocation, zLocation) {
-        var carAsset = assetManager.getAsset('car');
-        var car = Ext.create('MW.level.city.Car', {
-            name: name || carAsset.getName()
-        });
-        car.addChild(carAsset);
-        car.setPosition(mat4.create());
-        car.translate(xLocation,yLocation,zLocation);
-        car.rotateY(-Math.PI / 2);
-        return car;
-    },
-    loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
-        var crate = assetManager.getAsset('cube');
-        FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
-        crate.translate(xLocation,yLocation,zLocation);
-        return crate;
->>>>>>> Refactored the genesis controller.
 
 	}
 });
-
