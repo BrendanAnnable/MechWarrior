@@ -48,6 +48,7 @@ Ext.define('MW.MechWarrior', {
 			element: document,
 			speed: 0.5
 		});
+	    menu.addKeyboardEvents(this.keyboardControls);
 		this.mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
 			element: menu.getEl().dom
 		});

@@ -7,6 +7,7 @@ Ext.define('MW.display.Display', {
 	radar: null,
 	life: null,
     counter: null,
+	messenger: null,
     requires: [
         'MW.display.radar.Radar',
         'MW.display.life.Life'
@@ -27,10 +28,13 @@ Ext.define('MW.display.Display', {
 	    });
         // create the counter
         this.counter = Ext.create('MW.display.counter.Counter');
+	    // create the messenger
+	    this.messenger = Ext.create('MW.display.messenger.Messenger');
 	    // add the components of the display
         this.add(this.radar);
         this.add(this.life);
         this.add(this.counter);
+	    this.add(this.messenger);
     },
 	/**
 	 * An accessor method that retrieves the radar.
@@ -49,5 +53,24 @@ Ext.define('MW.display.Display', {
      */
     getCounter: function () {
         return this.counter;
-    }
+    },
+	/**
+	 * An accessor method that retrieves the messenger display.
+	 */
+	getMessenger: function () {
+		return this.messenger;
+	},
+	/**
+	 * Adds keyboard events to the display.
+	 *
+	 * @param keyboardControls The keyboard controls for the game.
+	 */
+	addKeyboardEvents: function (keyboardControls) {
+		keyboardControls.on({
+			messenger: function () {
+				this.getMessenger().fireEvent('update', keyboardControls.hasMenuContext())
+			},
+			scope: this
+		});
+	}
 });

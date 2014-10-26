@@ -8,6 +8,7 @@ Ext.define('MW.control.Keyboard', {
 	alt: false,
 	translation: null,
 	needsUpdate: true,
+	menuContext: false,
 	config: {
 		speed: 1,
 		altSpeedMultiplier: 2,
@@ -15,7 +16,8 @@ Ext.define('MW.control.Keyboard', {
 		leftKey: 'A'.charCodeAt(0),
 		backwardKey: 'S'.charCodeAt(0),
 		rightKey: 'D'.charCodeAt(0),
-		jumpKey: ' '.charCodeAt(0)
+		jumpKey: ' '.charCodeAt(0),
+		messengerKey: 'E'.charCodeAt(0)
 	},
 	constructor: function () {
 		this.callParent(arguments);
@@ -26,6 +28,10 @@ Ext.define('MW.control.Keyboard', {
 		this.needsUpdate = true;
 		if (event.keyCode === this.getJumpKey()) {
 			this.fireEvent('jump');
+		}
+		if (event.keyCode == this.getMessengerKey()) {
+			this.menuContext = !this.menuContext;
+			this.fireEvent('messenger');
 		}
 		this.fireEvent(String.fromCharCode(event.keyCode), event);
 		this.shift = event.shiftKey;
@@ -41,7 +47,7 @@ Ext.define('MW.control.Keyboard', {
 	},
 	getTranslation: function () {
 		var translation = this.translation;
-		if (this.needsUpdate) {
+		if (this.needsUpdate && !this.hasMenuContext()) {
 			var x = 0;
 			var y = 0;
 			var z = 0;
@@ -63,8 +69,16 @@ Ext.define('MW.control.Keyboard', {
 			vec3.set(translation, x, y, z);
 			vec3.normalize(translation, translation);
 			vec3.scale(translation, translation, (this.shift ? this.getAltSpeedMultiplier() : 1) * this.getSpeed());
-			this.needsUpdate = false;
 		}
+		this.needsUpdate = false;
 		return translation;
+	},
+	/**
+	 * An accessor method that returns whether the menu is in context.
+	 *
+	 * @returns {boolean}
+	 */
+	hasMenuContext: function () {
+		return this.menuContext;
 	}
 });
