@@ -41,7 +41,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 	updateObjectPosition: function (object, timeStep, sceneChildren) {
 		// See http://en.wikipedia.org/wiki/Verlet_integration#Velocity_Verlet
 		// and http://buildnewgames.com/gamephysics/
-		if (object.isDynamicObject) {
+		if (object.isDynamicObject && object.getDynamic()) {
 			var position = object.getPosition();
 			var force = object.getForce();
 			var mass = object.getMass();
@@ -66,24 +66,28 @@ Ext.define('PhysJS.PhysicsEngine', {
 
             // apply transform to potential new position
             var candidatePosition = mat4.multiply(mat4.create(), position, transform);
+
             if (candidatePosition[13] < 0) {
                 // collision detection hack - don't let the vertical position go below 0
                 candidatePosition[13] = 0;
                 velocity[1] = 0;
-                // TODO: object.fireEvent('collision', object, the_floor);
+				lastAcceleration[1] = 0;
             }
 
-			// run collision detection twice, in case object was moved into another object
-			//for (var i = 0; i < 1; i++) {
-				var collidedObject = this.hasCollided(object, candidatePosition, sceneChildren);
-				if (collidedObject !== null) {
-					// fire collision events on both objects
-					object.fireEvent('collision', collidedObject);
-					collidedObject.fireEvent('collision', object);
+			var results = this.hasCollided(object, candidatePosition, sceneChildren);
+			if (results !== null) {
+				// fire collision events on both objects
+				object.fireEvent('collision', results.collidedObject);
+				results.collidedObject.fireEvent('collision', object);
 //					this.resolveCollision(candidatePosition, object, collidedObject);
+				if (object.getDynamic()) {
+					mat4.translate(candidatePosition, candidatePosition, results.resolution);
+					velocity[1] = 0;
+					acceleration[1] = 0;
+					lastAcceleration[1] = 0;
 				}
-				mat4.copy(position, candidatePosition);
-			//}
+			}
+			mat4.copy(position, candidatePosition);
 
 			vec3.scale(acceleration, force, mass);
 			var avg = vec3.add(vec3.create(), lastAcceleration, acceleration);
@@ -101,16 +105,19 @@ Ext.define('PhysJS.PhysicsEngine', {
                 var childBox = child.getBoundingBox();
 
 				// set the bounding box positions (middle point) to be at their positions in the world
-				objectBox.setPosition(object.getWorldPosition());
+				objectBox.setPosition(position);
 				childBox.setPosition(child.getWorldPosition());
 
 				var results = PhysJS.util.math.BoundingBox.intersects(objectBox, childBox);
 				if (results.intersects) {
-//						object.box.setColor(1, 0, 0, 1);
-					return child;
+					if (object.box) {
+						object.box.setColor(1, 0, 0, 1);
+					}
+					results.collidedObject = child;
+					return results;
 				}
-				else {
-//						object.box.setColor(1, 1, 1, 1);
+				else if (object.box) {
+					object.box.setColor(1, 1, 1, 1);
 				}
             }
         }

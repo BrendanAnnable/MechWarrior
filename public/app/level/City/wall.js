@@ -1,8 +1,6 @@
-
 /**
- * Created by juliussky on 12/10/2014.
+ * @author juliussky
  */
-
 Ext.define('MW.level.city.Wall', {
     alias: 'Wall',
     extend: 'FourJS.object.Object',
@@ -19,9 +17,8 @@ Ext.define('MW.level.city.Wall', {
     config: {
     },
     constructor: function (config) {
-        this.initConfig(config);
         this.callParent(arguments);
+		this.setDynamic(false);
         this.mixins.physics.constructor.call(this, config);
     }
-
 });

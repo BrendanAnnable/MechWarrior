@@ -26,7 +26,8 @@ Ext.define('MW.level.genesis.Genesis', {
             frontUrl: "/resources/image/skybox/urban/front.png",
             backUrl: "/resources/image/skybox/urban/back.png"
         });
-        this.createFloor("/resources/image/ground_low.jpg");
+        var floor = this.createFloor("/resources/image/ground_low.jpg");
+		floor.translate(0, -0.01, 0);
         // create an ambient light to the level at the origin
         var ambientLight = Ext.create('FourJS.light.AmbientLight', {
             color: Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0.0})

@@ -18,8 +18,7 @@ Ext.define('MW.level.Level', {
         cameras: null,
         skybox: null,
         floor: null,
-        obstacles: null,
-        renderObstaclesBoundingBoxes: false
+        obstacles: null
     },
     constructor: function () {
         this.callParent(arguments);
@@ -95,6 +94,7 @@ Ext.define('MW.level.Level', {
         });
         this.setFloor(floor);
         this.addChild(floor);
+		return floor;
     },
 
     /**
@@ -128,29 +128,13 @@ Ext.define('MW.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-
-    toggleObstaclesBoundingBoxesRenderable: function(){
-
-        if (this.renderObstaclesBoundingBoxes) {
-            console.log('render is true, removing bounding boxes');
-
-//            console.log('num of obst: ' + this.getObstacles().length);
-            for (var i =0; i < this.getObstacles().length; i++) {
-                this.getObstacles()[i].removeBoundingBox();
-            }
-
-            this.renderObstaclesBoundingBoxes = false;
-        }
-        else{
-//            console.log('render is false, adding bounding boxes');
-            console.log('num of obst: ' + this.getObstacles().length);
-
-            for (var i =0; i < this.getObstacles().length; i++) {
-                this.getObstacles()[i].addBoundingBox();
-            }
-            this.renderObstaclesBoundingBoxes = true;
-        }
+    showObstacleVisualBoundingBoxes: function (enabled) {
+		for (var i = 0; i < this.getObstacles().length; i++) {
+			if (enabled) {
+				this.getObstacles()[i].addVisualBoundingBox(true);
+			} else {
+				this.getObstacles()[i].removeVisualBoundingBox();
+			}
+		}
     }
-
-
 });

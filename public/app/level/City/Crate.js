@@ -19,5 +19,4 @@ Ext.define('MW.level.city.Crate', {
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
     }
-
 });

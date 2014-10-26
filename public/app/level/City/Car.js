@@ -1,7 +1,6 @@
 /**
- * Created by juliusskye on 12/10/2014.
+ * @author juliussky
  */
-
 Ext.define('MW.level.city.Car', {
     alias: 'Car',
     extend: 'FourJS.object.Object',
@@ -22,7 +21,4 @@ Ext.define('MW.level.city.Car', {
         this.callParent(arguments);
         this.mixins.physics.constructor.call(this, config);
     }
-
-
-
 });
