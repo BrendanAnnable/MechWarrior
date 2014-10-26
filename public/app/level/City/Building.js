@@ -2,7 +2,7 @@
  * Created by juliusskye on 12/10/2014.
  */
 
-Ext.define('MW.level.City.Building', {
+Ext.define('MW.level.city.Building', {
     alias: 'Building',
     extend: 'FourJS.object.Object',
     // TODO: move building creation from Genesis to here

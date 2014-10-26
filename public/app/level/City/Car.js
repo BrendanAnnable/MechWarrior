@@ -2,7 +2,7 @@
  * Created by juliusskye on 12/10/2014.
  */
 
-Ext.define('MW.level.City.Car', {
+Ext.define('MW.level.city.Car', {
     alias: 'Car',
     extend: 'FourJS.object.Object',
     // TODO: move car creation from Genesis to here

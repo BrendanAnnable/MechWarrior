@@ -7,10 +7,10 @@ Ext.define('MW.level.genesis.GenesisController', {
     requires: [
         'FourJS.util.math.HermiteSpline',
         'FourJS.geometry.CubeGeometry',
-		'MW.level.City.Building',
-		'MW.level.City.Crate',
-		'MW.level.City.Wall',
-		'MW.level.City.Car'
+		'MW.level.city.Building',
+		'MW.level.city.Crate',
+		'MW.level.city.Wall',
+		'MW.level.city.Car'
     ],
 	feature: null,
 	renderPlayerBoundingBox: false,
@@ -225,7 +225,7 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
     createCar: function (assetManager, xLocation, yLocation, zLocation) {
         var carAsset = assetManager.getAsset('car');
-        var car = Ext.create('MW.level.City.Car', {
+        var car = Ext.create('MW.level.city.Car', {
             name: name || carAsset.getName()
         });
         car.addChild(carAsset);
@@ -236,7 +236,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
     loadBuilding: function (assetManager, xLocation, yLocation, zLocation, length, height, width) {
         var buildingAsset = assetManager.getAsset('building');
-        var building = Ext.create('MW.level.City.Building', {
+        var building = Ext.create('MW.level.city.Building', {
             name: name || buildingAsset.getName()
         });
         building.addChild(buildingAsset);
@@ -251,7 +251,7 @@ Ext.define('MW.level.genesis.GenesisController', {
     },
     loadCrate: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
         var crateAsset = assetManager.getAsset('crate');
-        var crate = Ext.create('MW.level.City.Crate', {
+        var crate = Ext.create('MW.level.city.Crate', {
             name: name || crateAsset.getName()
         });
         crate.addChild(crateAsset);
@@ -265,7 +265,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
     loadWall: function (assetManager, xLocation, zLocation, length, height, width, orientation, scaleMethod) {
         var wallAsset = assetManager.getAsset('wall');
-        var wall = Ext.create('MW.level.City.Wall', {
+        var wall = Ext.create('MW.level.city.Wall', {
             name: name || wallAsset.getName()
         });
 
