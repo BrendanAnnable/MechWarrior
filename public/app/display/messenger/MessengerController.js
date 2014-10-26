@@ -68,6 +68,7 @@ Ext.define('MW.display.messenger.MessengerController', {
 		if (event.keyCode === this.getSubmitKey() && !event.shiftKey) {
 			// todo submit the message
 			this.input.setValue("");            // clear the message
+			event.preventDefault();             // stop a new line from appearing on enter
 		}
 	}
 });
