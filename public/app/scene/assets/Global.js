@@ -56,6 +56,7 @@ Ext.define('MW.scene.assets.Global', {
                 FourJS.geometry.Geometry.scaleAll(cube, [1, 1, 1]);
                 cube.translate(0, 1,0 );
             }),
+<<<<<<< HEAD
             this.loadModelAsset(this.getModelPath('crate/crate.json')).then(function (crate) {
                 assetManager.addAsset('crate', crate);
                 crate.setName('crate');
@@ -82,6 +83,8 @@ Ext.define('MW.scene.assets.Global', {
 			}),
 =======
 >>>>>>> Remade the walls. Added a texture to them.
+=======
+>>>>>>> Refactored the genesis controller.
             this.loadModelAsset(this.getModelPath('car+materialised.json')).then(function (car) {
 //            this.loadModelAsset(this.getModelPath('car.json')).then(function (car) {
                 assetManager.addAsset('car', car);

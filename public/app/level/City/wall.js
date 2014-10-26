@@ -1,5 +1,10 @@
 /**
+<<<<<<< HEAD
  * @author juliussky
+=======
+ * Created by juliussky on 12/10/2014.
+ * Refactored by Monica Olejniczak on 26/10/2014
+>>>>>>> Refactored the genesis controller.
  */
 Ext.define('MW.level.city.Wall', {
     alias: 'Wall',

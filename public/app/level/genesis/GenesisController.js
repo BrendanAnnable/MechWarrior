@@ -69,6 +69,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 	},
 	addCities: function (assetManager) {
 		var simpleCity = [];
+<<<<<<< HEAD
 
 		//load buildings
 //      var building1 = this.loadBuilding(assetManager, 0, 0, 30, 5, 50,5);
@@ -130,6 +131,11 @@ Ext.define('MW.level.genesis.GenesisController', {
         // north
         simpleCity.push(this.loadWall(assetManager, 0, y, -150, width, height, depth, Math.PI));
 >>>>>>> Remade the walls. Added a texture to them.
+=======
+		simpleCity = simpleCity.concat(this.createBuildings());              // create the buildings
+		simpleCity = simpleCity.concat(this.createCrates(assetManager));     // create the crates
+		simpleCity = simpleCity.concat(this.createWalls());                  // create the walls
+>>>>>>> Refactored the genesis controller.
 
 		var car1 = this.loadCar(assetManager, -50, 0, 0);
 		simpleCity.push(car1);
@@ -143,12 +149,16 @@ Ext.define('MW.level.genesis.GenesisController', {
 		simpleCity.push(car5);
 
 
+<<<<<<< HEAD
 		for (var i = 0; i < simpleCity.length; i++) {
 
+=======
+        for (var i = 0; i < simpleCity.length; i++) {
+>>>>>>> Refactored the genesis controller.
 			this.getLevel().addObstacle(simpleCity[i]);
-
 		}
 
+<<<<<<< HEAD
 		// the root orientation of all the cityblocks
 		var genx = 0;
 		// this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
@@ -169,6 +179,131 @@ Ext.define('MW.level.genesis.GenesisController', {
 				this.getLevel().addObstacle(cityblock[i][j]);
 			}
 		}
+=======
+//       var build= Ext.create('MW.level.City.Building', {
+//
+////            xCoord: 10,
+////            zCoord:10
+//
+//        });
+//
+//        this.getLevel().addObstacle(build);
+//
+
+
+        //var house = this.loadHouse(assetManager);               // the folowing code adds a house to the scene
+        //this.getLevel().addObstacle(house);                       // good as a reference
+
+        var genx = 0; //the root orientation of all the cityblocks
+        var geny = 0.01; //this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
+        var genz = 0; //the root oreintation of all cityblocks
+        var nocityblocks=2; //the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
+        var blocksize=78; //if the scaling changes on cityblock, the positioning will also need to change when it's being generated
+
+        var cityblock = [];
+        for (var i = 0; i < nocityblocks; i++) {
+            cityblock[i] = [];
+            for(var j = 0; j < nocityblocks; j++) {
+                cityblock[i][j] = this.loadCityBlock(assetManager);
+                cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
+                this.getLevel().addObstacle(cityblock[i][j]);
+            }
+        }
+
+        var cb1 = this.loadCityBlock(assetManager);
+        cb1.translate(-20, 0.1, -50);
+        this.getLevel().addObstacle(cb1);
+
+        /*                                                //no support for multiple objects yet :(
+         var cb2 = this.loadCityBlock(assetManager);
+         cb2.translate(-20, 20, -20);
+         this.getLevel().addObstacle(cb2);
+         */
+    },
+	createBuildings: function () {
+		// create the buildings array
+		var buildings = [];
+		// set the common properties
+		var x = 100;
+		var y = 0;
+		var z = 100;
+		var width = 50;
+		var height = 500;
+		var depth = 50;
+		// create the buildings
+		buildings.push(this.loadBuilding(x, y, z, width, height, depth));
+		buildings.push(this.loadBuilding(-x, y, z, width, height, depth));
+		buildings.push(this.loadBuilding(x, y, -z, width, height, depth));
+		buildings.push(this.loadBuilding(-x, y, -z, width, height, depth));
+		return buildings;
+	},
+	loadBuilding: function (x, y, z, width, height, depth) {
+		var building = Ext.create('MW.level.city.Building', {
+			name: 'building',
+			url: 'resources/image/city/building.png',
+			width: width,
+			height: height,
+			depth: depth
+		});
+		building.translate(x, y, z);
+		return building;
+	},
+	createCrates: function (assetManager) {
+		// create the crates array
+		var crates = [];
+		// set the common properties
+		var y = 0;
+		var width = 2;
+		var height = 2;
+		var depth = 2;
+		// create the crates
+		crates.push(this.loadCrate(30, y, -30, width, height, depth));
+		crates.push(this.loadCrate(40, y, -30, width, height, depth));
+		crates.push(this.loadCrate(30, y, -40, width, height, depth));
+		crates.push(this.loadCrate(0, y, 10, width, height, depth));
+		crates.push(this.loadCrate(0, y, 5, width, height, depth));
+		return crates;
+	},
+	loadCrate: function (x, y, z, width, height, depth) {
+		var crate = Ext.create('MW.level.city.Crate', {
+			name: 'crate',
+			url: 'resources/image/city/crate.png',
+			width: width,
+			height: height,
+			depth: depth
+		});
+		crate.translate(x, y, z);
+		return crate;
+	},
+	createWalls: function () {
+		// create the walls array
+		var walls = [];
+		// set the common properties
+		var translate = 150;
+		var y = 0;
+		var width = 300;
+		var height = 50;
+		var depth = 5;
+		// create the walls
+		walls.push(this.loadWall(translate, y, 0, width, height, depth, -Math.PI / 2));    // east wall
+		walls.push(this.loadWall(-translate, y, 0, width, height, depth, Math.PI / 2));    // west wall
+		walls.push(this.loadWall(0, y, translate, width, height, depth, -Math.PI));        // south wall
+		walls.push(this.loadWall(0, y, -translate, width, height, depth, Math.PI));        // north wall
+		return walls;
+	},
+	loadWall: function (x, y, z, width, height, depth, orientation) {
+		var wall = Ext.create('MW.level.city.Wall', {
+			name: 'wall',
+			url: 'resources/image/city/wall.png',
+			width: width,
+			height: height,
+			depth: depth
+		});
+		wall.translate(x, y, z);
+		wall.rotateY(orientation);
+//        wall.addBoundingBox();
+		return wall;
+>>>>>>> Refactored the genesis controller.
 	},
 	loadSphere: function (assetManager) {
 		var sphere = assetManager.getAsset('sphere');
@@ -226,6 +361,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 			mat4.copy(position, transform);
 
+<<<<<<< HEAD
 			return position;
 		};
 		return face;
@@ -327,6 +463,35 @@ Ext.define('MW.level.genesis.GenesisController', {
 		FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
 		crate.translate(xLocation,yLocation,zLocation);
 		return crate;
+=======
+            return position;
+        };
+        return face;
+    },
+    /**
+     * Returns a random integer between min (inclusive) and max (inclusive)
+     * Using Math.round() will give you a non-uniform distribution!
+     */
+    randomIntegerInRange: function (min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    loadCar: function (assetManager, xLocation,yLocation, zLocation) {
+        var carAsset = assetManager.getAsset('car');
+        var car = Ext.create('MW.level.city.Car', {
+            name: name || carAsset.getName()
+        });
+        car.addChild(carAsset);
+        car.setPosition(mat4.create());
+        car.translate(xLocation,yLocation,zLocation);
+        car.rotateY(-Math.PI / 2);
+        return car;
+    },
+    loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {
+        var crate = assetManager.getAsset('cube');
+        FourJS.geometry.Geometry.scaleAll(crate, [length, height, width]);
+        crate.translate(xLocation,yLocation,zLocation);
+        return crate;
+>>>>>>> Refactored the genesis controller.
 
 	}
 });
