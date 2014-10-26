@@ -304,6 +304,8 @@ Ext.define('MW.level.LevelController', {
      * Updates the level on each render.
      */
     update: function () {
+		var now = Date.now();
+		if (!this.lastUpdate) this.lastUpdate = now;
         var level = this.getLevel();
         var camera = level.getActiveCamera();
         var keyboardControls = this.getKeyboardControls();
@@ -342,11 +344,11 @@ Ext.define('MW.level.LevelController', {
         if (player !== null) {
             var position = player.getPosition();
             // move player according to keyboard input
-            mat4.translate(position, position, keyboardControls.getTranslation());
+			var translation = vec3.scale(vec3.create(), keyboardControls.getTranslation(), (now - this.lastUpdate) / 30); // TODO: unhack
+            mat4.translate(position, position, translation);
         }
 
 		if (this.feature) { // TODO: hack, makes the ring spin on the 'feature'
-			var now = Date.now();
 			if (!this.last) this.last = now;
 			var period = 4000;
 			this.feature.getChild("Ring").rotateY(2 * Math.PI * (now - this.last) / period);
@@ -358,6 +360,7 @@ Ext.define('MW.level.LevelController', {
         // keep skybox at constant distance from player (pretty sure there is a better way than this?)
         mat4.copyTranslation(level.getSkybox().getPosition(), camera.getPosition());
 		this.mp.update(this.getActivePlayer());
+		this.lastUpdate = now;
     },
    	showPlayerVisualBoundingBoxes: function (enabled) {
 		var players = this.getPlayers();

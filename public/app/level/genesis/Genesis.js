@@ -30,7 +30,7 @@ Ext.define('MW.level.genesis.Genesis', {
 		floor.translate(0, -0.01, 0);
         // create an ambient light to the level at the origin
         var ambientLight = Ext.create('FourJS.light.AmbientLight', {
-            color: Ext.create('FourJS.util.Color', {r: 0, g: 0, b: 0.0})
+            color: Ext.create('FourJS.util.Color', {r: 0.2, g: 0, b: 0.2})
         });
         // create a directional light to the level and move its position
         var directionalLight = Ext.create('FourJS.light.DirectionalLight', {
