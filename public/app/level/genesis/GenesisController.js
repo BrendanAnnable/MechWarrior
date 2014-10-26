@@ -100,7 +100,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		//the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
 		var nocityblocks = 2;
 		//if the scaling changes on cityblock, the positioning will also need to change when it's being generated
-		var blocksize = 78;
+		var blocksize = 81;
 
 		var cityblock = [];
 		for (var i = 0; i < nocityblocks; i++) {
