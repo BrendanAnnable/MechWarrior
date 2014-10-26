@@ -37,7 +37,7 @@ Ext.define('MW.scene.assets.Global', {
 			this.loadModelAsset(this.getModelPath('face.json')).then(function (face) {
 				assetManager.addAsset('face', face);
 				face.setName('face');
-				FourJS.geometry.Geometry.scaleAll(face, [0.05, 0.05, -0.05]);
+				FourJS.geometry.Geometry.scaleAll(face, [0.2, 0.2, -0.2]);
 			}),
 			this.loadModelAsset(this.getModelPath('house.json')).then(function (house) {
 				assetManager.addAsset('house', house);

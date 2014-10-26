@@ -15,6 +15,7 @@ Ext.define('FourJS.object.Object', {
 		position: null,
 		children: null,
 		parent: null,
+		visible: true,
         renderable: false,
         boundingBox: null,
 		visualBoundingBox: null
@@ -106,6 +107,13 @@ Ext.define('FourJS.object.Object', {
     isRenderable: function () {
         return this.getRenderable();
     },
+	/**
+	 * Note: does not check for invisible parents
+	 * @returns {*} True if the object is visible
+	 */
+	isVisible: function () {
+		return this.getVisible();
+	},
     /**
      * Updates the object's world position.
      */

@@ -144,8 +144,9 @@ Ext.define('MW.level.LevelController', {
         var playerAsset = this.getAssetManager().getAsset('player');
         // create the player
         var player = Ext.create('MW.character.Player', {
-            name: name || playerAsset.getName(),
+            name: name || playerAsset.getName()
         });
+		player.translate(0, 0, 30);
         // add the asset to the player
 		player.addChild(playerAsset);
         // add a collision event listener to the player

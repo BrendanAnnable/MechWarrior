@@ -170,18 +170,32 @@ Ext.define('FourJS.geometry.Geometry', {
 	},
 	statics: {
 		getBoundingBox: function (object) {
+			return Ext.create('PhysJS.util.math.BoundingBox', {
+				points: FourJS.geometry.Geometry.getAllPoints(object)
+			});
+		},
+		getAllPoints: function (object, position) {
+			if (position === undefined) {
+				position = mat4.create();
+			}
 			var points = [];
-			var children = object.getAllChildren();
-			children.push(object); // include self
-			for (var i = 0; i < children.length; i++) {
-				var child = children[i];
-				if (child.isMesh && child.getGeometry()) {
-					points = points.concat(child.getGeometry().getVertices());
+			if (object.isMesh && object.getGeometry()) {
+				var geometry = object.getGeometry();
+				var vertices = geometry.getVertices();
+				for (var j = 0; j < vertices.length; j++) {
+					var point = vec3.transformMat4(vec3.create(), vertices[j], position);
+					points.push(point);
 				}
 			}
-			return Ext.create('PhysJS.util.math.BoundingBox', {
-				points: points
-			});
+
+			var children = object.getChildren();
+			for (var i = 0; i < children.length; i++) {
+				var child = children[i];
+				var relPosition = mat4.multiply(mat4.create(), position, child.getPosition());
+				points = points.concat(FourJS.geometry.Geometry.getAllPoints(child, relPosition));
+			}
+
+			return points;
 		},
 		/**
 		 * Permanently scale the geometry of ALL objects hich uses this geometry.

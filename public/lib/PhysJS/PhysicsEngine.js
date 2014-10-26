@@ -10,11 +10,14 @@ Ext.define('PhysJS.PhysicsEngine', {
 	count: 0,
     config: {
         scene: null,
-        ACC_GRAV: -9.8
+        gravity: -9.8
     },
     constructor: function (config) {
         this.initConfig(config);
         this.mixins.observable.constructor.call(this, config);
+
+		var physicsFolder = GUI.addFolder('Physics');
+		physicsFolder.add(this, '_gravity', -20, 0).step(0.1);
     },
     update: function () {
 		// calculate time step in seconds
@@ -50,7 +53,7 @@ Ext.define('PhysJS.PhysicsEngine', {
 
 			if (object.getGravity()) {
 				// add gravity to force vector if enabled
-				force = vec3.add(vec3.create(), force, [0, this.getACC_GRAV(), 0]);
+				force = vec3.add(vec3.create(), force, vec3.fromValues(0, this.getGravity(), 0));
 			}
 
 			var lastAcceleration = vec3.clone(acceleration);
@@ -109,15 +112,16 @@ Ext.define('PhysJS.PhysicsEngine', {
 				childBox.setPosition(child.getWorldPosition());
 
 				var results = PhysJS.util.math.BoundingBox.intersects(objectBox, childBox);
+				var box = object.getVisualBoundingBox();
 				if (results.intersects) {
-					if (object.box) {
-						object.box.setColor(1, 0, 0, 1);
+					if (box) {
+						box.setColor(1, 0, 0, 1);
 					}
 					results.collidedObject = child;
 					return results;
 				}
-				else if (object.box) {
-					object.box.setColor(1, 1, 1, 1);
+				else if (box) {
+					box.setColor(1, 1, 1, 1);
 				}
             }
         }

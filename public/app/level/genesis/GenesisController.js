@@ -8,6 +8,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 	extend: 'MW.level.LevelController',
 	requires: [
 		'FourJS.util.math.HermiteSpline',
+		'FourJS.util.helpers.HermiteSplineHelper',
 		'FourJS.geometry.CubeGeometry',
 		'MW.level.city.Building',
 		'MW.level.city.Crate',
@@ -16,15 +17,14 @@ Ext.define('MW.level.genesis.GenesisController', {
 	],
 	feature: null,
 	renderPlayerBoundingBox: false,
+	splineHelper: null,
 	constructor: function (config) {
 		this.callParent(arguments);
 		var assetManager = this.getAssetManager();                  // get the asset manager
 		var player = this.createPlayer(true);                       // create an active player
 
-		this.addGUI();
-
-		var face = this.loadFace(assetManager, player, 7000);           // create the face model
-		var anotherface = this.loadFace(assetManager, player, 3000);           // create the face model
+		var face = this.loadFace(assetManager, player, 8000);           // create the face model
+		var anotherface = this.loadFace(assetManager, player, 4000);           // create the face model
 
 		this.getLevel().addObstacle(face);                              // add the face as an obstacle to the level
 		this.getLevel().addObstacle(anotherface);                       // add the face as an obstacle to the level
@@ -33,7 +33,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 		this.getLevel().addObstacle(sphere);                          // add the face as an obstacle to the level
 
 		this.feature = this.loadFeature(assetManager);
-		this.feature.translate(0, 0, -8);
 		this.getLevel().addObstacle(this.feature);
 
 		this.addCities(assetManager);
@@ -42,6 +41,9 @@ Ext.define('MW.level.genesis.GenesisController', {
 		this.createThirdPersonCamera(player, true);
 		// add mouse event to the controller
 		this.addMouseClickEvent(this.getMouseControls(), assetManager, this.getWeaponManager(), player);
+
+		this.addGUI();
+
 	},
 	addGUI: function () {
 		// add a hacky gui slider
@@ -49,7 +51,9 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var level = this.getLevel();
 		var settings = {
 			playerBoxes: false,
-			obstacleBoxes: false
+			obstacleBoxes: false,
+			splinePointsHelper: false,
+			splineLerpHelper: false
 		};
 
 		levelFolder.add(settings, 'playerBoxes').onChange(Ext.bind(function (value) {
@@ -58,6 +62,14 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 		levelFolder.add(settings, 'obstacleBoxes').onChange(Ext.bind(function (value) {
 			level.showObstacleVisualBoundingBoxes(value);
+		}, this));
+
+		levelFolder.add(settings, 'splinePointsHelper').onChange(Ext.bind(function (value) {
+			this.splineHelper.pointBoxes.setVisible(value);
+		}, this));
+
+		levelFolder.add(settings, 'splineLerpHelper').onChange(Ext.bind(function (value) {
+			this.splineHelper.lerpBoxes.setVisible(value);
 		}, this));
 
 		var player = this.getActivePlayer();
@@ -75,42 +87,41 @@ Ext.define('MW.level.genesis.GenesisController', {
 		simpleCity = simpleCity.concat(this.createCrates(assetManager));     // create the crates
 		simpleCity = simpleCity.concat(this.createWalls());                  // create the walls
 
-		var car1 = this.loadCar(assetManager, -50, 0, 0);
+		var car1 = this.loadCar(assetManager, -4, 0, -50, 0);
 		simpleCity.push(car1);
-		var car2 = this.loadCar(assetManager, -50, 0, 10);
+		var car2 = this.loadCar(assetManager, 4, 0, -30, 0);
 		simpleCity.push(car2);
-		var car3 = this.loadCar(assetManager, -50, 0, 20);
+		var car3 = this.loadCar(assetManager, -4, 0, 30, 0);
 		simpleCity.push(car3);
-		var car4 = this.loadCar(assetManager, -50, 0, 30);
+		var car4 = this.loadCar(assetManager, 4, 0, 50, 0);
 		simpleCity.push(car4);
-		var car5 = this.loadCar(assetManager, -50, 0, 40);
-		simpleCity.push(car5);
 
 
 		for (var i = 0; i < simpleCity.length; i++) {
 			this.getLevel().addObstacle(simpleCity[i]);
 		}
 
+		// init 78, 81 oneandhalf street, 84 double street, 87, doubleandhalf, 90 triple
+		var blocksize = 87;
 		// the root orientation of all the cityblocks
-		var genx = 0;
+		var genx = -blocksize / 2;
 		// this is currently set to avoid z-fighting with the default plane - ideally this should be set to zero, and the default plane deleted
-		var geny = 0.01;
+		var geny = 0;
 		// the root oreintation of all cityblocks
-		var genz = 0;
+		var genz = -blocksize / 2;
 		//the following code will generate a bunch of [worldsize] x [worldsize] cityblocks, where each block is ~75x75m (includes a 6meter wide road and 1.5m wide sidewalk)
 		var nocityblocks = 2;
-		//if the scaling changes on cityblock, the positioning will also need to change when it's being generated
-		var blocksize = 87;   //init 78, 81 oneandhalf street, 84 double street, 87, doubleandhalf, 90 triple
+		// if the scaling changes on cityblock, the positioning will also need to change when it's being generated
 
-		var cityblock = [];
+		var largeCityblock = Ext.create('FourJS.object.Object');
 		for (var i = 0; i < nocityblocks; i++) {
-			cityblock[i] = [];
 			for(var j = 0; j < nocityblocks; j++) {
-				cityblock[i][j] = this.loadCityBlock(assetManager);
-				cityblock[i][j].translate(genx + blocksize * i, geny, genz + blocksize * j);
-				this.getLevel().addObstacle(cityblock[i][j]);
+				var cityblock = this.loadCityBlock(assetManager);
+				cityblock.translate(genx + blocksize * i, geny, genz + blocksize * j);
+				largeCityblock.addChild(cityblock);
 			}
 		}
+		this.getLevel().addObstacle(largeCityblock);
 	},
 	createBuildings: function () {
 		// create the buildings array
@@ -149,11 +160,12 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var height = 2;
 		var depth = 2;
 		// create the crates
-		crates.push(this.loadCrate(30, y, -30, width, height, depth));
-		crates.push(this.loadCrate(40, y, -30, width, height, depth));
-		crates.push(this.loadCrate(30, y, -40, width, height, depth));
-		crates.push(this.loadCrate(0, y, 10, width, height, depth));
-		crates.push(this.loadCrate(0, y, 5, width, height, depth));
+		crates.push(this.loadCrate(30, y, 5, width, height, depth));
+		crates.push(this.loadCrate(10, y, -5, width, height, depth));
+		crates.push(this.loadCrate(5, y, -30, width, height, depth));
+		crates.push(this.loadCrate(-5, y, 10, width, height, depth));
+		crates.push(this.loadCrate(-30, y, -5, width, height, depth));
+		crates.push(this.loadCrate(-10, y, 5, width, height, depth));
 		return crates;
 	},
 	loadCrate: function (x, y, z, width, height, depth) {
@@ -197,7 +209,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 	},
 	loadSphere: function (assetManager) {
 		var sphere = assetManager.getAsset('sphere');
-		sphere.translate(10, -3, 0);
+		sphere.translate(0, 15, 0);
 		sphere.scale(3, 3, 3);
 		sphere.getAllChildren()[1].getMaterial().setReflectivity(1);
 		return sphere;
@@ -222,14 +234,25 @@ Ext.define('MW.level.genesis.GenesisController', {
 		var face = assetManager.getAsset('face');
 		var spline = Ext.create('FourJS.util.math.HermiteSpline', {
 			points: [
-				vec3.fromValues(0, 2, -3),
-				vec3.fromValues(3, 4, 0),
-				vec3.fromValues(0, 2, 3),
-				vec3.fromValues(-3, 4, 0),
-				vec3.fromValues(0, 2, -3)
+				vec3.fromValues(5, 20, -5),
+				vec3.fromValues(5, 20, 5),
+				vec3.fromValues(-5, 15, 5),
+				vec3.fromValues(-5, 15, -5),
+				vec3.fromValues(-5, 20, -5),
+				vec3.fromValues(-5, 20, 5),
+				vec3.fromValues(5, 15, 5),
+				vec3.fromValues(5, 15, -5)
 			],
 			loop: true
 		});
+
+		// TODO: unhack
+		this.splineHelper = Ext.create('FourJS.util.helpers.HermiteSplineHelper');
+		this.splineHelper.setSpline(spline);
+		this.splineHelper.pointBoxes.setVisible(false);
+		this.splineHelper.lerpBoxes.setVisible(false);
+		this.getLevel().addObstacle(this.splineHelper);
+
 		// TODO: I hacked this in for now, need moving to a generic place
 		face.getPosition = function () {
 			var position = this._position;
@@ -238,7 +261,6 @@ Ext.define('MW.level.genesis.GenesisController', {
 
 			var up = vec3.fromValues(0, 1, 0);
 			var eye = spline.getPoint(time);
-			vec3.add(eye, eye, player.getTranslation());
 			var center = player.getTranslation();
 			center = vec3.negate(vec3.create(), center);
 			vec3.add(center, center, vec3.fromValues(0, 2, 0));
@@ -262,14 +284,14 @@ Ext.define('MW.level.genesis.GenesisController', {
 	randomIntegerInRange: function (min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	},
-	loadCar: function (assetManager, xLocation, yLocation, zLocation) {
+	loadCar: function (assetManager, xLocation, yLocation, zLocation, rotation) {
 		var carAsset = assetManager.getAsset('car');
 		var car = Ext.create('MW.level.city.Car', {
 			name: name || carAsset.getName()
 		});
 		car.addChild(carAsset);
 		car.translate(xLocation, yLocation, zLocation);
-		car.rotateY(-Math.PI / 2);
+		car.rotateY(rotation);
 		return car;
 	},
 	loadCube: function (assetManager, xLocation,yLocation, zLocation, length, height, width) {

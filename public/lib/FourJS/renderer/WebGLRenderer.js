@@ -238,49 +238,51 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		var cursorCopy = mat4.clone(cursor);
 		mat4.multiply(cursorCopy, cursorCopy, object.getPosition());
 
-		if (object.isRenderable()) {
-			this.bindBuffers(gl, object, shaderProgram);
-			var useTexture = object.hasMaterial() && object.getMaterial().hasTexture();
-			var useEnvironmentMap = object.hasMaterial() && object.getMaterial().hasEnvironmentMap();
-            var material = object.getMaterial();
+		if (object.isVisible()) {
+			if (object.isRenderable()) {
+				this.bindBuffers(gl, object, shaderProgram);
+				var useTexture = object.hasMaterial() && object.getMaterial().hasTexture();
+				var useEnvironmentMap = object.hasMaterial() && object.getMaterial().hasEnvironmentMap();
+				var material = object.getMaterial();
 
-            gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
+				gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
 
-			if (useEnvironmentMap) {
-				var environmentMap = material.getEnvironmentMap();
-				if (material.__webglEnvironmentMap === undefined) {
-					material.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
+				if (useEnvironmentMap) {
+					var environmentMap = material.getEnvironmentMap();
+					if (material.__webglEnvironmentMap === undefined) {
+						material.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
+					}
+					this.applyEnvironmentMap(gl, object, shaderProgram);
+					gl.uniform1i(shaderProgram.useTextureUniform, 0);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
 				}
-				this.applyEnvironmentMap(gl, object, shaderProgram);
-				gl.uniform1i(shaderProgram.useTextureUniform, 0);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
-			}
-			else if (useTexture) {
-				var texture = material.getTexture();
-				if (texture !== null && material.__webglTexture === undefined) {
-					material.__webglTexture = this.loadTexture(gl, object, texture);
+				else if (useTexture) {
+					var texture = material.getTexture();
+					if (texture !== null && material.__webglTexture === undefined) {
+						material.__webglTexture = this.loadTexture(gl, object, texture);
+					}
+					this.applyTexture(gl, object, shaderProgram);
+					gl.uniform1i(shaderProgram.useTextureUniform, 1);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
+				} else {
+					gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+					gl.uniform1i(shaderProgram.useTextureUniform, 0);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
 				}
-                this.applyTexture(gl, object, shaderProgram);
-                gl.uniform1i(shaderProgram.useTextureUniform, 1);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
-			} else {
-                gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
-                gl.uniform1i(shaderProgram.useTextureUniform, 0);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
+
+				gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
+				gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
+
+				// Update the WebGL uniforms and then draw the object on the screen
+				this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
+				var wireframe = material && material.getWireframe();
+				var type = wireframe ? gl.LINE_LOOP : gl.TRIANGLES;
+				var numItems = object.getGeometry().__webglFaceBuffer.numItems;
+				gl.drawElements(type, numItems, gl.UNSIGNED_SHORT, 0);
 			}
 
-            gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
-			gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
-
-			// Update the WebGL uniforms and then draw the object on the screen
-			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
-			var wireframe = material && material.getWireframe();
-			var type = wireframe ? gl.LINE_LOOP : gl.TRIANGLES;
-			var numItems = object.getGeometry().__webglFaceBuffer.numItems;
-			gl.drawElements(type, numItems, gl.UNSIGNED_SHORT, 0);
+			this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);
 		}
-
-		this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);
 	},
     /**
      * Binds the buffers for a particular object
