@@ -18,7 +18,8 @@ Ext.define('MW.level.Level', {
         cameras: null,
         skybox: null,
         floor: null,
-        obstacles: null
+        obstacles: null,
+        renderObstaclesBoundingBoxes: false
     },
     constructor: function () {
         this.callParent(arguments);
@@ -95,6 +96,20 @@ Ext.define('MW.level.Level', {
         this.setFloor(floor);
         this.addChild(floor);
     },
+
+    /**
+     * Sets the width, height and depth of the level.
+     *
+     * @param width The width of the level.
+     * @param height The height of the level.
+     * @param depth The depth of the level.
+     */
+    setDimensions: function (width, height, depth) {
+        this.setWidth(width);
+        this.setHeight(height);
+        this.setDepth(depth);
+    },
+
     /**
      * Adds an obstacle to the level.
      *
@@ -113,16 +128,29 @@ Ext.define('MW.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-    /**
-     * Sets the width, height and depth of the level.
-     *
-     * @param width The width of the level.
-     * @param height The height of the level.
-     * @param depth The depth of the level.
-     */
-    setDimensions: function (width, height, depth) {
-        this.setWidth(width);
-        this.setHeight(height);
-        this.setDepth(depth);
+
+    toggleObstaclesBoundingBoxesRenderable: function(){
+
+        if (this.renderObstaclesBoundingBoxes) {
+            console.log('render is true, removing bounding boxes');
+
+//            console.log('num of obst: ' + this.getObstacles().length);
+            for (var i =0; i < this.getObstacles().length; i++) {
+                this.getObstacles()[i].removeBoundingBox();
+            }
+
+            this.renderObstaclesBoundingBoxes = false;
+        }
+        else{
+//            console.log('render is false, adding bounding boxes');
+            console.log('num of obst: ' + this.getObstacles().length);
+
+            for (var i =0; i < this.getObstacles().length; i++) {
+                this.getObstacles()[i].addBoundingBox();
+            }
+            this.renderObstaclesBoundingBoxes = true;
+        }
     }
+
+
 });

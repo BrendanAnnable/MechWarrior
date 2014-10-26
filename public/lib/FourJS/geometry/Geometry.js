@@ -8,7 +8,8 @@ Ext.define('FourJS.geometry.Geometry', {
 		normals: null,
 		colors: null,
 		faces: null,
-		boundingBox: null
+		boundingBox: null,
+		textureCoords: null
 	},
 	constructor: function (config) {
 		this.initConfig(config);
@@ -104,6 +105,16 @@ Ext.define('FourJS.geometry.Geometry', {
 			}
 		}
 		return new Uint16Array(fArray);
+	},
+	getFlattenedTextureCoordinates: function () {
+		var tArray = [];
+		var textureCoords = this.getTextureCoords();
+		for (var i = 0; i < textureCoords.length; i++) {
+			var coord = textureCoords[i];
+			tArray.push(coord[0]);
+			tArray.push(coord[1]);
+		}
+		return new Float32Array(tArray);
 	},
 	translate: function (b) {
 		var vertices = this.getVertices();

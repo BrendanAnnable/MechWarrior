@@ -34,9 +34,15 @@ Ext.define('FourJS.geometry.PlaneGeometry', { //define: makes class, create: mak
 			vec3.fromValues(0, 1, 2),
 			vec3.fromValues(0, 2, 3)
 		]);
-	},
-	getFlattenedTextureCoordinates: function () {
-		var scale = 30; // todo find better scale
-		return new Float32Array([scale, scale, -scale, scale, -scale, -scale, scale, -scale]);
+
+		var scale = 30;
+		var textureCoords = [];
+		textureCoords.push(
+			vec2.fromValues(scale, scale),
+			vec2.fromValues(-scale, scale),
+			vec2.fromValues(-scale, -scale),
+			vec2.fromValues(scale, -scale)
+		);
+		this.setTextureCoords(textureCoords);
 	}
 });
