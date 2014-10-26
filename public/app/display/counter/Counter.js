@@ -24,6 +24,7 @@ Ext.define('MW.display.counter.Counter', {
 				current: 0,
 				maximum: 0
 			},
+			cls: 'unselectable',
 			style: {
 				position: 'absolute',
 				right: '1em',

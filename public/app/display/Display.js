@@ -15,6 +15,7 @@ Ext.define('MW.display.Display', {
 	    'MW.display.messenger.Messenger'
     ],
     layout: 'absolute',
+	cls: 'menu unselectable',
     initComponent: function () {
         this.callParent(arguments);
 	    // create the radar

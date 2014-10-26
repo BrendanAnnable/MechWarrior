@@ -13,8 +13,7 @@ Ext.define('MW.view.Viewport', {
 	layout: 'border',
 	items: [{
 		xtype: 'Display',
-        reference: 'menu',
-        cls: 'menu'
+        reference: 'menu'
 	},  {
 		xtype: 'container',
 		layout: 'fit',
