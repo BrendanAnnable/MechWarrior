@@ -10,6 +10,7 @@ Ext.define('MW.level.genesis.GenesisController', {
 		'FourJS.util.math.HermiteSpline',
 		'FourJS.util.helpers.HermiteSplineHelper',
 		'FourJS.geometry.CubeGeometry',
+		'MW.level.Feature',
 		'MW.level.city.Building',
 		'MW.level.city.Crate',
 		'MW.level.city.Wall',
@@ -220,10 +221,15 @@ Ext.define('MW.level.genesis.GenesisController', {
 		return house;
 	},
 	loadFeature: function (assetManager) {
-		var feature = assetManager.getAsset('feature');
+		var feature = Ext.create('MW.level.Feature', {
+			name: 'feature'
+		});
+		var featureAsset = assetManager.getAsset('feature');
 //      feature.getChild("Ring_Ring_Ring").getChildren()[0].getMaterial().setReflectivity(0.5);
 //      feature.getChild("Sphere_Sphere_Sphere").getChildren()[0].getMaterial().setReflectivity(0.5);
-		feature.getChild("Ring").getChildren()[0].getMaterial().setReflectivity(0.7); // TODO: hack
+		featureAsset.getChild("Ring").getChildren()[0].getMaterial().setReflectivity(0.7); // TODO: hack
+		featureAsset.getChild("Suzanne").getChildren()[0].getMaterial().setReflectivity(0.7);
+		feature.addChild(featureAsset);
 		return feature;
 	},
 	loadCityBlock: function (assetManager) {

@@ -121,7 +121,7 @@ Ext.define('MW.level.LevelController', {
 		}
 		var now = Date.now();
 		if (!this.lastRadarUpdate) this.lastRadarUpdate = now; // TODO: unhack
-		if (now - this.lastRadarUpdate > 20) {
+		if (now - this.lastRadarUpdate > 100) {
 			// get player (p2) position relative to the active player (p1)
 			// 1. transform into p1 space, by using active p1 inverse position
 			// 2. transform p2 into p1 space by multiplying by p1 position
