@@ -35,6 +35,7 @@ Ext.define('MW.control.Keyboard', {
 			if (event.keyCode == this.getMessengerKey()) {
 				this.menuContext = !this.menuContext;
 				this.fireEvent('messenger');
+				event.preventDefault();
 			}
 		} else {
 			// check if the player is escaping the menu via SHIFT + E

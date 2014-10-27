@@ -26,8 +26,6 @@ Ext.define('MW.display.messenger.MessengerController', {
 			keydown: this.onKeyDown,
 			scope: this
 		});
-		this.addPlayerMessage('some name', 'some message');
-		this.addPlayerMessage('some name', 'some message');
 	},
 	/**
 	 * Creates and adds a message sent by a player.
@@ -67,6 +65,7 @@ Ext.define('MW.display.messenger.MessengerController', {
 		// check if the user is submitting their message with SHIFT + ENTER
 		if (event.keyCode === this.getSubmitKey() && !event.shiftKey) {
 			// todo submit the message
+			this.addPlayerMessage('Twelve-60', input.getValue());
 			this.input.setValue("");            // clear the message
 			event.preventDefault();             // stop a new line from appearing on enter
 		}
