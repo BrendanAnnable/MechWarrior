@@ -60,10 +60,16 @@ Ext.define('FourJS.loader.Json', {
 			geometry.setVertices(vertices);
 			geometry.setNormals(normals);
 			geometry.setFaces(mesh.faces);
-			// TODO: this is a hack! these should be stored somewhere properly
-			geometry.getFlattenedTextureCoordinates = function () {
-				return new Float32Array((mesh.texturecoords && mesh.texturecoords[0]) || []);
-			};
+			if (mesh.texturecoords) {
+				var textureCoords = [];
+				for (j = 0; j < mesh.texturecoords[0].length; j += 2) {
+					textureCoords.push(vec2.fromValues(
+						mesh.texturecoords[0][j + 0],
+						mesh.texturecoords[0][j + 1]
+					));
+				}
+				geometry.setTextureCoords(textureCoords);
+			}
 			meshArray.push(Ext.create('FourJS.object.Mesh', {
 				geometry: geometry,
 				material: materials[mesh.materialindex] || Ext.create('FourJS.material.Phong', {
@@ -84,7 +90,13 @@ Ext.define('FourJS.loader.Json', {
 				var property = material.properties[j];
 				switch (property.key) {
 					case '$tex.file':
-						if (newMaterial.getTexture() === null) {
+						// prop.semantic gives the type of the texture
+						// 1: diffuse
+						// 2: specular mao
+						// 5: height map (bumps)
+						// 6: normal map
+						// more values (i.e. emissive, environment) are known by assimp and may be relevant
+						if (property.semantic === 1 && newMaterial.getTexture() === null) {
 							newMaterial.setTexture(Ext.create('FourJS.loader.Texture', {
 								url: baseUrl + property.value
 							}));

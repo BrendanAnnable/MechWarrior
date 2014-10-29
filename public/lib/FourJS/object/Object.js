@@ -4,6 +4,9 @@
  */
 Ext.define('FourJS.object.Object', {
 	alias: 'Object',
+	mixins: {
+		observable: 'Ext.util.Observable'
+	},
 	positionInverse: null,
 	worldPosition: null,
 	worldPositionInverse: null,
@@ -12,10 +15,14 @@ Ext.define('FourJS.object.Object', {
 		position: null,
 		children: null,
 		parent: null,
-		renderable: false
+		visible: true,
+        renderable: false,
+        boundingBox: null,
+		visualBoundingBox: null
 	},
 	constructor: function (config) {
 		this.initConfig(config);
+		this.mixins.observable.constructor.call(this, config);
         if (this.config.position === null) {
             this.setPosition(mat4.create());
         }
@@ -80,8 +87,10 @@ Ext.define('FourJS.object.Object', {
 	 * @param object the object to be removed
 	 */
 	removeChild: function (object) {
-		Ext.Array.remove(this.getChildren(), object);
-		object.setParent(null);
+		if (object) {
+			Ext.Array.remove(this.getChildren(), object);
+			object.setParent(null);
+		}
 	},
 	/**
 	 * Checks if the current object has children.
@@ -98,6 +107,13 @@ Ext.define('FourJS.object.Object', {
     isRenderable: function () {
         return this.getRenderable();
     },
+	/**
+	 * Note: does not check for invisible parents
+	 * @returns {*} True if the object is visible
+	 */
+	isVisible: function () {
+		return this.getVisible();
+	},
     /**
      * Updates the object's world position.
      */
@@ -137,6 +153,12 @@ Ext.define('FourJS.object.Object', {
         }
         return result;
     },
+	/**
+	 * Searches for a child object with the given name
+	 *
+	 * @param name The name to search for
+	 * @returns {*} The child if found, null otherwise
+	 */
 	getChild: function (name) {
 		var children = this.getChildren();
 		for (var i = 0; i < children.length; i++) {
@@ -154,19 +176,78 @@ Ext.define('FourJS.object.Object', {
 		}
 		return null;
 	},
-	clone: function (object) {
+	/**
+	 * Clones the object object into the passed in object.
+	 *
+	 * @param [object] The object to copy the data into, if not given it will be created
+	 * @param recursive Whether to clone children
+	 * @returns {*} The cloned object
+	 */
+	clone: function (object, recursive) {
 		if (object === undefined) {
+			// object not given, create one
 			object = Ext.create('FourJS.object.Object', {
 				name: this.getName(),
 				position: mat4.clone(this.getPosition()),
 				renderable: this.getRenderable()
 			});
 		}
+		// clone children
 		var children = this.getChildren();
 		for (var i = 0; i < children.length; i++) {
 			var child = children[i];
-			object.addChild(child.clone());
+			if (recursive) {
+				object.addChild(child.clone());
+			} else {
+				object.addChild(child);
+			}
 		}
 		return object;
-	}
+	},
+	showVisualBoundingBox: function (enabled, renderable) {
+		if (enabled) {
+			this.addVisualBoundingBox(renderable || true);
+		} else {
+			this.removeVisualBoundingBox();
+		}
+	},
+	addVisualBoundingBox: function (renderable) {
+		// attach a visual bounding box for debugging purposes
+		// TODO: make this generic and put it somewhere
+		var boundingBox = this.getBoundingBox();
+		var radii = boundingBox.getRadii();
+		var box = Ext.create('FourJS.object.Mesh', {
+			geometry: Ext.create('FourJS.geometry.CubeGeometry', {
+				width: radii[0] * 2,
+				height: radii[1] * 2,
+				depth: radii[2] * 2
+			}),
+			material: Ext.create('FourJS.material.Phong', {
+				color: Ext.create('FourJS.util.Color', {
+					r: 1,
+					g: 1,
+					b: 1
+				}),
+				useLighting: false,
+				wireframe: true
+			})
+		});
+		var center = boundingBox.getCenter();
+		box.translate(center[0], center[1], center[2]);
+		box.setRenderable(renderable || false);
+		this.setVisualBoundingBox(box);
+		this.addChild(box);
+	},
+	removeVisualBoundingBox: function () {
+		this.removeChild(this.getVisualBoundingBox());
+	},
+    getBoundingBox: function (){
+        var boundingBox = this._boundingBox;
+        if (boundingBox === null) {
+            // TODO: uncouple from FourJS
+            boundingBox = FourJS.geometry.Geometry.getBoundingBox(this);
+            this.setBoundingBox(boundingBox);
+        }
+        return boundingBox;
+    }
 });

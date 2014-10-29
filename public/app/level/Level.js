@@ -94,7 +94,22 @@ Ext.define('MW.level.Level', {
         });
         this.setFloor(floor);
         this.addChild(floor);
+		return floor;
     },
+
+    /**
+     * Sets the width, height and depth of the level.
+     *
+     * @param width The width of the level.
+     * @param height The height of the level.
+     * @param depth The depth of the level.
+     */
+    setDimensions: function (width, height, depth) {
+        this.setWidth(width);
+        this.setHeight(height);
+        this.setDepth(depth);
+    },
+
     /**
      * Adds an obstacle to the level.
      *
@@ -113,16 +128,13 @@ Ext.define('MW.level.Level', {
         Ext.Array.remove(this.getObstacles(), obstacle);
         this.removeChild(obstacle);
     },
-    /**
-     * Sets the width, height and depth of the level.
-     *
-     * @param width The width of the level.
-     * @param height The height of the level.
-     * @param depth The depth of the level.
-     */
-    setDimensions: function (width, height, depth) {
-        this.setWidth(width);
-        this.setHeight(height);
-        this.setDepth(depth);
+    showObstacleVisualBoundingBoxes: function (enabled) {
+		for (var i = 0; i < this.getObstacles().length; i++) {
+			if (enabled) {
+				this.getObstacles()[i].addVisualBoundingBox(true);
+			} else {
+				this.getObstacles()[i].removeVisualBoundingBox();
+			}
+		}
     }
 });

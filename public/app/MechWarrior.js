@@ -22,6 +22,7 @@ Ext.define('MW.MechWarrior', {
 	stats: null,
     config: {
         canvas: null,
+	    menu: null,
 		defaultLevel: 'Genesis'
     },
 	/**
@@ -31,22 +32,25 @@ Ext.define('MW.MechWarrior', {
 		this.initConfig(config);
 		this.setup();
 	},
+    /**
+     * Sets up the WebGL renderer, mouse and keyboard controls.
+     */
 	setup: function () {
 		var canvas = this.getCanvas();									// retrieve the HTML5 canvas element
-
 		var stats = this.stats = new Stats();
 		stats.setMode(0); // 0: fps, 1: ms
 		stats.domElement.style.position = 'absolute';
 		stats.domElement.style.left = '0px';
-		stats.domElement.style.top = '0px';
+		stats.domElement.style.bottom = '0px';
 		document.body.appendChild(stats.domElement);
-
+		var menu = this.getMenu();                                      // get the menu component
         this.keyboardControls = Ext.create('MW.control.Keyboard', {	    // initialise the keyboard controls
 			element: document,
 			speed: 0.5
 		});
+	    menu.addKeyboardEvents(this.keyboardControls);
 		this.mouseControls = Ext.create('FourJS.control.Mouse', {		// initialise the mouse controls
-			element: canvas
+			element: menu.getEl().dom
 		});
 
 		// Setup WebGL
@@ -58,18 +62,26 @@ Ext.define('MW.MechWarrior', {
 			width: canvas.width,
 			height: canvas.height,
 			backgroundColor: backgroundColor
-		}).on('loaded', this.onLoaded, this);
+		}).on('loaded', Ext.bind(this.onLoaded, this, [menu]), this);
 	},
-	onLoaded: function () {
+    /**
+     * An event fired when the WebGL renderer has finished loading.
+     *
+     * @param menu The menu for the game.
+     */
+	onLoaded: function (menu) {
 		// create the asset manager and load all the assets for the game
 		var assetManager = Ext.create('FourJS.util.manager.Asset');
 		// create the audio manager
 		var audioManager = Ext.create('MW.manager.Audio', {
 			keyboardControls: this.keyboardControls
 		});
+		var radar = this.getMenu().getRadar().getController();
+		radar.addCircle('something');
 		Ext.create('MW.scene.assets.Global').load(assetManager).bind(this).then(function () {
 			// initialises the level manager
 			var levelManager = Ext.create('MW.manager.Level', {
+                menu: menu,
 				mouseControls: this.mouseControls,
 				keyboardControls: this.keyboardControls,
 				assetManager: assetManager,

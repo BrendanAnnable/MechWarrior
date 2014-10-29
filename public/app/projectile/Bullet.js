@@ -6,6 +6,6 @@ Ext.define('MW.projectile.Bullet', {
     extend: 'MW.projectile.Projectile',
     constructor: function () {
         this.callParent(arguments);
-        this.setDamage(50);
+        this.setDamage(200);
     }
 });

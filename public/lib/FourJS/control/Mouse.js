@@ -36,6 +36,7 @@ Ext.define('FourJS.control.Mouse', {
 		});
 
 		dom.addEventListener('click', Ext.bind(this.onMouseClick, this));
+        dom.addEventListener('dblclick', Ext.bind(this.onMouseDoubleClick, this));
 		document.addEventListener('pointerlockchange', Ext.bind(this.pointerLockChange, this), false);
 		document.addEventListener('mozpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
 		document.addEventListener('webkitpointerlockchange', Ext.bind(this.pointerLockChange, this), false);
@@ -86,6 +87,9 @@ Ext.define('FourJS.control.Mouse', {
 			this.fireEvent('click', this);
 		}
 	},
+    onMouseDoubleClick: function (event, dom) {
+        this.fireEvent('doubleClick', this);
+    },
 	onMouseMove: function (event) {
 		if (this.locked) {
 			var e = event.event;

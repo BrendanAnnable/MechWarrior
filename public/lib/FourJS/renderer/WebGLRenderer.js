@@ -238,49 +238,51 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		var cursorCopy = mat4.clone(cursor);
 		mat4.multiply(cursorCopy, cursorCopy, object.getPosition());
 
-		if (object.isRenderable()) {
-			this.bindBuffers(gl, object, shaderProgram);
-			var useTexture = object.hasMaterial() && object.getMaterial().hasTexture();
-			var useEnvironmentMap = object.hasMaterial() && object.getMaterial().hasEnvironmentMap();
-            var material = object.getMaterial();
+		if (object.isVisible()) {
+			if (object.isRenderable()) {
+				this.bindBuffers(gl, object, shaderProgram);
+				var useTexture = object.hasMaterial() && object.getMaterial().hasTexture();
+				var useEnvironmentMap = object.hasMaterial() && object.getMaterial().hasEnvironmentMap();
+				var material = object.getMaterial();
 
-            gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
+				gl.uniform4fv(shaderProgram.uDiffuseColor, material.getColor().getArray());
 
-			if (useEnvironmentMap) {
-				var environmentMap = material.getEnvironmentMap();
-				if (material.__webglEnvironmentMap === undefined) {
-					material.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
+				if (useEnvironmentMap) {
+					var environmentMap = material.getEnvironmentMap();
+					if (material.__webglEnvironmentMap === undefined) {
+						material.__webglEnvironmentMap = this.loadEnvironmentMap(gl, object, environmentMap);
+					}
+					this.applyEnvironmentMap(gl, object, shaderProgram);
+					gl.uniform1i(shaderProgram.useTextureUniform, 0);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
 				}
-				this.applyEnvironmentMap(gl, object, shaderProgram);
-				gl.uniform1i(shaderProgram.useTextureUniform, 0);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 1);
-			}
-			else if (useTexture) {
-				var texture = material.getTexture();
-				if (texture !== null && material.__webglTexture === undefined) {
-					material.__webglTexture = this.loadTexture(gl, object, texture);
+				else if (useTexture) {
+					var texture = material.getTexture();
+					if (texture !== null && material.__webglTexture === undefined) {
+						material.__webglTexture = this.loadTexture(gl, object, texture);
+					}
+					this.applyTexture(gl, object, shaderProgram);
+					gl.uniform1i(shaderProgram.useTextureUniform, 1);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
+				} else {
+					gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
+					gl.uniform1i(shaderProgram.useTextureUniform, 0);
+					gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
 				}
-                this.applyTexture(gl, object, shaderProgram);
-                gl.uniform1i(shaderProgram.useTextureUniform, 1);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
-			} else {
-                gl.disableVertexAttribArray(shaderProgram.textureCoordAttribute);
-                gl.uniform1i(shaderProgram.useTextureUniform, 0);
-				gl.uniform1i(shaderProgram.useEnvironmentMapUniform, 0);
+
+				gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
+				gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
+
+				// Update the WebGL uniforms and then draw the object on the screen
+				this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
+				var wireframe = material && material.getWireframe();
+				var type = wireframe ? gl.LINE_LOOP : gl.TRIANGLES;
+				var numItems = object.getGeometry().__webglFaceBuffer.numItems;
+				gl.drawElements(type, numItems, gl.UNSIGNED_SHORT, 0);
 			}
 
-            gl.uniform1i(shaderProgram.useLightingUniform, material.getUseLighting());
-			gl.uniform1f(shaderProgram.reflectivity, material.getReflectivity());
-
-			// Update the WebGL uniforms and then draw the object on the screen
-			this.updateUniforms(gl, shaderProgram, cursorCopy, camera);
-			var wireframe = material && material.getWireframe();
-			var type = wireframe ? gl.LINE_LOOP : gl.TRIANGLES;
-			var numItems = object.getGeometry().__webglFaceBuffer.numItems;
-			gl.drawElements(type, numItems, gl.UNSIGNED_SHORT, 0);
+			this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);
 		}
-
-		this.renderChildren(gl, object, shaderProgram, cursorCopy, camera);
 	},
     /**
      * Binds the buffers for a particular object
@@ -315,22 +317,20 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
     checkBuffer: function (gl, object) {
 		var geometry = object.getGeometry();
         if (geometry.__webglBuffers !== true) {
-            // attach the buffers to the current child object
+			// attach the buffers to the current child object
 			geometry.__webglVertexBuffer = Ext.create('FourJS.buffer.Vertex').load(gl, geometry);
-            geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
-            geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
+			geometry.__webglNormalBuffer = Ext.create('FourJS.buffer.Normal').load(gl, geometry);
+			geometry.__webglFaceBuffer = Ext.create('FourJS.buffer.Face').load(gl, geometry);
 			geometry.__webglBuffers = true;
-        }
-		if (object.hasMaterial()) {
-			var material = object.getMaterial();
-			if (material.__webglBuffers !== true) {
+
+			if (object.hasMaterial()) {
+				var material = object.getMaterial();
 				if (material.hasTexture()) {
-					material.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
+					geometry.__webglTextureCoordinateBuffer = Ext.create('FourJS.buffer.TextureCoordinate').load(gl, object);
 				}
 				if (material.hasEnvironmentMap()) {
-					material.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
+					geometry.__webglEnvironmentCoordinateBuffer = Ext.create('FourJS.buffer.EnvironmentCoordinate').load(gl, object);
 				}
-				material.__webglBuffers = true;
 			}
 		}
     },
@@ -345,7 +345,8 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
         gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
         // Update the object texture
 		var material = object.getMaterial();
-        var textureCoordinateBuffer = material.__webglTextureCoordinateBuffer;
+		var geometry = object.getGeometry();
+        var textureCoordinateBuffer = geometry.__webglTextureCoordinateBuffer;
 		var texture = material.__webglTexture;
         gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
         gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
@@ -403,7 +404,8 @@ Ext.define('FourJS.renderer.WebGLRenderer', {
 		gl.enableVertexAttribArray(shaderProgram.textureCoordAttribute);
 		// Update the object texture
 		var material = object.getMaterial();
-		var textureCoordinateBuffer = material.__webglEnvironmentCoordinateBuffer;
+		var geometry = object.getGeometry();
+		var textureCoordinateBuffer = geometry.__webglEnvironmentCoordinateBuffer;
 		var texture = material.__webglEnvironmentMap;
 		gl.bindBuffer(gl.ARRAY_BUFFER, textureCoordinateBuffer);
 		gl.vertexAttribPointer(shaderProgram.textureCoordAttribute, textureCoordinateBuffer.itemSize, gl.FLOAT, false, 0, 0);
