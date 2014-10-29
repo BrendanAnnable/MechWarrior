@@ -350,8 +350,10 @@ Ext.define('MW.level.LevelController', {
 
 		if (this.feature) { // TODO: hack, makes the ring spin on the 'feature'
 			if (!this.last) this.last = now;
-			var period = 4000;
+			var period = 2000;
 			this.feature.getChild("Ring").rotateY(2 * Math.PI * (now - this.last) / period);
+			period = 8000;
+			this.feature.rotateY(-2 * Math.PI * (now - this.last) / period);
 			this.last = now;
 		}
 
